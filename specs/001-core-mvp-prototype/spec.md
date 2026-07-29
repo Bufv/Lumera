@@ -1,0 +1,198 @@
+# Feature Specification: Lumera Core MVP — Functional Interactive Lesson Prototype
+
+**Feature Branch**: `[001-core-mvp-prototype]`
+
+**Created**: 2026-07-28
+
+**Status**: Draft
+
+**Input**: User description: "berdasarkan semua file di dalam folder @docs\" — scoped by user selection to the "MVP prototype fungsional" slice of the Lumera PRD (docs/concept.md, docs/leancanvas.md): Lumera Atlas (minimal), the 7-step interactive lesson flow across the six candidate subject modules (at least 4 must be fully functional), and basic gamification (streak, Lumens, progress/mastery %).
+
+## User Scenarios & Testing *(mandatory)*
+
+<!--
+  Each story below is independently testable/demoable. PRD §15 (Prioritas Pengembangan)
+  requires at least 4 of the 6 lesson-module stories to be fully functional before the
+  product expands to other subjects/features — any 4 can be chosen to satisfy that bar.
+-->
+
+### User Story 1 - Navigasi Lumera Atlas (Priority: P1)
+
+Seorang siswa membuka Lumera dan disambut oleh Lumera Atlas — peta pengetahuan visual berisi node-node subject world (Matematika, Sains, Ekonomi & Bisnis, Sejarah & Sosial, Bahasa & Komunikasi, UTBK/SNBT) yang saling terhubung. Siswa memilih salah satu node untuk masuk ke modul pelajaran interaktif di dalamnya.
+
+**Why this priority**: Atlas adalah entry point wajib — tanpa ini siswa tidak punya cara untuk mencapai pelajaran manapun. Tidak ada story lain yang bisa didemokan tanpa ini.
+
+**Independent Test**: Buka aplikasi tanpa progres sebelumnya, verifikasi peta subject world tampil dengan koneksi visual, klik salah satu node, dan verifikasi siswa masuk ke modul pelajaran yang benar.
+
+**Acceptance Scenarios**:
+
+1. **Given** siswa baru pertama kali membuka aplikasi, **When** Atlas dimuat, **Then** semua subject world yang tersedia di prototype ini tampil sebagai node dengan koneksi visual (bukan grid tombol statis).
+2. **Given** siswa berada di Atlas, **When** siswa memilih sebuah node subject world, **Then** siswa diarahkan ke modul pelajaran interaktif yang sesuai dengan node tersebut.
+3. **Given** siswa sudah menyelesaikan satu pelajaran sebelumnya, **When** siswa kembali ke Atlas, **Then** node yang sudah dipelajari menunjukkan indikator progress/mastery yang berbeda dari node yang belum disentuh.
+
+---
+
+### User Story 2 - Membaca Kemiringan Grafik (Matematika) (Priority: P1)
+
+Siswa mengerjakan modul interaktif "Membaca Kemiringan Grafik", memanipulasi model visual grafik, menjawab pertanyaan berbasis interaksi tersebut, dan mendapat penjelasan instan atas jawabannya.
+
+**Why this priority**: Salah satu dari minimal 4 modul yang wajib berfungsi penuh sesuai prioritas build PRD; matematika adalah subject world pertama yang disebut.
+
+**Independent Test**: Buka modul ini langsung dari Atlas, selesaikan seluruh alur 7 langkah pelajaran, dan verifikasi siswa keluar dengan status "selesai" serta Lumens bertambah.
+
+**Acceptance Scenarios**:
+
+1. **Given** siswa memasuki modul, **When** langkah "Prompt" dan "Model visual" ditampilkan, **Then** siswa dapat berinteraksi langsung dengan representasi visual kemiringan grafik (bukan teks statis).
+2. **Given** siswa melakukan aksi pada model visual (langkah "Aksi pengguna"), **When** siswa mengirim jawaban, **Then** sistem menampilkan umpan balik instan yang menyatakan benar/salah.
+3. **Given** jawaban siswa salah, **When** umpan balik ditampilkan, **Then** sistem tetap menampilkan penjelasan "Kenapa?" yang menjelaskan konsep kemiringan grafik yang relevan, bukan sekadar tanda silang.
+4. **Given** siswa telah melalui refleksi, **When** siswa menekan "Lanjutkan", **Then** pelajaran ditandai selesai dan siswa kembali ke Atlas dengan Lumens/progress yang sudah diperbarui.
+
+---
+
+### User Story 3 - Simulasi Gerak Lurus (Fisika) (Priority: P1)
+
+Siswa memanipulasi simulasi gerak lurus (mengubah kecepatan/waktu/percepatan) dan menjawab pertanyaan yang bergantung pada hasil simulasi yang mereka jalankan sendiri.
+
+**Why this priority**: Salah satu dari minimal 4 modul wajib; fisika adalah contoh konsep abstrak yang menurut PRD paling sulit dipahami secara tekstual sehingga menjadi bukti nilai utama produk.
+
+**Independent Test**: Buka modul ini langsung dari Atlas, jalankan simulasi dengan variabel berbeda, selesaikan seluruh alur 7 langkah, dan verifikasi hasil simulasi memengaruhi jawaban yang diminta sistem.
+
+**Acceptance Scenarios**:
+
+1. **Given** siswa berada di langkah "Model visual", **When** siswa mengubah variabel gerak (misal kecepatan awal), **Then** simulasi memperbarui visualisasi gerak secara real-time.
+2. **Given** siswa telah menjalankan simulasi, **When** siswa menjawab pertanyaan terkait hasil simulasi, **Then** sistem memberi umpan balik instan dan penjelasan "Kenapa?" yang merujuk pada hasil simulasi tersebut.
+3. **Given** siswa menyelesaikan modul, **When** langkah "Lanjutkan" ditekan, **Then** status selesai, Lumens, dan progress tercatat.
+
+---
+
+### User Story 4 - Supply & Demand Simulator (Ekonomi) (Priority: P2)
+
+Siswa mengubah variabel supply dan demand pada simulator interaktif dan mengamati efeknya terhadap grafik harga-kuantitas secara langsung.
+
+**Why this priority**: Kandidat modul kedua dari kelompok non-inti (P2) untuk melengkapi minimal 4 modul; ekonomi memperluas cakupan subject world di luar sains/matematika murni.
+
+**Independent Test**: Buka modul ini langsung dari Atlas, ubah variabel supply/demand, verifikasi grafik berubah sesuai teori, selesaikan alur 7 langkah.
+
+**Acceptance Scenarios**:
+
+1. **Given** siswa berada di langkah "Aksi pengguna", **When** siswa menggeser variabel supply atau demand, **Then** grafik harga-kuantitas diperbarui secara visual sesuai perubahan tersebut.
+2. **Given** siswa menjawab pertanyaan tentang efek pergeseran kurva, **When** jawaban dikirim, **Then** sistem memberi umpan balik instan dan penjelasan konsep terkait.
+
+---
+
+### User Story 5 - Rantai Sebab-Akibat (Sejarah) (Priority: P2)
+
+Siswa menyusun urutan sebab-akibat suatu peristiwa sejarah melalui interaksi visual (misalnya menyusun/menghubungkan kartu peristiwa).
+
+**Why this priority**: Kandidat modul untuk melengkapi minimal 4; mewakili subject world non-sains/matematika (Sejarah & Sosial).
+
+**Independent Test**: Buka modul ini langsung dari Atlas, susun rantai sebab-akibat, selesaikan alur 7 langkah, verifikasi urutan yang benar/salah dinilai dan dijelaskan.
+
+**Acceptance Scenarios**:
+
+1. **Given** siswa diberi satu set peristiwa acak, **When** siswa menyusun urutan sebab-akibatnya, **Then** sistem menampilkan umpan balik instan terhadap urutan yang disusun.
+2. **Given** urutan yang disusun siswa salah, **When** umpan balik ditampilkan, **Then** sistem menjelaskan hubungan sebab-akibat yang benar pada langkah "Kenapa?".
+
+---
+
+### User Story 6 - Perbaiki Argumen (Bahasa/Literasi) (Priority: P2)
+
+Siswa membaca sebuah teks argumentatif, mengidentifikasi kelemahan logika/argumen di dalamnya, dan memperbaikinya melalui interaksi terpandu.
+
+**Why this priority**: Kandidat modul untuk melengkapi minimal 4; mewakili subject world Bahasa & Komunikasi.
+
+**Independent Test**: Buka modul ini langsung dari Atlas, identifikasi kelemahan argumen pada teks yang diberikan, selesaikan alur 7 langkah.
+
+**Acceptance Scenarios**:
+
+1. **Given** siswa membaca teks argumentatif yang mengandung kelemahan, **When** siswa menandai bagian yang lemah, **Then** sistem memberi umpan balik instan apakah bagian yang ditandai benar.
+2. **Given** siswa mengusulkan perbaikan argumen, **When** perbaikan dikirim, **Then** sistem menjelaskan mengapa perbaikan tersebut memperkuat/tidak memperkuat argumen.
+
+---
+
+### User Story 7 - Penalaran Kuantitatif (UTBK) (Priority: P2)
+
+Siswa mengerjakan soal penalaran kuantitatif bergaya UTBK/SNBT dengan bantuan model visual, bukan sekadar soal pilihan ganda berteks.
+
+**Why this priority**: Kandidat modul untuk melengkapi minimal 4; mewakili subject world UTBK/SNBT yang menjadi target segmen inti (persiapan ujian).
+
+**Independent Test**: Buka modul ini langsung dari Atlas, kerjakan soal penalaran kuantitatif dengan bantuan visual, selesaikan alur 7 langkah.
+
+**Acceptance Scenarios**:
+
+1. **Given** siswa diberi soal penalaran kuantitatif, **When** siswa menggunakan model visual bantu untuk bernalar, **Then** sistem memberi umpan balik instan atas jawaban yang dipilih.
+2. **Given** siswa menjawab salah, **When** umpan balik ditampilkan, **Then** sistem menjelaskan langkah penalaran yang benar pada langkah "Kenapa?".
+
+---
+
+### User Story 8 - Melihat Progres, Streak, dan Lumens (Priority: P3)
+
+Setelah menyelesaikan satu atau lebih pelajaran, siswa dapat melihat streak harian, saldo Lumens yang terkumpul, dan persentase mastery per modul yang telah dikerjakan.
+
+**Why this priority**: Memperkuat motivasi berkelanjutan, tetapi bukan prasyarat untuk mendemokan nilai inti (pemahaman konsep lewat simulasi) dari story P1/P2 di atas — karenanya P3.
+
+**Independent Test**: Selesaikan satu pelajaran, lalu verifikasi streak, Lumens, dan mastery % ter-update dan terlihat oleh siswa tanpa navigasi tambahan yang rumit.
+
+**Acceptance Scenarios**:
+
+1. **Given** siswa menyelesaikan sebuah pelajaran untuk pertama kali hari ini, **When** siswa kembali ke Atlas atau halaman ringkasan, **Then** streak harian bertambah 1 dan tersimpan.
+2. **Given** siswa menyelesaikan sebuah pelajaran, **When** pelajaran ditandai selesai, **Then** saldo Lumens siswa bertambah sesuai pelajaran yang diselesaikan.
+3. **Given** siswa telah mengerjakan sebuah modul lebih dari sekali, **When** siswa melihat modul tersebut di Atlas, **Then** mastery % modul tersebut mencerminkan performa terbaru siswa.
+
+---
+
+### Edge Cases
+
+- Apa yang terjadi jika siswa menutup/meninggalkan pelajaran di tengah simulasi (sebelum langkah "Lanjutkan")? Progress pelajaran tersebut tidak ditandai selesai dan Lumens/streak tidak diberikan.
+- Bagaimana sistem menangani jawaban salah berulang kali pada langkah yang sama? Siswa tetap dapat mencoba ulang dan tetap menerima penjelasan "Kenapa?" setiap kali, tanpa mengunci siswa keluar dari pelajaran.
+- Bagaimana pengalaman siswa yang benar-benar baru (tanpa progress sama sekali) saat pertama membuka Atlas? Semua node subject world tampil dalam status "belum dimulai" tanpa mastery, dan tidak ada streak aktif.
+- Apa yang terjadi jika perangkat/browser siswa tidak mendukung jenis interaksi tertentu (misalnya drag-and-drop pada modul Sejarah)? Modul menyediakan cara interaksi alternatif (misalnya tap-to-select) yang menghasilkan hasil setara.
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: Sistem MUST menampilkan Lumera Atlas sebagai homepage berisi node subject world yang saling terhubung secara visual (bukan grid tombol statis).
+- **FR-002**: Sistem MUST memungkinkan siswa memilih sebuah node di Atlas dan masuk ke modul pelajaran interaktif yang sesuai.
+- **FR-003**: Sistem MUST mengimplementasikan minimal 4 dari 6 modul pelajaran interaktif berikut secara penuh fungsional: Membaca Kemiringan Grafik (Matematika), Simulasi Gerak Lurus (Fisika), Supply & Demand Simulator (Ekonomi), Rantai Sebab-Akibat (Sejarah), Perbaiki Argumen (Bahasa), Penalaran Kuantitatif (UTBK).
+- **FR-004**: Setiap modul yang dibangun MUST mengikuti alur 7 langkah: Prompt → Model visual → Aksi pengguna → Umpan balik instan → Penjelasan "Kenapa?" → Refleksi → Lanjutkan.
+- **FR-005**: Sistem MUST memberikan umpan balik instan (benar/salah) setiap kali siswa melakukan aksi pada langkah interaksi/simulasi.
+- **FR-006**: Sistem MUST menampilkan penjelasan konsep ("Kenapa?") setelah setiap jawaban, baik benar maupun salah.
+- **FR-007**: Sistem MUST memperbarui saldo Lumens siswa setelah sebuah pelajaran ditandai selesai.
+- **FR-008**: Sistem MUST memperbarui streak harian siswa saat siswa menyelesaikan minimal satu pelajaran pada hari tersebut.
+- **FR-009**: Sistem MUST menyimpan dan menampilkan mastery % per modul yang telah dikerjakan siswa.
+- **FR-010**: Sistem MUST menyimpan progress siswa (pelajaran selesai, streak, Lumens, mastery) secara persisten antar sesi.
+- **FR-011**: Layout UI pelajaran MUST mengikuti struktur: tombol tutup di kiri atas, progress dots di tengah atas, XP/Lumens di kanan atas, area interaksi/simulasi di tengah, kontrol jawaban di bawah, bilah umpan balik di bagian bawah.
+- **FR-012**: Sistem MUST NOT menyertakan leaderboard, ruang sosial, atau elemen kompetisi ramai antar siswa dalam prototype ini.
+- **FR-013**: Sistem MUST NOT menampilkan kontrol interaktif yang tidak berfungsi ("tombol palsu") — setiap kontrol yang terlihat harus benar-benar melakukan aksi yang dideskripsikan.
+- **FR-014**: Jika siswa meninggalkan pelajaran sebelum langkah "Lanjutkan", sistem MUST NOT menandai pelajaran tersebut selesai maupun memberikan Lumens/streak untuknya.
+
+### Key Entities
+
+- **Siswa (User)**: pengguna individu prototype ini; memiliki identitas, saldo Lumens, streak harian, dan riwayat mastery per modul.
+- **Subject World**: kategori mata pelajaran yang ditampilkan sebagai node di Atlas (mis. Matematika, Fisika/Sains, Ekonomi & Bisnis, Sejarah & Sosial, Bahasa & Komunikasi, UTBK/SNBT).
+- **Modul Pelajaran**: satu unit pelajaran interaktif di dalam sebuah subject world, terdiri dari satu instance alur 7 langkah.
+- **Percobaan Interaksi/Simulasi**: satu kali aksi siswa pada langkah "Aksi pengguna" beserta hasil benar/salah dan penjelasannya.
+- **Streak**: hitungan hari berturut-turut siswa menyelesaikan minimal satu pelajaran.
+- **Saldo Lumens**: akumulasi reward yang diperoleh siswa dari pelajaran yang diselesaikan.
+- **Catatan Mastery**: persentase penguasaan siswa untuk sebuah modul, diperbarui berdasarkan performa terbaru.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: Minimal 4 dari 6 modul pelajaran yang dispesifikasikan dapat diselesaikan end-to-end oleh pengguna uji tanpa error atau jalan buntu.
+- **SC-002**: Siswa baru dapat berpindah dari membuka Atlas hingga menyelesaikan satu pelajaran penuh dalam waktu kurang dari 5 menit tanpa bantuan eksternal.
+- **SC-003**: 90% atau lebih dari percobaan interaksi pada langkah "Aksi pengguna" menghasilkan umpan balik instan yang terlihat (tidak ada interaksi yang macet/tidak merespons).
+- **SC-004**: 100% pelajaran yang diselesaikan menghasilkan pembaruan Lumens, streak, dan progress yang terlihat oleh siswa.
+- **SC-005**: Tidak ditemukan elemen interaktif yang tidak berfungsi ("tombol palsu") pada modul manapun yang dirilis dalam prototype ini.
+
+## Assumptions
+
+- Prototype ini hanya mencakup akun individu (bukan Lumera Family, bukan multi-anak dalam satu akun) — model akun keluarga di luar cakupan.
+- Bahasa antarmuka default adalah Bahasa Indonesia; toggle ke Bahasa Inggris tidak wajib pada prototype ini.
+- Lumera Junior (mode SD kelas 4–6) di luar cakupan; target audiens prototype adalah SMP–SMA–UTBK/kuliah awal (Lumera Core).
+- Knowledge Bank dan Refresh Harian TIDAK dibangun pada prototype ini — pelajaran dapat diselesaikan tanpa menghasilkan kartu Knowledge Bank.
+- Mode offline di luar cakupan prototype ini; koneksi internet stabil diasumsikan tersedia.
+- Monetisasi (Lumera Plus/Family), dashboard B2B sekolah, dan fitur guru di luar cakupan prototype ini.
+- Modul mana saja (4 dari 6) yang dipilih untuk dibangun lebih dulu adalah keputusan implementasi/sequencing, bukan ambiguitas spesifikasi — seluruh 6 modul dispesifikasikan agar tim dapat memilih.
