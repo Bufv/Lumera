@@ -26,12 +26,13 @@ Templates requiring updates:
 - ✅ .specify/templates/tasks-template.md — note added that instrumentation tasks (Principle VI) are mandatory per story
 - ✅ .specify/templates/spec-template.md — reviewed; no structural change required (principles are enforced at the plan gate, not via new mandatory spec sections)
 - ✅ .claude/skills/speckit-*/SKILL.md — reviewed; no outdated agent-specific references requiring change
-- ✅ specs/001-core-mvp-prototype/spec.md — reviewed; already consistent with Principles I, II, III, V (FR-004, FR-005, FR-006, FR-012, FR-013, SC-001, SC-005). See deferred TODO below for Principle VI.
+- ✅ specs/001-core-mvp-prototype/spec.md — amended 2026-07-29 to cover all seven principles.
+  Added FR-015 (Principle VI), FR-016 (IV), FR-017 (VII), FR-018 (V), FR-019 (terminology),
+  FR-020 (III), entity Catatan Aktivitas Belajar, SC-006–SC-009, and an explicit Out of Scope
+  section. Alignment tracked in specs/001-core-mvp-prototype/checklists/requirements.md.
 
 Follow-up TODOs:
-- TODO(SPEC_001_INSTRUMENTATION): specs/001-core-mvp-prototype/spec.md does not yet carry a
-  requirement for the minimal per-lesson data capture mandated by Principle VI (konsep, jenis
-  kesalahan, waktu pengerjaan). Add it via /speckit-clarify or a spec amendment before /speckit-plan.
+- None. TODO(SPEC_001_INSTRUMENTATION) was resolved by the 2026-07-29 spec amendment (FR-015).
 -->
 
 # Lumera Constitution

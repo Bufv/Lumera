@@ -6,6 +6,10 @@
 
 **Status**: Draft
 
+**Last Amended**: 2026-07-29 — diselaraskan dengan Lumera Constitution v1.0.0. Ditambahkan FR-015
+s.d. FR-020 (Prinsip III, IV, V, VI, VII), entitas Catatan Aktivitas Belajar, SC-006 s.d. SC-009,
+dan bagian Out of Scope eksplisit.
+
 **Input**: User description: "berdasarkan semua file di dalam folder @docs\" — scoped by user selection to the "MVP prototype fungsional" slice of the Lumera PRD (docs/concept.md, docs/leancanvas.md): Lumera Atlas (minimal), the 7-step interactive lesson flow across the six candidate subject modules (at least 4 must be fully functional), and basic gamification (streak, Lumens, progress/mastery %).
 
 ## User Scenarios & Testing *(mandatory)*
@@ -166,6 +170,12 @@ Setelah menyelesaikan satu atau lebih pelajaran, siswa dapat melihat streak hari
 - **FR-012**: Sistem MUST NOT menyertakan leaderboard, ruang sosial, atau elemen kompetisi ramai antar siswa dalam prototype ini.
 - **FR-013**: Sistem MUST NOT menampilkan kontrol interaktif yang tidak berfungsi ("tombol palsu") — setiap kontrol yang terlihat harus benar-benar melakukan aksi yang dideskripsikan.
 - **FR-014**: Jika siswa meninggalkan pelajaran sebelum langkah "Lanjutkan", sistem MUST NOT menandai pelajaran tersebut selesai maupun memberikan Lumens/streak untuknya.
+- **FR-015**: Sistem MUST mencatat, untuk setiap pelajaran yang dikerjakan, minimal: konsep yang dipelajari, jenis kesalahan yang dilakukan siswa, dan waktu pengerjaan. Catatan ini MUST tersimpan persisten sejak rilis pertama, meskipun fitur yang mengonsumsinya (Knowledge Bank, Refresh Harian) belum dibangun. *(Prinsip VI)*
+- **FR-016**: Seluruh konten yang ditampilkan (penjelasan konsep, soal, koreksi miskonsepsi) MUST akurat dan selaras dengan Capaian Pembelajaran Kurikulum Merdeka. Konten yang belum terverifikasi MUST NOT dirilis ke pengguna. *(Prinsip IV)*
+- **FR-017**: Seluruh ilustrasi, animasi, dan ikon yang dirilis MUST orisinal atau berlisensi sah. Aset yang disalin dari produk lain maupun ilustrasi AI generik tanpa arah desain yang jelas MUST NOT digunakan sebagai aset produksi. *(Prinsip VII)*
+- **FR-018**: Gaya visual, palet warna, dan copy MUST mengikuti arah desain "Soft Academic Adventure". Copy childish ("Yuk belajar!", "Hebat banget kamu!") dan perayaan reward yang meledak-ledak di setiap interaksi MUST NOT digunakan. *(Prinsip V)*
+- **FR-019**: Terminologi produk (Lumera Atlas, Lumens, Knowledge Bank, Refresh Harian, Lumo) MUST digunakan konsisten di seluruh antarmuka dan MUST NOT diganti dengan sinonim ad hoc antar layar.
+- **FR-020**: Sebuah modul MUST NOT dihitung sebagai bagian dari "minimal 4 modul" pada FR-003 kecuali seluruh kondisi berikut terpenuhi: ketujuh langkah pada FR-004 berfungsi, seluruh kontrol interaktifnya benar-benar berfungsi (FR-013), kontennya telah terverifikasi (FR-016), dan instrumentasinya aktif (FR-015). Modul setengah jadi MUST NOT dihitung sebagai deliverable. *(Prinsip III)*
 
 ### Key Entities
 
@@ -176,6 +186,7 @@ Setelah menyelesaikan satu atau lebih pelajaran, siswa dapat melihat streak hari
 - **Streak**: hitungan hari berturut-turut siswa menyelesaikan minimal satu pelajaran.
 - **Saldo Lumens**: akumulasi reward yang diperoleh siswa dari pelajaran yang diselesaikan.
 - **Catatan Mastery**: persentase penguasaan siswa untuk sebuah modul, diperbarui berdasarkan performa terbaru.
+- **Catatan Aktivitas Belajar**: rekaman per pelajaran berisi konsep yang dipelajari, jenis kesalahan yang dilakukan, dan waktu pengerjaan; menjadi fondasi data untuk Knowledge Bank dan Refresh Harian yang dibangun kemudian.
 
 ## Success Criteria *(mandatory)*
 
@@ -186,13 +197,29 @@ Setelah menyelesaikan satu atau lebih pelajaran, siswa dapat melihat streak hari
 - **SC-003**: 90% atau lebih dari percobaan interaksi pada langkah "Aksi pengguna" menghasilkan umpan balik instan yang terlihat (tidak ada interaksi yang macet/tidak merespons).
 - **SC-004**: 100% pelajaran yang diselesaikan menghasilkan pembaruan Lumens, streak, dan progress yang terlihat oleh siswa.
 - **SC-005**: Tidak ditemukan elemen interaktif yang tidak berfungsi ("tombol palsu") pada modul manapun yang dirilis dalam prototype ini.
+- **SC-006**: 100% pelajaran yang diselesaikan menghasilkan catatan aktivitas belajar yang berisi ketiga data minimal (konsep, jenis kesalahan, waktu pengerjaan) dan dapat ditelusuri kembali.
+- **SC-007**: 100% modul yang dirilis telah lolos verifikasi konten terhadap Kurikulum Merdeka, dengan nol kesalahan konsep yang ditemukan pada review akhir.
+- **SC-008**: 100% aset visual yang dirilis dapat ditelusuri ke sumber orisinal atau lisensi yang sah.
+- **SC-009**: Audit antarmuka menemukan nol penggunaan istilah produk yang tidak konsisten dan nol copy bergaya childish.
+
+## Out of Scope
+
+Dinyatakan eksplisit agar batas antar spec tetap jelas. Hal-hal berikut TIDAK dibangun dalam spec ini:
+
+- **Knowledge Bank** (Simple View maupun Graph View) — namun data fondasinya tetap dikumpulkan lewat FR-015.
+- **Refresh Harian** dan mekanisme spaced repetition/retrieval practice.
+- **Lumera Junior** dan seluruh konten "Dunia SD".
+- **Monetisasi**: Lumera Plus, Lumera Family, dan seluruh alur langganan/pembayaran.
+- **Lumera for Schools (B2B)**: dashboard guru, manajemen kelas, laporan progres sekolah.
+- **Akun keluarga** dan onboarding multi-anak lintas jenjang.
+- **Mode offline** dan sinkronisasi lintas perangkat.
+- **Toggle bahasa Inggris** pada antarmuka.
 
 ## Assumptions
 
-- Prototype ini hanya mencakup akun individu (bukan Lumera Family, bukan multi-anak dalam satu akun) — model akun keluarga di luar cakupan.
-- Bahasa antarmuka default adalah Bahasa Indonesia; toggle ke Bahasa Inggris tidak wajib pada prototype ini.
-- Lumera Junior (mode SD kelas 4–6) di luar cakupan; target audiens prototype adalah SMP–SMA–UTBK/kuliah awal (Lumera Core).
-- Knowledge Bank dan Refresh Harian TIDAK dibangun pada prototype ini — pelajaran dapat diselesaikan tanpa menghasilkan kartu Knowledge Bank.
-- Mode offline di luar cakupan prototype ini; koneksi internet stabil diasumsikan tersedia.
-- Monetisasi (Lumera Plus/Family), dashboard B2B sekolah, dan fitur guru di luar cakupan prototype ini.
-- Modul mana saja (4 dari 6) yang dipilih untuk dibangun lebih dulu adalah keputusan implementasi/sequencing, bukan ambiguitas spesifikasi — seluruh 6 modul dispesifikasikan agar tim dapat memilih.
+- Prototype ini hanya mencakup akun individu; target audiens adalah SMP–SMA–UTBK/kuliah awal (Lumera Core).
+- Bahasa antarmuka adalah Bahasa Indonesia.
+- Koneksi internet stabil diasumsikan tersedia selama sesi belajar.
+- Pelajaran dapat diselesaikan tanpa menghasilkan kartu Knowledge Bank yang terlihat oleh siswa — namun data mentahnya tetap wajib direkam (FR-015) agar Knowledge Bank dan Refresh Harian tidak perlu instrumentasi ulang dari nol saat dibangun nanti.
+- Modul mana saja (4 dari 6) yang dipilih untuk dibangun lebih dulu adalah keputusan implementasi/sequencing, bukan ambiguitas spesifikasi — seluruh 6 modul dispesifikasikan agar tim dapat memilih, dengan syarat kelayakan pada FR-020 terpenuhi.
+- Verifikasi konten (FR-016) dilakukan oleh reviewer selain penulis modul, sesuai gate pada konstitusi; mekanisme review-nya sendiri berada di luar spec ini.
