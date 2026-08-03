@@ -100,7 +100,7 @@ export function ProgressSummary({ siswa }: { siswa: Siswa }) {
                   }}
                 >
                   <span>{m.judul}</span>
-                  <span style={{ color: rec ? color.teal : color.inkFaint }}>
+                  <span style={{ color: rec ? color.orange : color.inkFaint }}>
                     {rec ? `${persen}%` : 'belum dimulai'}
                   </span>
                 </div>
@@ -116,7 +116,7 @@ export function ProgressSummary({ siswa }: { siswa: Siswa }) {
                     style={{
                       width: `${persen}%`,
                       height: '100%',
-                      background: color.teal,
+                      background: color.orange,
                       transition: 'width 200ms ease',
                     }}
                   />

@@ -26,9 +26,9 @@ Karena ini konten edukasi (fisika, ekonomi, sejarah, dll), akurasi materi sesuai
 
 
 
-\## 5. Dewasa secara visual, bukan childish
+\## 5. Visual modern & jernih berbasis sistem Brilliant
 
-Berlaku untuk semua modul di scope ini (target masih SMP-SMA-UTBK, bukan Lumera Junior) — warna, copy, dan gaya animasi mengikuti "Soft Academic Adventure", bukan estetika Duolingo/game anak.
+Berlaku untuk semua modul di scope ini — warna, copy, dan gaya UI mengikuti **Sistem Visual Brilliant** (latar putih jernih `#FFFFFF`, tombol aksi utama Vibrant Orange `#FF8300`, tipografi sans-serif Inter modern, navigasi header atas dengan status statistik `🔑`/`⚡`, widget sidebar beranda, dan peta stepping-stone 3D ring disk di Atlas).
 
 
 

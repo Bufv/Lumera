@@ -45,15 +45,16 @@ export function Step7_Continue({
         type="button"
         onClick={onLanjutkan}
         style={{
-          background: color.teal,
-          color: color.ivory,
+          background: color.orange,
+          color: '#FFFFFF',
           border: 'none',
           borderRadius: radius.pill,
           padding: `${spacing.md} ${spacing.xl}`,
           fontFamily: typography.fontFamilyUI,
           fontSize: typography.size.base,
-          fontWeight: typography.weight.semibold,
+          fontWeight: typography.weight.bold,
           cursor: 'pointer',
+          boxShadow: '0 4px 14px rgba(255, 131, 0, 0.4)',
         }}
       >
         Lanjutkan

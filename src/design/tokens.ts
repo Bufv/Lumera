@@ -1,49 +1,57 @@
 /**
- * Design token Lumera — arah desain "Soft Academic Adventure" (FR-018, Prinsip V).
- *
- * Palet sengaja menghindari hijau terang jenuh ala mainan anak. Warna aksen bertumpu
- * pada teal/emerald teredam di atas ivory hangat, dengan gold dipakai hemat untuk
- * perayaan — bukan ledakan warna di setiap interaksi.
+ * Design token Lumera — arah desain berdasarkan visual Brilliant (white background,
+ * vibrant orange CTA, clean sans-serif, 3D pathway ring disks, top bar navigation).
  */
 
 export const color = {
-  // Latar & permukaan
-  ivory: '#FAF7F0',
-  ivoryDeep: '#F2EDE1',
-  surface: '#FFFFFF',
-  surfaceMuted: '#F6F3EC',
+  // Latar & permukaan (Clean White & Soft Grey Backdrop)
+  ivory: '#FFFFFF', // Body / backdrop utama
+  ivoryDeep: '#F8F9FA',
+  surface: '#FFFFFF', // Card permukaan
+  surfaceMuted: '#F3F4F6', // Container card section backdrop
 
-  // Teks
-  ink: '#1F2933',
-  inkMuted: '#5A6773',
-  inkFaint: '#8A959F',
+  // Teks (Tegas & Kontras Tinggi)
+  ink: '#111827',
+  inkMuted: '#4B5563',
+  inkFaint: '#9CA3AF',
 
-  // Aksen utama
-  teal: '#1F7A6B',
-  tealSoft: '#D7EAE5',
-  emerald: '#2E8B6F',
+  // Aksen Utama (Brilliant Vibrant Orange)
+  orange: '#FF8300',
+  orangeHover: '#E67600',
+  orangeSoft: '#FFF7ED',
+  orangeBorder: '#FFD8A8',
 
-  // Aksen sekunder
-  cobalt: '#2B4C8C',
-  cobaltSoft: '#DDE4F2',
+  // Legacy compatibility tokens
+  teal: '#FF8300',
+  tealSoft: '#FFF7ED',
+  emerald: '#10B981',
+
+  // Aksen Sekunder
+  cobalt: '#3B82F6',
+  cobaltSoft: '#EFF6FF',
+  indigo: '#4F46E5',
+  indigoSoft: '#EEF2FF',
+  purple: '#8B5CF6',
+  purpleSoft: '#F3E8FF',
   lime: '#8FA82E',
-  gold: '#C99B2E',
-  goldSoft: '#F5E9CC',
+  gold: '#F59E0B',
+  goldSoft: '#FEF3C7',
 
-  // Status — teredam, bukan merah/hijau menyala
-  correct: '#2E8B6F',
-  correctSoft: '#DDEDE6',
-  incorrect: '#B4542F',
-  incorrectSoft: '#F6E3DA',
+  // Status
+  correct: '#10B981',
+  correctSoft: '#D1FAE5',
+  incorrect: '#EF4444',
+  incorrectSoft: '#FEE2E2',
 
-  border: '#E2DCD0',
+  border: '#E5E7EB',
+  borderSubtle: '#F3F4F6',
 } as const;
 
 export const typography = {
   fontFamily:
-    "'Source Serif 4', Georgia, 'Times New Roman', serif",
+    "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   fontFamilyUI:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
+    "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   size: {
     xs: '0.75rem',
     sm: '0.875rem',
@@ -56,6 +64,7 @@ export const typography = {
     regular: 400,
     medium: 500,
     semibold: 600,
+    bold: 700,
   },
   lineHeight: {
     tight: 1.25,
@@ -73,16 +82,12 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: '6px',
-  md: '10px',
+  sm: '8px',
+  md: '12px',
   lg: '16px',
-  pill: '999px',
+  pill: '9999px',
 } as const;
 
-/**
- * Motion sengaja pendek dan halus. Prinsip V melarang perayaan meledak-ledak;
- * durasi panjang dengan easing memantul akan terasa seperti game anak.
- */
 export const motion = {
   fast: '120ms',
   base: '200ms',
@@ -91,6 +96,7 @@ export const motion = {
 } as const;
 
 export const shadow = {
-  soft: '0 1px 3px rgba(31, 41, 51, 0.08)',
-  lifted: '0 4px 16px rgba(31, 41, 51, 0.10)',
+  soft: '0 1px 3px rgba(0, 0, 0, 0.06)',
+  lifted: '0 4px 16px rgba(0, 0, 0, 0.08)',
+  floating: '0 12px 32px rgba(0, 0, 0, 0.12)',
 } as const;

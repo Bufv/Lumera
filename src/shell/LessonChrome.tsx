@@ -28,7 +28,7 @@ export function LessonChrome({
     <div
       style={{
         minHeight: '100vh',
-        background: color.ivory,
+        background: color.surface,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -53,12 +53,13 @@ export function LessonChrome({
               background: 'transparent',
               border: `1px solid ${color.border}`,
               borderRadius: radius.pill,
-              width: '2rem',
-              height: '2rem',
+              width: '2.2rem',
+              height: '2.2rem',
               cursor: 'pointer',
-              color: color.inkMuted,
-              fontSize: typography.size.base,
+              color: color.ink,
+              fontSize: typography.size.lg,
               lineHeight: 1,
+              fontWeight: typography.weight.bold,
             }}
           >
             ×
@@ -78,26 +79,30 @@ export function LessonChrome({
             <span
               key={s}
               style={{
-                width: '0.5rem',
+                width: i === indeksAktif ? '1.5rem' : '0.5rem',
                 height: '0.5rem',
                 borderRadius: radius.pill,
-                background: i <= indeksAktif ? color.teal : color.border,
-                transition: `background 160ms ease`,
+                background: i <= indeksAktif ? color.orange : color.border,
+                transition: `all 200ms ease`,
               }}
             />
           ))}
         </div>
 
-        {/* kanan atas — Lumens */}
+        {/* kanan atas — Lumens & Streak */}
         <div
           style={{
             justifySelf: 'end',
             fontFamily: typography.fontFamilyUI,
             fontSize: typography.size.sm,
-            color: color.inkMuted,
+            fontWeight: typography.weight.semibold,
+            color: color.ink,
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing.xs,
           }}
         >
-          <span style={{ color: color.gold, marginRight: spacing.xs }}>◆</span>
+          <span style={{ color: color.gold }}>◆</span>
           {lumens} Lumens
         </div>
       </header>

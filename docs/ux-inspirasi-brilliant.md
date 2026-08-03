@@ -1,10 +1,6 @@
 # Inspirasi UX — Pola Belajar Interaktif untuk Lumera
 
-Dokumen ini menelaah **pola interaksi & pedagogi** yang membuat aplikasi belajar STEM interaktif
-(kategori seperti Brilliant) terasa efektif, lalu memetakannya ke arsitektur Lumera yang **sudah
-ada**. Fokusnya pada *pola dan mekanik* — ide fungsional yang tidak dimiliki siapa pun — bukan
-menyalin nama, branding, teks, atau aset produk lain. Seluruh penerapan memakai identitas Lumera
-sendiri (*Soft Academic Adventure*) dan konten Kurikulum Merdeka orisinal.
+Dokumen ini menelaah **pola interaksi, layout visual, dan desain tema** yang diterapkan di Lumera berdasarkan contoh referensi visual di `docs/image_sample/` (gaya visual Brilliant). Lumera kini mengadopsi secara utuh layout header navigasi atas, widget sidebar beranda, hero card dengan tombol aksi Vibrant Orange (`#FF8300`), halaman Learning Paths berlapisan unit/kategori, serta peta stepping-stone bertingkat dengan 3D ring disk.
 
 > Referensi acuan hanya pada tingkat pola yang teramati publik. Tidak ada konten, ilustrasi, atau
 > salinan modul pihak ketiga yang direproduksi di Lumera.
