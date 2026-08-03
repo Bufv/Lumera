@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { Beranda } from './beranda/Beranda';
 import { Atlas } from './atlas/Atlas';
 import { LessonShell } from './shell/LessonShell';
 import { ProgressSummary } from './progress/ProgressSummary';
@@ -7,15 +8,26 @@ import { bacaSiswa, type Siswa } from './progress/store';
 import { color, radius, spacing, typography } from './design/tokens';
 import type { LessonModule } from './shell/types';
 
-type Layar = { nama: 'atlas' } | { nama: 'pelajaran'; moduleId: string } | { nama: 'progres' };
+type Layar =
+  | { nama: 'beranda' }
+  | { nama: 'atlas' }
+  | { nama: 'pelajaran'; moduleId: string }
+  | { nama: 'progres' };
 
 export function App() {
-  const [layar, setLayar] = useState<Layar>({ nama: 'atlas' });
+  const [layar, setLayar] = useState<Layar>({ nama: 'beranda' });
   const [siswa, setSiswa] = useState<Siswa>(() => bacaSiswa());
 
-  const kembaliKeAtlas = useCallback(() => {
+  // Setelah pelajaran selesai/ditutup, pulang ke Beranda: layar "lanjutkan dari sini"
+  // langsung memperlihatkan usulan berikutnya berdasarkan mastery terbaru.
+  const kembaliKeBeranda = useCallback(() => {
     setSiswa(bacaSiswa());
-    setLayar({ nama: 'atlas' });
+    setLayar({ nama: 'beranda' });
+  }, []);
+
+  const bukaProgres = useCallback(() => {
+    setSiswa(bacaSiswa());
+    setLayar({ nama: 'progres' });
   }, []);
 
   if (layar.nama === 'pelajaran') {
@@ -29,8 +41,8 @@ export function App() {
         // sehingga durasi & percobaan tidak terbawa dari sesi sebelumnya.
         key={layar.moduleId}
         modul={modul as unknown as LessonModule<unknown, unknown>}
-        onKeluar={kembaliKeAtlas}
-        onSelesai={kembaliKeAtlas}
+        onKeluar={kembaliKeBeranda}
+        onSelesai={kembaliKeBeranda}
       />
     );
   }
@@ -41,7 +53,7 @@ export function App() {
         <div style={{ maxWidth: '46rem', margin: '0 auto', padding: `0 ${spacing.lg}` }}>
           <button
             type="button"
-            onClick={kembaliKeAtlas}
+            onClick={kembaliKeBeranda}
             style={{
               background: 'transparent',
               border: `1px solid ${color.border}`,
@@ -53,7 +65,7 @@ export function App() {
               cursor: 'pointer',
             }}
           >
-            ← Kembali ke Atlas
+            ← Kembali ke Beranda
           </button>
         </div>
         <ProgressSummary siswa={siswa} />
@@ -61,14 +73,23 @@ export function App() {
     );
   }
 
+  if (layar.nama === 'atlas') {
+    return (
+      <Atlas
+        siswa={siswa}
+        onPilihModul={(moduleId) => setLayar({ nama: 'pelajaran', moduleId })}
+        onLihatProgres={bukaProgres}
+        onKembali={kembaliKeBeranda}
+      />
+    );
+  }
+
   return (
-    <Atlas
+    <Beranda
       siswa={siswa}
-      onPilihModul={(moduleId) => setLayar({ nama: 'pelajaran', moduleId })}
-      onLihatProgres={() => {
-        setSiswa(bacaSiswa());
-        setLayar({ nama: 'progres' });
-      }}
+      onMulai={(moduleId) => setLayar({ nama: 'pelajaran', moduleId })}
+      onBukaAtlas={() => setLayar({ nama: 'atlas' })}
+      onLihatProgres={bukaProgres}
     />
   );
 }

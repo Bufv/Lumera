@@ -21,10 +21,12 @@ export function Atlas({
   siswa,
   onPilihModul,
   onLihatProgres,
+  onKembali,
 }: {
   siswa: Siswa;
   onPilihModul: (moduleId: string) => void;
   onLihatProgres: () => void;
+  onKembali?: () => void;
 }) {
   return (
     <div style={{ minHeight: '100vh', background: color.ivory }}>
@@ -39,6 +41,24 @@ export function Atlas({
         }}
       >
         <div>
+          {onKembali && (
+            <button
+              type="button"
+              onClick={onKembali}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+                marginBottom: spacing.xs,
+                fontFamily: typography.fontFamilyUI,
+                fontSize: typography.size.sm,
+                color: color.teal,
+                cursor: 'pointer',
+              }}
+            >
+              ← Beranda
+            </button>
+          )}
           <h1
             style={{
               fontFamily: typography.fontFamily,
