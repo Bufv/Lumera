@@ -1,0 +1,39 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: #faf7f0;
+  color: #1f2933;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Slider mengikuti palet Soft Academic Adventure, bukan biru bawaan peramban. */
+input[type='range'] {
+  accent-color: #1f7a6b;
+  height: 1.5rem;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #2b4c8c;
+  outline-offset: 2px;
+}
+
+img,
+svg,
+canvas {
+  max-width: 100%;
+}
