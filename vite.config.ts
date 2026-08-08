@@ -1,8 +1,9 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { sites } from './build/sites-vite-plugin';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), sites()],
   test: {
     environment: 'jsdom',
     globals: true,
