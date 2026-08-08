@@ -58,6 +58,8 @@ describe('Lumera Batch 1 student shell', () => {
     expect(wordmark.querySelector('img, svg')).toBeNull();
     expect(screen.getByRole('button', { name: /Atlas/i })).toHaveAttribute('aria-disabled', 'true');
     expect(screen.queryByLabelText(/notifikasi/i)).toBeNull();
+    expect(document.querySelector('.student-streak')).toHaveTextContent('Mulai');
+    expect(document.querySelector('.student-streak')).not.toHaveTextContent('0 hari');
   });
 
   it('shows the Ardi fixture only with a persistent disclosure', async () => {
@@ -65,7 +67,7 @@ describe('Lumera Batch 1 student shell', () => {
     render(<App />);
 
     expect(screen.getByRole('status')).toHaveTextContent('Mode demo · Data ilustratif');
-    expect(screen.getByRole('heading', { name: 'Selamat datang, Ardi.' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Selamat malam, Ardi' })).toBeTruthy();
     expect(screen.getAllByText('45%').length).toBeGreaterThan(0);
   });
 
@@ -84,7 +86,9 @@ describe('Lumera Batch 1 student shell', () => {
     const result = within(dialog).getByText('Bilangan Bulat').closest('button')!;
     expect(result).not.toBeDisabled();
     fireEvent.click(result);
-    await waitFor(() => expect(window.location.hash).toContain('/belajar/matematika/bilangan-bulat'));
+    await waitFor(() =>
+      expect(window.location.hash).toContain('/belajar/matematika/bilangan-bulat'),
+    );
   });
 
   it('opens module information but never a lesson player', async () => {
@@ -92,7 +96,9 @@ describe('Lumera Batch 1 student shell', () => {
     await setHash('#/belajar/matematika/bilangan-bulat');
     render(<App />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Lihat ringkasan modul Bilangan di Bawah Nol' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Lihat ringkasan modul Bilangan di Bawah Nol' }),
+    );
     expect(screen.getByRole('dialog', { name: /Bilangan di Bawah Nol/i })).toBeTruthy();
     expect(screen.getByText(/Pelajaran interaktif untuk modul ini hadir/)).toBeTruthy();
     expect(screen.queryByText(/Langkah 1 dari 7/i)).toBeNull();
@@ -103,7 +109,9 @@ describe('Lumera Batch 1 student shell', () => {
     await setHash('#/belajar/matematika/bilangan-bulat');
     render(<App />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Lihat ringkasan modul Bilangan di Bawah Nol' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Lihat ringkasan modul Bilangan di Bawah Nol' }),
+    );
     expect(screen.getByRole('dialog', { name: /Bilangan di Bawah Nol/i })).toBeTruthy();
 
     await setHash('#/pengaturan');

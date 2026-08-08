@@ -24,7 +24,8 @@ const MOBILE_NAV: NavItem[] = [
 ];
 
 function routeIsActive(current: RouteName, target: RouteName): boolean {
-  if (target === 'learn') return current === 'learn' || current === 'math' || current === 'integers';
+  if (target === 'learn')
+    return current === 'learn' || current === 'math' || current === 'integers';
   return current === target;
 }
 
@@ -129,10 +130,20 @@ export function StudentShell({
               <kbd>Ctrl K</kbd>
             </button>
 
-            <div className="student-streak" title={`${streakDays} hari berturut-turut`}>
-              <Icon name="flame" width={19} height={19} />
-              <strong>{streakDays}</strong>
-              <span>hari</span>
+            <div
+              className="student-streak"
+              data-active={streakDays > 0}
+              title={
+                streakDays > 0 ? `${streakDays} hari berturut-turut` : 'Mulai streak belajarmu'
+              }
+            >
+              <span className="student-streak__icon">
+                <Icon name="flame" width={21} height={21} />
+              </span>
+              <span className="student-streak__copy">
+                <strong>{streakDays > 0 ? streakDays : 'Mulai'}</strong>
+                <small>{streakDays > 0 ? 'hari beruntun' : 'streak belajar'}</small>
+              </span>
             </div>
 
             <div className="profile-control">
@@ -185,8 +196,12 @@ export function StudentShell({
 
       {demo && (
         <div className="demo-disclosure" role="status">
-          <span><strong>Mode demo</strong> · Data ilustratif</span>
-          <button type="button" onClick={onExitDemo}>Kembali ke akun baru</button>
+          <span>
+            <strong>Mode demo</strong> · Data ilustratif
+          </span>
+          <button type="button" onClick={onExitDemo}>
+            Kembali ke akun baru
+          </button>
         </div>
       )}
 
@@ -256,7 +271,13 @@ export function StudentShell({
                   >
                     <span className="search-result__icon">
                       <Icon
-                        name={record.kind === 'module' ? 'pages' : record.kind === 'course' ? 'book' : 'grid'}
+                        name={
+                          record.kind === 'module'
+                            ? 'pages'
+                            : record.kind === 'course'
+                              ? 'book'
+                              : 'grid'
+                        }
                         width={20}
                         height={20}
                       />
