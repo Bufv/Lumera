@@ -1,511 +1,349 @@
-import { useState } from 'react';
-import { color, radius, shadow, spacing, typography } from '../design/tokens';
+import { Icon, type IconName } from '../design/Icon';
+import { Lumo } from '../design/Lumo';
+import { SUBJECT_WORLDS } from '../atlas/subject-worlds';
 import { semuaModul } from '../shell/registry';
-import { pilihUsulan, type Usulan } from '../progress/suggestions';
+import { pilihUsulan } from '../progress/suggestions';
+import {
+  TARGET_AKTIVITAS_HARIAN,
+  aktivitasHariIni,
+  aktivitasTerakhir,
+  sapaanWaktu,
+  stripStreak,
+  tingkatKekuatan,
+} from './harian';
 import type { Siswa } from '../progress/store';
+import './Beranda.css';
+
+const IKON_REFRESH: IconName[] = ['book', 'target', 'bar-chart', 'sparkles'];
+const IKON_DUNIA: Record<string, IconName> = {
+  matematika: 'math',
+  sains: 'science',
+  ekonomi: 'bar-chart',
+  sejarah: 'globe',
+};
 
 export function Beranda({
   siswa,
   onMulai,
-  onBukaAtlas,
-  onBukaCourses,
+  onBukaPetaIlmu,
+  onBukaBelajar,
 }: {
   siswa: Siswa;
   onMulai: (moduleId: string) => void;
-  onBukaAtlas: () => void;
-  onBukaCourses: () => void;
+  onBukaPetaIlmu: () => void;
+  onBukaBelajar: () => void;
 }) {
-  const modul = semuaModul().map((m) => ({
+  const modulLengkap = semuaModul();
+  const modulRingkas = modulLengkap.map((m) => ({
     id: m.id,
     judul: m.judul,
     subjectWorldId: m.subjectWorldId,
   }));
-  const usulanList = pilihUsulan(modul, siswa, 5);
-  const [modulTerpilihIndex, setModulTerpilihIndex] = useState(0);
+  const usulan = pilihUsulan(modulRingkas, siswa, 5);
+  const utama = usulan[0];
+  const rekomendasi = usulan.find((item) => item.alasan === 'ulang') ?? utama;
+  const jumlahHariIni = aktivitasHariIni(siswa);
+  const hariStreak = stripStreak(siswa);
+  const judulModul = new Map(modulLengkap.map((m) => [m.id, m.judul]));
+  const riwayat = aktivitasTerakhir(siswa, judulModul);
+  const mastery = new Map(siswa.mastery.map((item) => [item.moduleId, item.masteryPersen]));
+  const jam = new Date().getHours();
 
-  const modulAktif: Usulan | undefined = usulanList[modulTerpilihIndex] || usulanList[0];
+  const jalur = SUBJECT_WORLDS.map((dunia) => {
+    const nilai = dunia.moduleIds
+      .map((id) => mastery.get(id))
+      .filter((x): x is number => x !== undefined);
+    const persen =
+      nilai.length > 0 ? Math.round(nilai.reduce((a, b) => a + b, 0) / nilai.length) : 0;
+    return { ...dunia, persen };
+  });
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 4rem)', background: color.surface, paddingBottom: spacing.xxl }}>
-      <main
-        style={{
-          maxWidth: '68rem',
-          margin: '0 auto',
-          padding: `${spacing.xl} ${spacing.lg}`,
-          display: 'grid',
-          gridTemplateColumns: 'minmax(280px, 340px) 1fr',
-          gap: spacing.xl,
-        }}
-      >
-        {/* LEFT SIDEBAR WIDGETS (Screenshot 2) */}
-        <aside style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg }}>
-          {/* Widget 1: Search Bar with "Ask" button */}
-          <div
-            style={{
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              background: color.surface,
-              border: `1px solid ${color.border}`,
-              borderRadius: radius.pill,
-              padding: `${spacing.xs} ${spacing.xs} ${spacing.xs} ${spacing.md}`,
-            }}
-          >
-            <span style={{ color: color.inkMuted, marginRight: spacing.xs }} aria-hidden>
-              🔍
-            </span>
-            <input
-              type="text"
-              placeholder="What do you want to learn?"
-              style={{
-                flex: 1,
-                border: 'none',
-                outline: 'none',
-                background: 'transparent',
-                fontFamily: typography.fontFamilyUI,
-                fontSize: typography.size.sm,
-                color: color.ink,
-              }}
-            />
-            <button
-              type="button"
-              style={{
-                background: color.surfaceMuted,
-                border: `1px solid ${color.border}`,
-                borderRadius: radius.pill,
-                padding: `${spacing.xs} ${spacing.md}`,
-                fontFamily: typography.fontFamilyUI,
-                fontSize: typography.size.xs,
-                fontWeight: typography.weight.semibold,
-                color: color.inkMuted,
-                cursor: 'pointer',
-              }}
-            >
-              Ask
-            </button>
-          </div>
+    <div className="home-page">
+      <div className="home-page__intro">
+        <h1>
+          {sapaanWaktu(jam)}, Ardi <span aria-hidden>👋</span>
+        </h1>
+        <p>
+          {utama
+            ? 'Mau lanjut belajar atau menyegarkan ingatanmu?'
+            : 'Pilih jalur untuk mulai belajar.'}
+        </p>
+      </div>
 
-          {/* Widget 2: Streak Card */}
-          <div
-            style={{
-              background: color.surface,
-              border: `1px solid ${color.border}`,
-              borderRadius: radius.lg,
-              padding: spacing.lg,
-              boxShadow: shadow.soft,
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: spacing.xs }}>
-                <span
-                  style={{
-                    fontFamily: typography.fontFamilyUI,
-                    fontSize: typography.size.xxl,
-                    fontWeight: typography.weight.bold,
-                    color: color.ink,
-                  }}
-                >
-                  {siswa.streakCount}
-                </span>
-                <span style={{ color: color.orange, fontSize: typography.size.xl }} aria-hidden>
-                  ⚡
-                </span>
+      <main className="home-layout">
+        <div className="home-main">
+          {utama ? (
+            <section className="continue-card">
+              <div className="continue-card__art" aria-hidden>
+                <img src="/assets/math_banner.png" alt="" />
               </div>
-              <span style={{ fontSize: typography.size.sm, color: color.inkFaint }}>🗂️ 0/3</span>
-            </div>
-            <p
-              style={{
-                fontFamily: typography.fontFamilyUI,
-                fontSize: typography.size.sm,
-                color: color.inkMuted,
-                margin: `${spacing.xs} 0 ${spacing.md}`,
-              }}
-            >
-              Solve <strong>3 problems</strong> to start a streak
-            </p>
-            {/* Days of the week tracker */}
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              {['M', 'T', 'W', 'Th', 'F'].map((day, idx) => (
-                <div key={day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing.xs }}>
-                  <div
-                    style={{
-                      width: '2rem',
-                      height: '2rem',
-                      borderRadius: radius.pill,
-                      background: idx === 0 && siswa.streakCount > 0 ? color.orangeSoft : color.surfaceMuted,
-                      border: `1px solid ${idx === 0 && siswa.streakCount > 0 ? color.orange : color.border}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: idx === 0 && siswa.streakCount > 0 ? color.orange : color.inkFaint,
-                      fontSize: typography.size.xs,
-                    }}
-                  >
-                    ⚡
-                  </div>
-                  <span style={{ fontFamily: typography.fontFamilyUI, fontSize: typography.size.xs, color: color.inkMuted }}>
-                    {day}
-                  </span>
+              <div className="continue-card__content">
+                <div className="continue-card__lumo" aria-hidden>
+                  <Lumo size={76} />
+                  <span>Kamu bisa hari ini.</span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Widget 3: Unlock Premium Banner Card */}
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #FEF3C7 0%, #EEF2FF 50%, #F3E8FF 100%)',
-              border: `1px solid ${color.purple}22`,
-              borderRadius: radius.lg,
-              padding: spacing.lg,
-              boxShadow: shadow.soft,
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <div style={{ display: 'flex', gap: spacing.md, alignItems: 'center', marginBottom: spacing.sm }}>
-              <div
-                style={{
-                  width: '2.5rem',
-                  height: '2.5rem',
-                  borderRadius: radius.md,
-                  background: 'linear-gradient(135deg, #8B5CF6, #3B82F6)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FFFFFF',
-                  fontSize: '1.25rem',
-                  boxShadow: shadow.soft,
-                }}
-              >
-                💎
-              </div>
-              <h3
-                style={{
-                  fontFamily: typography.fontFamilyUI,
-                  fontSize: typography.size.sm,
-                  fontWeight: typography.weight.bold,
-                  color: color.ink,
-                  margin: 0,
-                  lineHeight: 1.3,
-                }}
-              >
-                Unlock all learning with Premium
-                <br />
-                <span style={{ fontWeight: typography.weight.regular, color: color.inkMuted }}>to get smarter, faster</span>
-              </h3>
-            </div>
-            <button
-              type="button"
-              onClick={() => alert('Fitur Premium Lumera sedang dikembangkan!')}
-              style={{
-                width: '100%',
-                background: 'linear-gradient(90deg, #8B5CF6 0%, #FF8300 100%)',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: radius.pill,
-                padding: `${spacing.sm} ${spacing.md}`,
-                fontFamily: typography.fontFamilyUI,
-                fontSize: typography.size.sm,
-                fontWeight: typography.weight.semibold,
-                cursor: 'pointer',
-                boxShadow: shadow.soft,
-                marginTop: spacing.xs,
-              }}
-            >
-              Explore Premium
-            </button>
-          </div>
-
-          {/* Widget 4: League Status Card */}
-          <div
-            style={{
-              background: color.surface,
-              border: `1px solid ${color.border}`,
-              borderRadius: radius.lg,
-              padding: spacing.lg,
-              boxShadow: shadow.soft,
-              textAlign: 'center',
-            }}
-          >
-            <div
-              style={{
-                width: '3.5rem',
-                height: '3.5rem',
-                margin: '0 auto spacing.sm',
-                borderRadius: radius.md,
-                background: color.cobaltSoft,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '2rem',
-              }}
-            >
-              🛡️
-            </div>
-            <h3
-              style={{
-                fontFamily: typography.fontFamilyUI,
-                fontSize: typography.size.base,
-                fontWeight: typography.weight.bold,
-                color: color.ink,
-                margin: `${spacing.xs} 0 0`,
-              }}
-            >
-              So close
-            </h3>
-            <p
-              style={{
-                fontFamily: typography.fontFamilyUI,
-                fontSize: typography.size.xs,
-                color: color.inkMuted,
-                margin: `${spacing.xs} 0 ${spacing.md}`,
-              }}
-            >
-              You previously finished #28 and fell back to the Xenon League
-            </p>
-            <button
-              type="button"
-              onClick={onBukaCourses}
-              style={{
-                width: '100%',
-                background: color.surface,
-                border: `1px solid ${color.border}`,
-                borderRadius: radius.pill,
-                padding: `${spacing.sm} ${spacing.md}`,
-                fontFamily: typography.fontFamilyUI,
-                fontSize: typography.size.sm,
-                fontWeight: typography.weight.semibold,
-                color: color.ink,
-                cursor: 'pointer',
-              }}
-            >
-              Continue
-            </button>
-          </div>
-        </aside>
-
-        {/* RIGHT MAIN CONTENT AREA (Screenshot 2 Hero Card + Selector Carousel) */}
-        <section style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg }}>
-          {!modulAktif ? (
-            <p style={{ fontFamily: typography.fontFamilyUI, color: color.inkMuted }}>Belum ada pelajaran tersedia.</p>
-          ) : (
-            <>
-              {/* Active Hero Course Card */}
-              <div
-                style={{
-                  background: color.surface,
-                  border: `1px solid ${color.border}`,
-                  borderRadius: radius.lg,
-                  padding: spacing.xxl,
-                  boxShadow: shadow.lifted,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textAlign: 'center',
-                  position: 'relative',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: typography.fontFamilyUI,
-                    fontSize: typography.size.xs,
-                    fontWeight: typography.weight.bold,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: color.orange,
-                    marginBottom: spacing.xs,
-                  }}
-                >
-                  LEVEL 1
+                <span className="eyebrow">
+                  {utama.masteryPersen === null ? 'MULAI JALUR BELAJAR' : 'LANJUTKAN BELAJAR'}
                 </span>
-
-                <h2
-                  style={{
-                    fontFamily: typography.fontFamilyUI,
-                    fontSize: typography.size.xxl,
-                    fontWeight: typography.weight.bold,
-                    color: color.ink,
-                    margin: `0 0 ${spacing.lg}`,
-                  }}
-                >
-                  {modulAktif.judul}
-                </h2>
-
-                {/* 3D Colorful Cover Artwork Illustration */}
-                <div
-                  style={{
-                    width: '14rem',
-                    height: '11rem',
-                    background: 'linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 50%, #EFF6FF 100%)',
-                    borderRadius: radius.lg,
-                    border: `1px solid ${color.orangeBorder}`,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: spacing.xl,
-                    boxShadow: shadow.soft,
-                    position: 'relative',
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '4.5rem',
-                      filter: 'drop-shadow(0 8px 16px rgba(255, 131, 0, 0.2))',
-                    }}
-                  >
-                    📒
+                <h2>{utama.judul}</h2>
+                <p className="continue-card__subject">
+                  <span />
+                  {utama.subjectWorldNama}
+                </p>
+                <div className="continue-card__footer">
+                  <div className="continue-card__progress">
+                    <span>{utama.masteryPersen ?? 0}% selesai</span>
+                    <ProgressBar value={utama.masteryPersen ?? 0} />
                   </div>
-                </div>
-
-                {/* Topics / Warm Up Checklist */}
-                <div
-                  style={{
-                    width: '100%',
-                    maxWidth: '22rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: spacing.sm,
-                    marginBottom: spacing.xl,
-                    textAlign: 'left',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md, padding: `${spacing.xs} 0` }}>
-                    <span style={{ fontSize: '1.25rem' }}>🟢</span>
-                    <span
-                      style={{
-                        fontFamily: typography.fontFamilyUI,
-                        fontSize: typography.size.sm,
-                        fontWeight: typography.weight.semibold,
-                        color: color.ink,
-                      }}
-                    >
-                      Warm Up
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md, padding: `${spacing.xs} 0` }}>
-                    <span style={{ fontSize: '1.25rem' }}>⚪</span>
-                    <span
-                      style={{
-                        fontFamily: typography.fontFamilyUI,
-                        fontSize: typography.size.sm,
-                        color: color.inkMuted,
-                      }}
-                    >
-                      Langkah Interaktif & Eksplorasi
-                    </span>
-                  </div>
-                </div>
-
-                {/* Prominent Vibrant Orange Action Button (Brilliant Style) */}
-                <button
-                  type="button"
-                  onClick={() => onMulai(modulAktif.moduleId)}
-                  style={{
-                    width: '100%',
-                    maxWidth: '24rem',
-                    background: color.orange,
-                    color: '#FFFFFF',
-                    border: 'none',
-                    borderRadius: radius.pill,
-                    padding: `${spacing.md} ${spacing.xl}`,
-                    fontFamily: typography.fontFamilyUI,
-                    fontSize: typography.size.lg,
-                    fontWeight: typography.weight.bold,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(255, 131, 0, 0.4)',
-                    transition: 'transform 150ms ease, background 150ms ease',
-                  }}
-                >
-                  Start
-                </button>
-              </div>
-
-              {/* Bottom Thumbnail Selector Carousel (Horizontal Cards) */}
-              <div style={{ marginTop: spacing.md }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md }}>
-                  <h3
-                    style={{
-                      fontFamily: typography.fontFamilyUI,
-                      fontSize: typography.size.sm,
-                      fontWeight: typography.weight.bold,
-                      color: color.inkMuted,
-                      margin: 0,
-                    }}
-                  >
-                    MODUL PILIHAN
-                  </h3>
                   <button
                     type="button"
-                    onClick={onBukaAtlas}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      fontFamily: typography.fontFamilyUI,
-                      fontSize: typography.size.xs,
-                      fontWeight: typography.weight.semibold,
-                      color: color.orange,
-                      cursor: 'pointer',
-                    }}
+                    className="button button--primary"
+                    onClick={() => onMulai(utama.moduleId)}
                   >
-                    Lihat Semua di Atlas →
+                    {utama.masteryPersen === null ? 'Mulai belajar' : 'Lanjutkan'}
+                    <Icon name="arrow" width={20} height={20} />
                   </button>
                 </div>
-
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-                    gap: spacing.md,
-                  }}
-                >
-                  {usulanList.map((item, idx) => {
-                    const isSelected = idx === modulTerpilihIndex;
-                    return (
-                      <button
-                        key={item.moduleId}
-                        type="button"
-                        onClick={() => setModulTerpilihIndex(idx)}
-                        style={{
-                          background: isSelected ? color.orangeSoft : color.surface,
-                          border: `2px solid ${isSelected ? color.orange : color.border}`,
-                          borderRadius: radius.md,
-                          padding: spacing.md,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          gap: spacing.xs,
-                          cursor: 'pointer',
-                          boxShadow: shadow.soft,
-                          transition: 'all 150ms ease',
-                        }}
-                      >
-                        <span style={{ fontSize: '2rem' }}>
-                          {idx === 0 ? '📒' : idx === 1 ? '🚀' : idx === 2 ? '📊' : '💡'}
-                        </span>
-                        <span
-                          style={{
-                            fontFamily: typography.fontFamilyUI,
-                            fontSize: typography.size.xs,
-                            fontWeight: isSelected ? typography.weight.bold : typography.weight.medium,
-                            color: color.ink,
-                            textAlign: 'center',
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          {item.judul}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
-            </>
+            </section>
+          ) : (
+            <section className="empty-card">
+              <Icon name="book" width={28} height={28} />
+              <div>
+                <h2>Belum ada pelajaran</h2>
+                <p>Tambahkan modul ke registry untuk mulai belajar.</p>
+              </div>
+            </section>
           )}
-        </section>
+
+          <section className="panel refresh-panel">
+            <div className="section-heading">
+              <div>
+                <div className="section-heading__title-row">
+                  <h2>Refresh Harian</h2>
+                  <span
+                    className="info-dot"
+                    title="Urutan diambil dari konsep yang paling perlu dilatih"
+                  >
+                    <Icon name="info" width={14} height={14} />
+                  </span>
+                </div>
+                <p>Segarkan konsep sebelum mulai terlupakan.</p>
+              </div>
+              {rekomendasi && (
+                <button
+                  type="button"
+                  className="button button--soft"
+                  onClick={() => onMulai(rekomendasi.moduleId)}
+                >
+                  <Icon name="play" width={17} height={17} /> Latih yang terlemah
+                </button>
+              )}
+            </div>
+
+            <div className="refresh-grid">
+              {usulan.slice(0, 4).map((item, index) => {
+                const kekuatan = tingkatKekuatan(item.masteryPersen);
+                return (
+                  <button
+                    key={item.moduleId}
+                    type="button"
+                    className="refresh-card"
+                    onClick={() => onMulai(item.moduleId)}
+                  >
+                    <span className={`icon-tile icon-tile--${index % 4}`}>
+                      <Icon name={IKON_REFRESH[index] ?? 'book'} width={23} height={23} />
+                    </span>
+                    <strong>{item.judul}</strong>
+                    <span className="refresh-card__status">
+                      <span>{kekuatan.label}</span>
+                      <StrengthPills filled={kekuatan.terisi} color={kekuatan.warna} />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="panel paths-panel">
+            <div className="section-heading section-heading--compact">
+              <h2>Jalur belajarmu</h2>
+              <button type="button" className="text-button" onClick={onBukaBelajar}>
+                Lihat semua <Icon name="chevron" width={16} height={16} />
+              </button>
+            </div>
+            <div className="path-grid">
+              {jalur.map((dunia, index) => (
+                <button key={dunia.id} type="button" className="path-key" onClick={onBukaPetaIlmu}>
+                  <span className={`icon-tile path-key__icon path-key__icon--${index % 4}`}>
+                    <Icon name={IKON_DUNIA[dunia.id] ?? 'book'} width={27} height={27} />
+                  </span>
+                  <span className="path-key__copy">
+                    <strong>{dunia.nama}</strong>
+                    <small>{dunia.moduleIds.length} pelajaran visual</small>
+                  </span>
+                  <Icon className="path-key__chevron" name="chevron" width={18} height={18} />
+                  <span className="path-key__progress">
+                    <b>{dunia.persen}%</b>
+                    <ProgressBar value={dunia.persen} />
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <aside className="home-rail">
+          <section className="panel target-card">
+            <h2>Target hari ini</h2>
+            <div className="target-card__metrics">
+              <Metric
+                icon="sparkles"
+                value={siswa.lumens.toLocaleString('id-ID')}
+                label="Lumens terkumpul"
+                tone="violet"
+              />
+              <Metric
+                icon="check"
+                value={`${jumlahHariIni} / ${TARGET_AKTIVITAS_HARIAN}`}
+                label="Aktivitas selesai"
+                tone="green"
+              />
+            </div>
+            <div className="streak-card">
+              <div className="streak-card__summary">
+                <Icon name="flame" width={32} height={32} />
+                <span>
+                  <b>{siswa.streakCount} hari</b>
+                  <small>berturut-turut</small>
+                </span>
+              </div>
+              <div className="streak-days">
+                {hariStreak.map((hari) => (
+                  <span
+                    key={hari.tanggal}
+                    className={hari.hariIni ? 'streak-day streak-day--today' : 'streak-day'}
+                    title={hari.tanggal}
+                  >
+                    <small>{hari.label.slice(0, 1)}</small>
+                    <i className={hari.terisi ? 'is-filled' : ''}>
+                      {hari.terisi && <Icon name="check" width={11} height={11} />}
+                    </i>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="lumo-card">
+            <h2>Rekomendasi Lumo</h2>
+            <div className="lumo-card__message">
+              <Lumo size={64} />
+              <p>
+                {rekomendasi ? (
+                  <>
+                    Fokus berikutnya: <strong>{rekomendasi.judul}</strong>.{' '}
+                    {rekomendasi.alasan === 'ulang'
+                      ? 'Penguasaanmu di sini paling perlu diperkuat.'
+                      : 'Pelajaran ini siap kamu mulai.'}
+                  </>
+                ) : (
+                  'Tambahkan pelajaran untuk mendapat rekomendasi.'
+                )}
+              </p>
+            </div>
+            {rekomendasi && (
+              <button
+                type="button"
+                className="button button--amber"
+                onClick={() => onMulai(rekomendasi.moduleId)}
+              >
+                Coba sekarang <Icon name="arrow" width={19} height={19} />
+              </button>
+            )}
+          </section>
+
+          <section className="panel activity-card">
+            <div className="section-heading section-heading--compact">
+              <h2>Aktivitas terakhir</h2>
+              <button type="button" className="text-button" onClick={onBukaBelajar}>
+                Lihat jalur <Icon name="chevron" width={16} height={16} />
+              </button>
+            </div>
+            {riwayat.length > 0 ? (
+              <div className="activity-list">
+                {riwayat.map((item, index) => (
+                  <button key={item.moduleId} type="button" onClick={() => onMulai(item.moduleId)}>
+                    <span className={`activity-list__icon activity-list__icon--${index % 3}`}>
+                      <Icon name={IKON_REFRESH[index] ?? 'book'} width={20} height={20} />
+                    </span>
+                    <span>
+                      <strong>{item.judul}</strong>
+                      <small>{item.masteryPersen}% dikuasai</small>
+                    </span>
+                    <time>{item.labelWaktu}</time>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="activity-empty">
+                <Icon name="book" width={24} height={24} />
+                <p>Aktivitasmu akan muncul setelah satu pelajaran selesai.</p>
+              </div>
+            )}
+          </section>
+        </aside>
       </main>
+    </div>
+  );
+}
+
+function ProgressBar({ value }: { value: number }) {
+  const aman = Math.max(0, Math.min(100, value));
+  return (
+    <span
+      className="progress-bar"
+      role="progressbar"
+      aria-valuenow={aman}
+      aria-valuemin={0}
+      aria-valuemax={100}
+    >
+      <i style={{ width: `${aman}%` }} />
+    </span>
+  );
+}
+
+function StrengthPills({ filled, color }: { filled: number; color: string }) {
+  return (
+    <span className="strength-pills" aria-label={`${filled} dari 5 tingkat kekuatan`}>
+      {[0, 1, 2, 3, 4].map((n) => (
+        <i key={n} style={{ background: n < filled ? color : undefined }} />
+      ))}
+    </span>
+  );
+}
+
+function Metric({
+  icon,
+  value,
+  label,
+  tone,
+}: {
+  icon: IconName;
+  value: string;
+  label: string;
+  tone: 'violet' | 'green';
+}) {
+  return (
+    <div className="metric">
+      <span className={`metric__icon metric__icon--${tone}`}>
+        <Icon name={icon} width={25} height={25} />
+      </span>
+      <span>
+        <b>{value}</b>
+        <small>{label}</small>
+      </span>
     </div>
   );
 }

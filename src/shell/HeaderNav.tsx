@@ -1,212 +1,138 @@
-import { color, radius, spacing, typography } from '../design/tokens';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Icon } from '../design/Icon';
+import { Lumo } from '../design/Lumo';
+import { semuaModul } from './registry';
 import type { Siswa } from '../progress/store';
+import './HeaderNav.css';
 
-export type TabLayar = 'beranda' | 'courses' | 'atlas' | 'progres';
+export type TabLayar = 'beranda' | 'belajar' | 'petailmu' | 'progres';
+
+const TABS_NAV: { id: TabLayar | 'ulangi' | 'simpanan'; label: string; tersedia: boolean }[] = [
+  { id: 'beranda', label: 'Beranda', tersedia: true },
+  { id: 'belajar', label: 'Belajar', tersedia: true },
+  { id: 'ulangi', label: 'Ulangi', tersedia: false },
+  { id: 'simpanan', label: 'Simpanan', tersedia: false },
+  { id: 'petailmu', label: 'Peta Ilmu', tersedia: true },
+];
 
 export function HeaderNav({
   tabAktif,
   siswa,
   onPilihTab,
   onBukaProgres,
+  onPilihModul,
 }: {
   tabAktif: TabLayar;
   siswa: Siswa;
   onPilihTab: (tab: TabLayar) => void;
   onBukaProgres: () => void;
+  onPilihModul: (moduleId: string) => void;
 }) {
+  const [kueri, setKueri] = useState('');
+  const inputCariRef = useRef<HTMLInputElement>(null);
+  const modul = useMemo(() => semuaModul().map((m) => ({ id: m.id, judul: m.judul })), []);
+  const hasilCari = useMemo(() => {
+    const q = kueri.trim().toLocaleLowerCase('id-ID');
+    return q ? modul.filter((m) => m.judul.toLocaleLowerCase('id-ID').includes(q)).slice(0, 5) : [];
+  }, [kueri, modul]);
+
+  useEffect(() => {
+    const tanganiPintasan = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        inputCariRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', tanganiPintasan);
+    return () => window.removeEventListener('keydown', tanganiPintasan);
+  }, []);
+
   return (
-    <header
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        background: color.surface,
-        borderBottom: `1px solid ${color.border}`,
-        height: '4rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: `0 ${spacing.lg}`,
-      }}
-    >
-      {/* Left branding and Navigation Tabs */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.xl }}>
+    <header className="app-header">
+      <div className="app-header__row">
         <button
           type="button"
+          className="brand"
           onClick={() => onPilihTab('beranda')}
-          aria-label="Lumera Home"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            fontFamily: typography.fontFamilyUI,
-            fontSize: typography.size.xl,
-            fontWeight: typography.weight.bold,
-            color: color.ink,
-            letterSpacing: '-0.02em',
-            cursor: 'pointer',
-            padding: 0,
-          }}
+          aria-label="Lumera — ke Beranda"
         >
-          Lumera
+          <Lumo size={34} />
+          <span>Lumera</span>
         </button>
 
-        <nav style={{ display: 'flex', gap: spacing.md, height: '4rem' }}>
-          <button
-            type="button"
-            onClick={() => onPilihTab('beranda')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: spacing.xs,
-              background: 'transparent',
-              border: 'none',
-              borderBottom: tabAktif === 'beranda' ? `2px solid ${color.ink}` : '2px solid transparent',
-              fontFamily: typography.fontFamilyUI,
-              fontSize: typography.size.sm,
-              fontWeight: tabAktif === 'beranda' ? typography.weight.semibold : typography.weight.medium,
-              color: tabAktif === 'beranda' ? color.ink : color.inkMuted,
-              cursor: 'pointer',
-              padding: `0 ${spacing.sm}`,
-              transition: 'all 150ms ease',
-            }}
-          >
-            <span aria-hidden>🏠</span> Home
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onPilihTab('courses')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: spacing.xs,
-              background: 'transparent',
-              border: 'none',
-              borderBottom: tabAktif === 'courses' ? `2px solid ${color.ink}` : '2px solid transparent',
-              fontFamily: typography.fontFamilyUI,
-              fontSize: typography.size.sm,
-              fontWeight: tabAktif === 'courses' ? typography.weight.semibold : typography.weight.medium,
-              color: tabAktif === 'courses' ? color.ink : color.inkMuted,
-              cursor: 'pointer',
-              padding: `0 ${spacing.sm}`,
-              transition: 'all 150ms ease',
-            }}
-          >
-            <span aria-hidden>📚</span> Courses
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onPilihTab('atlas')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: spacing.xs,
-              background: 'transparent',
-              border: 'none',
-              borderBottom: tabAktif === 'atlas' ? `2px solid ${color.ink}` : '2px solid transparent',
-              fontFamily: typography.fontFamilyUI,
-              fontSize: typography.size.sm,
-              fontWeight: tabAktif === 'atlas' ? typography.weight.semibold : typography.weight.medium,
-              color: tabAktif === 'atlas' ? color.ink : color.inkMuted,
-              cursor: 'pointer',
-              padding: `0 ${spacing.sm}`,
-              transition: 'all 150ms ease',
-            }}
-          >
-            <span aria-hidden>🗺️</span> Atlas
-          </button>
+        <nav className="main-nav" aria-label="Navigasi utama">
+          {TABS_NAV.map((tab) => {
+            const aktif = tabAktif === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                className={`main-nav__item${aktif ? ' main-nav__item--active' : ''}`}
+                onClick={() => tab.tersedia && onPilihTab(tab.id as TabLayar)}
+                aria-current={aktif ? 'page' : undefined}
+                aria-disabled={!tab.tersedia}
+                title={tab.tersedia ? undefined : 'Fitur ini belum tersedia'}
+              >
+                {tab.label}
+                {!tab.tersedia && <span className="main-nav__soon" aria-label="Segera hadir" />}
+              </button>
+            );
+          })}
         </nav>
-      </div>
 
-      {/* Right controls: Premium CTA, Key Badge, Streak Badge, Menu */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md }}>
-        {/* Go Premium pill button */}
-        <button
-          type="button"
-          onClick={() => alert('Fitur Premium Lumera sedang dikembangkan!')}
-          style={{
-            background: color.indigoSoft,
-            border: `1px solid ${color.indigo}33`,
-            borderRadius: radius.pill,
-            padding: `${spacing.xs} ${spacing.md}`,
-            fontFamily: typography.fontFamilyUI,
-            fontSize: typography.size.xs,
-            fontWeight: typography.weight.semibold,
-            color: color.indigo,
-            cursor: 'pointer',
-            transition: 'all 150ms ease',
-          }}
-        >
-          Go Premium
-        </button>
+        <div className="header-actions">
+          <div className="header-search">
+            <div className="header-search__field">
+              <Icon name="search" width={18} height={18} />
+              <input
+                ref={inputCariRef}
+                type="search"
+                value={kueri}
+                onChange={(event) => setKueri(event.target.value)}
+                placeholder="Cari topik atau pelajaran"
+                aria-label="Cari topik atau pelajaran"
+              />
+              <kbd>Ctrl K</kbd>
+            </div>
 
-        {/* Key Badge */}
-        <button
-          type="button"
-          onClick={onBukaProgres}
-          title="Kunci & Level Lumera"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing.xs,
-            background: color.surface,
-            border: `1px solid ${color.border}`,
-            borderRadius: radius.pill,
-            padding: `${spacing.xs} ${spacing.md}`,
-            fontFamily: typography.fontFamilyUI,
-            fontSize: typography.size.sm,
-            fontWeight: typography.weight.semibold,
-            color: color.ink,
-            cursor: 'pointer',
-          }}
-        >
-          <span style={{ color: color.gold }}>2</span>
-          <span aria-hidden>🔑</span>
-        </button>
+            {kueri.trim() !== '' && (
+              <div className="header-search__results">
+                {hasilCari.length === 0 ? (
+                  <p>Tidak ada pelajaran yang cocok.</p>
+                ) : (
+                  hasilCari.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => {
+                        setKueri('');
+                        onPilihModul(m.id);
+                      }}
+                    >
+                      <span>{m.judul}</span>
+                      <Icon name="arrow" width={17} height={17} />
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
-        {/* Streak / Energy Lightning Badge */}
-        <button
-          type="button"
-          onClick={onBukaProgres}
-          title={`Streak ${siswa.streakCount} hari`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing.xs,
-            background: color.surface,
-            border: `1px solid ${color.border}`,
-            borderRadius: radius.pill,
-            padding: `${spacing.xs} ${spacing.md}`,
-            fontFamily: typography.fontFamilyUI,
-            fontSize: typography.size.sm,
-            fontWeight: typography.weight.semibold,
-            color: color.ink,
-            cursor: 'pointer',
-          }}
-        >
-          <span>{siswa.streakCount}</span>
-          <span style={{ color: color.orange }} aria-hidden>⚡</span>
-        </button>
+          <div className="header-streak" title={`Streak ${siswa.streakCount} hari`}>
+            <Icon name="flame" width={24} height={24} />
+            <span className="header-streak__number">{siswa.streakCount}</span>
+            <span className="header-streak__label">Hari berturut-turut</span>
+          </div>
 
-        {/* User Menu Button */}
-        <button
-          type="button"
-          aria-label="Menu pengguna"
-          onClick={onBukaProgres}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            fontSize: typography.size.lg,
-            color: color.inkMuted,
-            cursor: 'pointer',
-            padding: spacing.xs,
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          ☰
-        </button>
+          <button
+            type="button"
+            className="profile-button"
+            onClick={onBukaProgres}
+            aria-label="Buka profil dan progres"
+          >
+            A
+          </button>
+        </div>
       </div>
     </header>
   );

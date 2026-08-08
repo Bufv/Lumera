@@ -12,8 +12,8 @@ import type { LessonModule } from './shell/types';
 
 type Layar =
   | { nama: 'beranda' }
-  | { nama: 'courses' }
-  | { nama: 'atlas' }
+  | { nama: 'belajar' }
+  | { nama: 'petailmu' }
   | { nama: 'pelajaran'; moduleId: string }
   | { nama: 'progres' };
 
@@ -31,10 +31,14 @@ export function App() {
     setLayar({ nama: 'progres' });
   }, []);
 
+  const bukaPelajaran = useCallback((moduleId: string) => {
+    setLayar({ nama: 'pelajaran', moduleId });
+  }, []);
+
   const tanganiPilihTab = useCallback((tab: TabLayar) => {
     if (tab === 'beranda') setLayar({ nama: 'beranda' });
-    else if (tab === 'courses') setLayar({ nama: 'courses' });
-    else if (tab === 'atlas') setLayar({ nama: 'atlas' });
+    else if (tab === 'belajar') setLayar({ nama: 'belajar' });
+    else if (tab === 'petailmu') setLayar({ nama: 'petailmu' });
     else if (tab === 'progres') setLayar({ nama: 'progres' });
   }, []);
 
@@ -72,11 +76,23 @@ export function App() {
   }
 
   const tabAktif: TabLayar =
-    layar.nama === 'courses' ? 'courses' : layar.nama === 'atlas' ? 'atlas' : layar.nama === 'progres' ? 'progres' : 'beranda';
+    layar.nama === 'belajar'
+      ? 'belajar'
+      : layar.nama === 'petailmu'
+        ? 'petailmu'
+        : layar.nama === 'progres'
+          ? 'progres'
+          : 'beranda';
 
   return (
-    <div style={{ minHeight: '100vh', background: color.surface }}>
-      <HeaderNav tabAktif={tabAktif} siswa={siswa} onPilihTab={tanganiPilihTab} onBukaProgres={bukaProgres} />
+    <div style={{ minHeight: '100vh', background: color.ivory }}>
+      <HeaderNav
+        tabAktif={tabAktif}
+        siswa={siswa}
+        onPilihTab={tanganiPilihTab}
+        onBukaProgres={bukaProgres}
+        onPilihModul={bukaPelajaran}
+      />
 
       {layar.nama === 'progres' && (
         <div style={{ minHeight: 'calc(100vh - 4rem)', background: color.surface, paddingTop: spacing.lg }}>
@@ -102,28 +118,24 @@ export function App() {
         </div>
       )}
 
-      {layar.nama === 'atlas' && (
-        <Atlas
-          siswa={siswa}
-          onPilihModul={(moduleId) => setLayar({ nama: 'pelajaran', moduleId })}
-          onKembali={kembaliKeBeranda}
-        />
+      {layar.nama === 'petailmu' && (
+        <Atlas siswa={siswa} onPilihModul={bukaPelajaran} onKembali={kembaliKeBeranda} />
       )}
 
-      {layar.nama === 'courses' && (
+      {layar.nama === 'belajar' && (
         <Courses
           siswa={siswa}
-          onMulaiModul={(moduleId) => setLayar({ nama: 'pelajaran', moduleId })}
-          onBukaAtlas={() => setLayar({ nama: 'atlas' })}
+          onMulaiModul={bukaPelajaran}
+          onBukaAtlas={() => setLayar({ nama: 'petailmu' })}
         />
       )}
 
       {layar.nama === 'beranda' && (
         <Beranda
           siswa={siswa}
-          onMulai={(moduleId) => setLayar({ nama: 'pelajaran', moduleId })}
-          onBukaAtlas={() => setLayar({ nama: 'atlas' })}
-          onBukaCourses={() => setLayar({ nama: 'courses' })}
+          onMulai={bukaPelajaran}
+          onBukaPetaIlmu={() => setLayar({ nama: 'petailmu' })}
+          onBukaBelajar={() => setLayar({ nama: 'belajar' })}
         />
       )}
     </div>

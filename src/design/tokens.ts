@@ -1,57 +1,63 @@
-/**
- * Design token Lumera — arah desain berdasarkan visual Brilliant (white background,
- * vibrant orange CTA, clean sans-serif, 3D pathway ring disks, top bar navigation).
- */
-
+/** Sistem visual Lumera yang diturunkan langsung dari seluruh referensi di docs/sample. */
 export const color = {
-  // Latar & permukaan (Clean White & Soft Grey Backdrop)
-  ivory: '#FFFFFF', // Body / backdrop utama
-  ivoryDeep: '#F8F9FA',
-  surface: '#FFFFFF', // Card permukaan
-  surfaceMuted: '#F3F4F6', // Container card section backdrop
+  ivory: '#F8F8FC',
+  ivoryDeep: '#F1F0F8',
+  surface: '#FFFFFF',
+  surfaceMuted: '#F5F5FA',
 
-  // Teks (Tegas & Kontras Tinggi)
-  ink: '#111827',
-  inkMuted: '#4B5563',
-  inkFaint: '#9CA3AF',
+  ink: '#101936',
+  inkMuted: '#626984',
+  inkFaint: '#9A9FB3',
 
-  // Aksen Utama (Brilliant Vibrant Orange)
-  orange: '#FF8300',
-  orangeHover: '#E67600',
-  orangeSoft: '#FFF7ED',
-  orangeBorder: '#FFD8A8',
+  violet: '#6C4FF8',
+  violetDeep: '#5131D6',
+  violetSoft: '#F1EDFF',
+  violetBorder: '#DCD3FF',
 
-  // Legacy compatibility tokens
-  teal: '#FF8300',
-  tealSoft: '#FFF7ED',
-  emerald: '#10B981',
+  amber: '#FFB51B',
+  amberDeep: '#E58E00',
+  amberSoft: '#FFF8E5',
+  amberBorder: '#F8D987',
+  navMarker: '#FFC928',
 
-  // Aksen Sekunder
+  // Alias untuk layar pelajaran yang masih memakai nama token lama.
+  orange: '#6C4FF8',
+  orangeHover: '#5131D6',
+  orangeSoft: '#F1EDFF',
+  orangeBorder: '#DCD3FF',
+  teal: '#16B7AD',
+  tealSoft: '#E5F8F6',
+  emerald: '#22C55E',
+
   cobalt: '#3B82F6',
-  cobaltSoft: '#EFF6FF',
-  indigo: '#4F46E5',
-  indigoSoft: '#EEF2FF',
+  cobaltSoft: '#EAF2FE',
+  indigo: '#6C4FF8',
+  indigoSoft: '#F1EDFF',
   purple: '#8B5CF6',
-  purpleSoft: '#F3E8FF',
-  lime: '#8FA82E',
-  gold: '#F59E0B',
-  goldSoft: '#FEF3C7',
+  purpleSoft: '#F3EEFE',
+  lime: '#84CC16',
+  gold: '#FFB51B',
+  goldSoft: '#FFF8E5',
 
-  // Status
-  correct: '#10B981',
-  correctSoft: '#D1FAE5',
-  incorrect: '#EF4444',
-  incorrectSoft: '#FEE2E2',
+  kuat: '#28B873',
+  stabil: '#F5B81B',
+  pudar: '#F57B36',
+  lemah: '#EA5262',
 
-  border: '#E5E7EB',
-  borderSubtle: '#F3F4F6',
+  correct: '#28B873',
+  correctSoft: '#E3F8EC',
+  incorrect: '#EA5262',
+  incorrectSoft: '#FDE8EB',
+
+  border: '#E7E7F0',
+  borderSubtle: '#F0EFF6',
 } as const;
 
 export const typography = {
   fontFamily:
-    "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    "'Plus Jakarta Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   fontFamilyUI:
-    "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    "'Plus Jakarta Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   size: {
     xs: '0.75rem',
     sm: '0.875rem',
@@ -59,12 +65,14 @@ export const typography = {
     lg: '1.125rem',
     xl: '1.375rem',
     xxl: '1.75rem',
+    display: '2.125rem',
   },
   weight: {
     regular: 400,
     medium: 500,
     semibold: 600,
     bold: 700,
+    extrabold: 800,
   },
   lineHeight: {
     tight: 1.25,
@@ -82,9 +90,10 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: '8px',
-  md: '12px',
-  lg: '16px',
+  sm: '10px',
+  md: '14px',
+  lg: '20px',
+  xl: '24px',
   pill: '9999px',
 } as const;
 
@@ -96,7 +105,8 @@ export const motion = {
 } as const;
 
 export const shadow = {
-  soft: '0 1px 3px rgba(0, 0, 0, 0.06)',
-  lifted: '0 4px 16px rgba(0, 0, 0, 0.08)',
-  floating: '0 12px 32px rgba(0, 0, 0, 0.12)',
+  soft: '0 2px 7px rgba(29, 27, 72, 0.05)',
+  lifted: '0 8px 24px rgba(29, 27, 72, 0.07)',
+  floating: '0 18px 48px rgba(29, 27, 72, 0.13)',
+  violet: '0 8px 18px rgba(91, 63, 222, 0.28)',
 } as const;

@@ -1,0 +1,713 @@
+.atlas-page {
+  min-height: calc(100vh - 4.65rem);
+  padding: 1.4rem 0 4rem;
+  background:
+    radial-gradient(circle at 42% 32%, rgba(117, 87, 246, 0.08), transparent 27rem), #fafafd;
+}
+
+.atlas-shell {
+  width: min(100% - 3rem, 88rem);
+  margin-inline: auto;
+}
+
+.atlas-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #81859a;
+  font-size: 0.7rem;
+}
+
+.atlas-breadcrumb button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #6c4ff8;
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 700;
+}
+
+.atlas-hero {
+  position: relative;
+  margin-top: 1rem;
+  min-height: 8.8rem;
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  border: 1px solid #e5e2f0;
+  border-radius: 21px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 18px rgba(29, 27, 72, 0.05);
+}
+
+.atlas-hero__title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.atlas-hero__icon {
+  width: 4.5rem;
+  height: 4.5rem;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 17px;
+}
+
+.atlas-eyebrow {
+  color: #6c4ff8;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+}
+
+.atlas-hero h1 {
+  margin: 0.2rem 0 0;
+  color: #101936;
+  font-size: clamp(1.65rem, 2.7vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+}
+
+.atlas-hero__title p {
+  max-width: 38rem;
+  margin: 0.38rem 0 0;
+  color: #626984;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.atlas-hero__stats {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+}
+
+.atlas-hero__stats > span:not(.atlas-ring) {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  column-gap: 0.45rem;
+  color: #6c4ff8;
+}
+
+.atlas-hero__stats b {
+  color: #101936;
+  font-size: 0.9rem;
+}
+.atlas-hero__stats small {
+  grid-column: 2;
+  margin-top: -0.2rem;
+  color: #626984;
+  font-size: 0.55rem;
+}
+
+.atlas-ring {
+  width: 4rem;
+  height: 4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.atlas-ring i {
+  width: 3.1rem;
+  height: 3.1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #101936;
+  font-size: 0.7rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.view-toggle {
+  position: absolute;
+  right: 1.4rem;
+  bottom: -3.5rem;
+  z-index: 5;
+  padding: 0.28rem;
+  display: flex;
+  border: 1px solid #e4e2eb;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(29, 27, 72, 0.08);
+}
+
+.view-toggle button {
+  min-width: 6rem;
+  min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #626984;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.view-toggle button.is-active {
+  background: linear-gradient(180deg, #7a5dff, #603fe9);
+  box-shadow: 0 4px 10px rgba(87, 55, 210, 0.25);
+  color: #fff;
+}
+
+.atlas-layout {
+  margin-top: 4.7rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 1.2rem;
+  align-items: start;
+}
+
+.atlas-map-card,
+.current-lesson-card,
+.concept-card {
+  border: 1px solid #e5e4ed;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 5px 16px rgba(29, 27, 72, 0.045);
+}
+
+.atlas-map-card {
+  min-width: 0;
+  padding: 1.25rem;
+}
+
+.atlas-map-card__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.atlas-map-card__heading span,
+.current-lesson-card__kicker {
+  color: #6c4ff8;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+}
+
+.atlas-map-card__heading h2 {
+  margin: 0.25rem 0 0;
+  color: #101936;
+  font-size: 1.03rem;
+}
+
+.atlas-map-card__heading p {
+  margin: 0;
+  color: #777c92;
+  font-size: 0.62rem;
+}
+
+.knowledge-map {
+  position: relative;
+  height: 40rem;
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid #eeeaf9;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 26% 32%, rgba(130, 98, 255, 0.13), transparent 9rem),
+    radial-gradient(circle at 68% 22%, rgba(40, 184, 115, 0.1), transparent 9rem),
+    radial-gradient(circle at 34% 72%, rgba(243, 154, 22, 0.09), transparent 9rem),
+    radial-gradient(circle at 74% 66%, rgba(59, 130, 246, 0.09), transparent 9rem),
+    linear-gradient(145deg, #faf9ff, #f5f3ff);
+}
+
+.knowledge-map::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background-image: radial-gradient(#8974df 0.7px, transparent 0.7px);
+  background-size: 22px 22px;
+}
+
+.knowledge-map__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.knowledge-map__lines line {
+  stroke: #b8a9f7;
+  stroke-width: 0.7;
+  stroke-dasharray: 2.2 1.5;
+  filter: drop-shadow(0 0 3px rgba(108, 79, 248, 0.3));
+}
+
+.knowledge-map__glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  background: rgba(108, 79, 248, 0.06);
+  filter: blur(20px);
+  transform: translate(-50%, -50%);
+}
+
+.world-node {
+  --node-accent: #6c4ff8;
+  --node-soft: #eee9ff;
+  position: absolute;
+  z-index: 2;
+  width: 11rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #101936;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+
+.world-node:hover {
+  transform: translate(-50%, calc(-50% - 3px));
+}
+
+.world-node__platform {
+  width: 5.4rem;
+  height: 3.1rem;
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+  border: 2px solid color-mix(in srgb, var(--node-accent) 58%, white);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fff 0 55%, var(--node-soft) 56% 100%);
+  box-shadow:
+    0 8px 0 color-mix(in srgb, var(--node-accent) 28%, #ddd),
+    0 13px 20px rgba(29, 27, 72, 0.12);
+  color: var(--node-accent);
+}
+
+.world-node__platform > span {
+  width: 2.6rem;
+  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--node-soft);
+}
+
+.world-node--active .world-node__platform {
+  box-shadow:
+    0 0 0 7px color-mix(in srgb, var(--node-accent) 16%, transparent),
+    0 8px 0 var(--node-accent),
+    0 14px 24px rgba(29, 27, 72, 0.15);
+}
+
+.world-node--done .world-node__platform > span {
+  background: #28b873;
+  color: #fff;
+}
+
+.world-node__label {
+  margin-top: 1.05rem;
+  padding: 0.55rem 0.65rem;
+  display: block;
+  border: 1px solid rgba(226, 224, 238, 0.88);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 5px 13px rgba(29, 27, 72, 0.06);
+}
+
+.world-node__label b,
+.world-node__label small,
+.world-node__label i {
+  display: block;
+}
+
+.world-node__label b {
+  font-size: 0.68rem;
+}
+.world-node__label small {
+  margin-top: 0.2rem;
+  overflow: hidden;
+  color: #656b82;
+  font-size: 0.53rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.world-node__label i {
+  margin-top: 0.28rem;
+  color: var(--node-accent);
+  font-size: 0.55rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.world-node__marker {
+  position: absolute;
+  left: 50%;
+  top: -3.2rem;
+  padding: 0.42rem 0.65rem;
+  border: 1px solid #d7ceff;
+  border-radius: 9px 9px 9px 2px;
+  background: #fff;
+  box-shadow: 0 5px 12px rgba(29, 27, 72, 0.08);
+  color: #5d42df;
+  font-size: 0.54rem;
+  font-weight: 800;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.knowledge-map__lumo {
+  position: absolute;
+  right: 1.4rem;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.knowledge-map__lumo span {
+  margin-left: -0.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #e6e4ed;
+  border-radius: 11px 11px 11px 2px;
+  background: #fff;
+  color: #626984;
+  font-size: 0.56rem;
+  font-weight: 700;
+}
+
+.atlas-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.current-lesson-card,
+.concept-card {
+  padding: 1.2rem;
+}
+
+.current-lesson-card__icon {
+  width: 2.7rem;
+  height: 2.7rem;
+  margin-bottom: 0.8rem;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+}
+
+.current-lesson-card h2,
+.concept-card h2 {
+  margin: 0.35rem 0 0;
+  color: #101936;
+  font-size: 0.93rem;
+  line-height: 1.4;
+}
+
+.current-lesson-card > p,
+.concept-card > p {
+  margin: 0.35rem 0 0;
+  color: #666c83;
+  font-size: 0.64rem;
+  line-height: 1.55;
+}
+
+.current-lesson-card__progress {
+  margin-top: 1rem;
+}
+
+.current-lesson-card__progress > span:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.current-lesson-card__progress b {
+  color: #101936;
+  font-size: 1.05rem;
+}
+.current-lesson-card__progress small {
+  color: #74798f;
+  font-size: 0.55rem;
+}
+.current-lesson-card__progress > span:last-child {
+  height: 0.42rem;
+  margin-top: 0.45rem;
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ebeaf2;
+}
+.current-lesson-card__progress i {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+}
+
+.current-lesson-card > button {
+  width: 100%;
+  min-height: 2.9rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #7d60ff, #5b3fe4);
+  box-shadow: 0 5px 0 #4931bd;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.concept-card ul {
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.concept-card li {
+  padding: 0.58rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-bottom: 1px solid #f0eff5;
+}
+
+.concept-card li:last-child {
+  border-bottom: 0;
+}
+.concept-card li > span {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: grid;
+  place-items: center;
+  border: 2px solid #d9d8e2;
+  border-radius: 50%;
+  color: #fff;
+}
+.concept-card li > span.is-done {
+  border-color: #28b873;
+  background: #28b873;
+}
+.concept-card li b {
+  font-size: 0.63rem;
+}
+
+.atlas-note {
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid #e8e1ff;
+  border-radius: 16px;
+  background: #f3efff;
+  color: #6c4ff8;
+}
+
+.atlas-note b {
+  color: #101936;
+  font-size: 0.7rem;
+}
+.atlas-note p {
+  margin: 0.3rem 0 0;
+  color: #626984;
+  font-size: 0.6rem;
+  line-height: 1.5;
+}
+
+.atlas-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.atlas-list__world {
+  overflow: hidden;
+  border: 1px solid #e7e6ee;
+  border-radius: 15px;
+}
+
+.atlas-list__world-heading {
+  padding: 0.85rem 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f8f7fc;
+}
+
+.atlas-list__world-heading > span {
+  width: 2.45rem;
+  height: 2.45rem;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+}
+
+.atlas-list__world-heading small {
+  color: #8b8fa4;
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.atlas-list__world-heading h3 {
+  margin: 0.16rem 0 0;
+  font-size: 0.78rem;
+}
+.atlas-list__world-heading > b {
+  font-size: 0.7rem;
+}
+
+.atlas-list__world > button {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  display: grid;
+  grid-template-columns: 2rem 1fr auto auto;
+  align-items: center;
+  gap: 0.7rem;
+  border: 0;
+  border-top: 1px solid #eeeef4;
+  background: #fff;
+  color: #101936;
+  cursor: pointer;
+  text-align: left;
+}
+
+.atlas-list__world > button.is-current {
+  box-shadow: inset 3px 0 #6c4ff8;
+  background: #faf9ff;
+}
+.atlas-list__world > button > span:first-child {
+  color: #6c4ff8;
+  font-size: 0.64rem;
+  font-weight: 800;
+}
+.atlas-list__world > button b,
+.atlas-list__world > button small {
+  display: block;
+}
+.atlas-list__world > button b {
+  font-size: 0.7rem;
+}
+.atlas-list__world > button small {
+  margin-top: 0.2rem;
+  color: #73788f;
+  font-size: 0.57rem;
+}
+
+.atlas-state {
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+  background: #f0eff4;
+  color: #85899d;
+  font-size: 0.53rem;
+  font-weight: 700;
+}
+.atlas-state--done {
+  background: #e3f8ec;
+  color: #269b5f;
+}
+
+@media (max-width: 1000px) {
+  .atlas-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .atlas-hero__stats {
+    width: 100%;
+  }
+  .atlas-layout {
+    grid-template-columns: 1fr;
+  }
+  .atlas-sidebar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .atlas-note {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .atlas-shell {
+    width: min(100% - 1.5rem, 88rem);
+  }
+  .atlas-hero__title {
+    align-items: flex-start;
+  }
+  .atlas-hero__icon {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .atlas-hero__stats {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .view-toggle {
+    left: 1rem;
+    right: 1rem;
+    justify-content: stretch;
+  }
+  .view-toggle button {
+    min-width: 0;
+    flex: 1;
+  }
+  .atlas-layout {
+    margin-top: 4.6rem;
+  }
+  .atlas-map-card {
+    padding: 0.8rem;
+  }
+  .atlas-map-card__heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .knowledge-map {
+    height: 36rem;
+  }
+  .world-node {
+    width: 8.4rem;
+  }
+  .world-node__platform {
+    width: 4.4rem;
+  }
+  .world-node__label {
+    padding-inline: 0.4rem;
+  }
+  .knowledge-map__lumo {
+    display: none;
+  }
+  .atlas-sidebar {
+    grid-template-columns: 1fr;
+  }
+  .atlas-note {
+    grid-column: auto;
+  }
+  .atlas-list__world > button {
+    grid-template-columns: 1.6rem 1fr auto;
+  }
+  .atlas-list__world > button > svg {
+    display: none;
+  }
+  .atlas-state {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
