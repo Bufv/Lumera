@@ -49,44 +49,79 @@ describe('Lumera Batch 1 student shell', () => {
     expect(screen.getByRole('heading', { name: new RegExp(heading, 'i') })).toBeTruthy();
   });
 
-  it('keeps the wordmark text-only and Atlas locked', async () => {
+  it('keeps the wordmark text-only and header controls honest', async () => {
     saveLearnerProfile(completedProfile());
     await setHash('#/beranda');
     render(<App />);
 
     const wordmark = screen.getByRole('button', { name: 'Lumera — ke Beranda' });
     expect(wordmark.querySelector('img, svg')).toBeNull();
-    expect(screen.getByRole('button', { name: /Atlas/i })).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.queryByLabelText(/notifikasi/i)).toBeNull();
-    expect(document.querySelector('.student-streak')).toBeNull();
+    const knowledgeMap = screen.getByRole('button', { name: /Peta Ilmu/i });
+    expect(knowledgeMap).toHaveAttribute('aria-disabled', 'true');
+    expect(knowledgeMap).toBeDisabled();
+    expect(document.querySelector('.student-streak')).toHaveTextContent('Mulai');
+
+    const beforeMapClick = window.location.hash;
+    fireEvent.click(knowledgeMap);
+    expect(window.location.hash).toBe(beforeMapClick);
+    expect(screen.queryByText(/Langkah 1 dari 7/i)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Buka pemberitahuan' }));
+    expect(screen.getByRole('dialog', { name: 'Pemberitahuan' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Tutup pemberitahuan' }));
+    expect(screen.queryByRole('dialog', { name: 'Pemberitahuan' })).toBeNull();
   });
 
-  it('shows the Ardi fixture only with a persistent disclosure', async () => {
+  it('wires every screenshot metric and section to the explicit Ardi demo', async () => {
     await setHash('#/beranda?mode=demo');
     render(<App />);
 
     expect(screen.getByRole('status')).toHaveTextContent('Mode demo · Data ilustratif');
     expect(screen.getByRole('heading', { name: 'Selamat malam, Ardi' })).toBeTruthy();
     expect(screen.getAllByText('45%').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: 'Target hari ini' })).toBeTruthy();
+    const targetPanel = document.querySelector('.today-panel');
+    expect(targetPanel).toHaveTextContent(/20\s*menit/i);
+    expect(targetPanel).toHaveTextContent(/3\s*\/\s*5/);
+    expect(screen.getByRole('heading', { name: 'Daily Refresh' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Rekomendasi Lumo' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Baru disimpan' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Jalur belajarmu' })).toBeTruthy();
+
+    const streak = document.querySelector('.student-streak');
+    expect(streak).toHaveTextContent('7');
+    expect(streak).toHaveTextContent('Hari berturut-turut');
+
+    expect(screen.getByText('Cara Membaca Garis Bilangan')).toBeTruthy();
+    expect(screen.getByText('Aturan Membandingkan Bilangan Negatif')).toBeTruthy();
+    expect(screen.getByText('Contoh Perubahan Suhu')).toBeTruthy();
+    expect(screen.getByText('Positif, Negatif, dan Nol')).toBeTruthy();
+    expect(screen.getByText('Garis Bilangan')).toBeTruthy();
+    expect(screen.getByText('Nilai Mutlak')).toBeTruthy();
+    expect(screen.getByText('Penjumlahan Bilangan Bulat')).toBeTruthy();
+    expect(screen.queryByText(/Langkah 1 dari 7/i)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /Mulai Refresh/i }));
+    await waitFor(() => expect(window.location.hash).toBe('#/ulangi?mode=demo'));
+    expect(screen.getByText('Membandingkan Bilangan Negatif')).toBeTruthy();
+    expect(screen.getByText('Pengurangan Bilangan Bulat')).toBeTruthy();
+    expect(screen.queryByText(/Langkah 1 dari 7/i)).toBeNull();
   });
 
-  it('keeps Home focused on exactly one next action and one honest rhythm panel', async () => {
+  it('keeps fresh Home values honest and excludes every illustrative concept', async () => {
     saveLearnerProfile(completedProfile());
     await setHash('#/beranda');
     render(<App />);
 
-    const overview = document.querySelector('.home-overview');
-    expect(overview?.children).toHaveLength(2);
-    expect(screen.getByRole('heading', { name: 'Menjelajahi Bilangan Negatif' })).toBeTruthy();
-    expect(screen.getByText('Membandingkan Bilangan Negatif').querySelector('i')).toBeNull();
-    expect(screen.getByText('Siap dimulai')).toBeTruthy();
-    expect(screen.queryByRole('progressbar')).toBeNull();
-    expect(document.querySelector('.refresh-panel')).toBeNull();
-    expect(document.querySelector('.recommendation-panel')).toBeNull();
-    expect(document.querySelector('.week-streak')).toBeNull();
-    expect(document.querySelector('.student-streak')).toBeNull();
-    expect(document.querySelector('[data-icon="flame"]')).toBeNull();
-    expect(screen.queryByText(/\/\s*5/)).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Selamat malam, Nadia' })).toBeTruthy();
+    expect(screen.getAllByText('Siap dimulai').length).toBeGreaterThan(0);
+    expect(document.querySelector('.today-panel')).toHaveTextContent(/0\s*\/\s*5/);
+    expect(document.querySelector('.student-streak')).toHaveTextContent('Mulai');
+    expect(screen.queryByText('45%')).toBeNull();
+    expect(screen.queryByText('Cara Membaca Garis Bilangan')).toBeNull();
+    expect(screen.queryByText('Aturan Membandingkan Bilangan Negatif')).toBeNull();
+    expect(screen.queryByText('Contoh Perubahan Suhu')).toBeNull();
+    expect(screen.queryByText('Pengurangan Bilangan Bulat')).toBeNull();
   });
 
   it('presents one active Mathematics course and keeps future courses flat', async () => {

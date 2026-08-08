@@ -11,6 +11,25 @@ interface NavItem {
   icon: IconName;
 }
 
+function BellIcon({ size = 21 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" />
+      <path d="M10 21h4" />
+    </svg>
+  );
+}
+
 const PRIMARY_NAV: NavItem[] = [
   { route: 'home', label: 'Beranda', icon: 'home' },
   { route: 'learn', label: 'Belajar', icon: 'book' },
@@ -32,6 +51,7 @@ function routeIsActive(current: RouteName, target: RouteName): boolean {
 export function StudentShell({
   route,
   displayName,
+  streakDays,
   demo,
   children,
   onNavigate,
@@ -40,6 +60,7 @@ export function StudentShell({
 }: {
   route: RouteName;
   displayName: string;
+  streakDays: number;
   demo: boolean;
   children: ReactNode;
   onNavigate: (route: RouteName) => void;
@@ -48,6 +69,8 @@ export function StudentShell({
 }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationSeen, setNotificationSeen] = useState(false);
   const [query, setQuery] = useState('');
   const searchInput = useRef<HTMLInputElement>(null);
   const results = useMemo(() => searchStudentContent(query), [query]);
@@ -57,11 +80,14 @@ export function StudentShell({
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
+        setProfileOpen(false);
+        setNotificationOpen(false);
         setSearchOpen(true);
       }
       if (event.key === 'Escape') {
         setSearchOpen(false);
         setProfileOpen(false);
+        setNotificationOpen(false);
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -76,6 +102,7 @@ export function StudentShell({
 
   const navigate = (next: RouteName) => {
     setProfileOpen(false);
+    setNotificationOpen(false);
     onNavigate(next);
   };
 
@@ -109,10 +136,11 @@ export function StudentShell({
               type="button"
               className="student-nav__item student-nav__item--locked"
               aria-disabled="true"
-              title="Lumera Atlas · Segera hadir"
+              aria-label="Peta Ilmu, segera hadir"
+              title="Peta Ilmu · Segera hadir"
+              disabled
             >
-              Atlas
-              <Icon name="lock" width={14} height={14} />
+              Peta Ilmu
             </button>
           </nav>
 
@@ -120,7 +148,11 @@ export function StudentShell({
             <button
               type="button"
               className="search-trigger"
-              onClick={() => setSearchOpen(true)}
+              onClick={() => {
+                setProfileOpen(false);
+                setNotificationOpen(false);
+                setSearchOpen(true);
+              }}
               aria-label="Buka pencarian"
             >
               <Icon name="search" width={18} height={18} />
@@ -128,15 +160,74 @@ export function StudentShell({
               <kbd>Ctrl K</kbd>
             </button>
 
+            <div
+              className="student-streak"
+              aria-label={
+                streakDays > 0 ? `${streakDays} hari berturut-turut` : 'Mulai rangkaian belajarmu'
+              }
+            >
+              <Icon name="flame" width={23} height={23} />
+              <span>
+                <strong>{streakDays > 0 ? streakDays : 'Mulai'}</strong>
+                <small>{streakDays > 0 ? 'Hari berturut-turut' : 'Rangkaian belajar'}</small>
+              </span>
+            </div>
+
+            <div className="notification-control">
+              <button
+                type="button"
+                className="notification-trigger"
+                aria-label="Buka pemberitahuan"
+                aria-expanded={notificationOpen}
+                onClick={() => {
+                  setProfileOpen(false);
+                  setNotificationSeen(true);
+                  setNotificationOpen((open) => !open);
+                }}
+              >
+                <BellIcon />
+                {!notificationSeen && <i aria-hidden="true" />}
+              </button>
+
+              {notificationOpen && (
+                <section className="notification-menu" role="dialog" aria-label="Pemberitahuan">
+                  <header>
+                    <strong>Pemberitahuan</strong>
+                    <button
+                      type="button"
+                      aria-label="Tutup pemberitahuan"
+                      onClick={() => setNotificationOpen(false)}
+                    >
+                      <Icon name="close" width={17} height={17} />
+                    </button>
+                  </header>
+                  <div className="notification-menu__item">
+                    <span>
+                      <Icon name="check" width={17} height={17} />
+                    </span>
+                    <p>
+                      <strong>Rencana belajarmu sudah siap</strong>
+                      <small>Mulai dari Matematika · Bilangan Bulat.</small>
+                    </p>
+                  </div>
+                </section>
+              )}
+            </div>
+
             <div className="profile-control">
               <button
                 type="button"
-                className="student-avatar"
+                className="student-profile-trigger"
                 aria-label="Buka menu profil"
                 aria-expanded={profileOpen}
-                onClick={() => setProfileOpen((open) => !open)}
+                data-open={profileOpen}
+                onClick={() => {
+                  setNotificationOpen(false);
+                  setProfileOpen((open) => !open);
+                }}
               >
-                {initial}
+                <span className="student-avatar">{initial}</span>
+                <Icon name="chevron" width={15} height={15} />
               </button>
 
               {profileOpen && (
@@ -158,10 +249,10 @@ export function StudentShell({
                     className="profile-menu__locked"
                     role="menuitem"
                     aria-disabled="true"
-                    title="Lumera Atlas · Segera hadir"
+                    title="Peta Ilmu · Segera hadir"
+                    disabled
                   >
-                    <Icon name="lock" width={18} height={18} />
-                    Atlas
+                    Peta Ilmu
                     <small>Segera hadir</small>
                   </button>
                   {demo && (
@@ -176,7 +267,13 @@ export function StudentShell({
         </div>
       </header>
 
-      {demo && (
+      {demo && route === 'home' && (
+        <span className="home-demo-status" role="status">
+          Mode demo · Data ilustratif
+        </span>
+      )}
+
+      {demo && route !== 'home' && (
         <div className="demo-disclosure" role="status">
           <span>
             <strong>Mode demo</strong> · Data ilustratif

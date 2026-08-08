@@ -244,6 +244,7 @@ export function StudentApp() {
     <StudentShell
       route={location.route}
       displayName={visibleProfile.displayName || 'Pelajar Lumera'}
+      streakDays={demoData?.streakDays ?? 0}
       demo={location.demo}
       onNavigate={navigate}
       onExitDemo={exitDemo}

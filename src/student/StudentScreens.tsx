@@ -37,17 +37,6 @@ const DAY_LABELS: Record<StudyDay, string> = {
   sunday: 'Min',
 };
 
-const COMPACT_DAY_LABELS: Readonly<Record<string, string>> = {
-  ...DAY_LABELS,
-  senin: 'Sen',
-  selasa: 'Sel',
-  rabu: 'Rab',
-  kamis: 'Kam',
-  jumat: 'Jum',
-  sabtu: 'Sab',
-  minggu: 'Min',
-};
-
 function Breadcrumbs({ items }: { items: { label: string; onClick?: () => void }[] }) {
   return (
     <nav className="breadcrumbs" aria-label="Jejak halaman">
@@ -110,97 +99,328 @@ export function HomeScreen({
   demoData: ArdiDemoFixture | null;
   onNavigate: (route: RouteName) => void;
 }) {
+  const isDemo = demoData !== null;
   const displayName = demoData?.profile.displayName ?? (profile.displayName || 'Pelajar');
   const percent = demoData?.courseProgress.percent ?? 0;
   const minutes = demoData?.profile.dailyMinutes ?? profile.dailyMinutes;
-  const dayKeys: readonly string[] = demoData ? demoData.profile.studyDays : profile.studyDays;
-  const rhythmDays = dayKeys.map(
-    (day) =>
-      COMPACT_DAY_LABELS[day] ?? day.slice(0, 3).replace(/^./, (letter) => letter.toUpperCase()),
-  );
+  const activityCount = isDemo ? 3 : 0;
+  const streakDays = demoData?.streakDays ?? 0;
+  const savedCount = demoData?.savedConcepts.length ?? 0;
+  const savedTimeLabels = ['2 jam lalu', 'Kemarin', '2 hari lalu'];
+  const refreshItems: {
+    title: string;
+    icon: IconName;
+    tone: 'blue' | 'orange' | 'violet' | 'amber';
+    strength: number;
+    status: string;
+  }[] = [
+    {
+      title: 'Positif, Negatif, dan Nol',
+      icon: 'pages',
+      tone: 'blue',
+      strength: isDemo ? 4 : 0,
+      status: isDemo ? 'Kuat' : 'Belum mulai',
+    },
+    {
+      title: 'Garis Bilangan',
+      icon: 'target',
+      tone: 'orange',
+      strength: isDemo ? 3 : 0,
+      status: isDemo ? 'Stabil' : 'Belum mulai',
+    },
+    {
+      title: 'Nilai Mutlak',
+      icon: 'bar-chart',
+      tone: 'violet',
+      strength: isDemo ? 2 : 0,
+      status: isDemo ? 'Mulai pudar' : 'Belum mulai',
+    },
+    {
+      title: 'Penjumlahan Bilangan Bulat',
+      icon: 'sparkles',
+      tone: 'amber',
+      strength: isDemo ? 2 : 0,
+      status: isDemo ? 'Perlu diulangi' : 'Belum mulai',
+    },
+  ];
 
   return (
-    <main className="student-page home-page home-page--focused">
+    <main className="student-page home-page home-page--dashboard">
       <div className="student-container">
-        <header className="home-intro home-intro--focused">
-          <h1>
-            Selamat malam, {displayName} <span aria-hidden="true">👋</span>
-          </h1>
-          <p>Mau lanjut belajar atau menyegarkan ingatanmu?</p>
-        </header>
+        <div className="home-dashboard">
+          <div className="home-main-column">
+            <header className="home-intro">
+              <h1>
+                Selamat malam, {displayName} <span aria-hidden="true">👋</span>
+              </h1>
+              <p>Mau lanjut belajar atau menyegarkan ingatanmu?</p>
+            </header>
 
-        <div className="home-overview">
-          <section className="home-continue-panel" aria-labelledby="home-course-title">
-            <div className="home-continue-panel__art">
-              <ArtworkFrame
-                assetKey="course-integers"
-                placeholderIcon="math"
-                decorative
-                ratio="wide"
-                variant="violet"
-              />
-              <span className="home-continue-panel__lumo" aria-hidden="true">
-                <Lumo size={62} title="" />
-              </span>
-            </div>
-
-            <div className="home-continue-panel__body">
-              <span className="page-kicker">Matematika · SMP Kelas VII</span>
-              <h2 id="home-course-title">Menjelajahi Bilangan Negatif</h2>
-              <p>Membandingkan Bilangan Negatif</p>
-
-              {percent > 0 ? (
-                <div className="home-course-progress">
-                  <span>
-                    <strong>{percent}%</strong> selesai
-                  </span>
-                  <ProgressBar
-                    percent={percent}
-                    label={percent + '% kursus Bilangan Bulat selesai'}
+            <section className="continue-section" aria-label="Lanjutkan belajar">
+              <div className="continue-section__lumo" aria-hidden="true">
+                <Lumo size={82} title="" />
+                <span>
+                  Kamu bisa
+                  <br />
+                  hari ini! 💪
+                </span>
+              </div>
+              <div className="continue-card">
+                <div className="continue-card__art">
+                  <ArtworkFrame
+                    assetKey="course-integers"
+                    placeholderIcon="math"
+                    alt="Ilustrasi Matematika Bilangan Bulat"
+                    ratio="wide"
+                    variant="violet"
                   />
                 </div>
-              ) : (
-                <span className="home-course-ready">
-                  <Icon name="check" width={17} height={17} />
-                  Siap dimulai
+                <div className="continue-card__body">
+                  <span className="continue-card__eyebrow">Lanjutkan belajar</span>
+                  <strong>Menjelajahi Bilangan Negatif</strong>
+                  <span className="continue-card__module">Membandingkan Bilangan Negatif</span>
+
+                  {percent > 0 ? (
+                    <>
+                      <span className="continue-card__progress-copy">
+                        <b>{percent}% selesai</b>
+                        <i>•</i>
+                        <span>sekitar 4 menit lagi</span>
+                      </span>
+                      <span className="continue-card__progress-row">
+                        <ProgressBar percent={percent} label={percent + '% kursus selesai'} />
+                      </span>
+                    </>
+                  ) : (
+                    <span className="continue-card__ready">Siap dimulai</span>
+                  )}
+
+                  <Tactile className="continue-card__action" onClick={() => onNavigate('integers')}>
+                    {isDemo ? 'Lanjutkan' : 'Lihat jalur'}
+                    <Icon name="arrow" width={18} height={18} />
+                  </Tactile>
+                </div>
+              </div>
+            </section>
+
+            <section className="refresh-panel">
+              <div className="home-panel-heading">
+                <div>
+                  <h2>
+                    Daily Refresh <Icon name="info" width={14} height={14} />
+                  </h2>
+                  <p>Segarkan kembali konsep sebelum mulai terlupakan.</p>
+                </div>
+                <Tactile className="refresh-panel__action" onClick={() => onNavigate('review')}>
+                  <Icon name="play" width={14} height={14} />
+                  {isDemo ? 'Mulai Refresh' : 'Lihat Ulangi'}
+                </Tactile>
+              </div>
+              <div className="refresh-grid">
+                {refreshItems.map((item) => (
+                  <Tactile
+                    key={item.title}
+                    variant="card"
+                    className="refresh-card"
+                    onClick={() => onNavigate('review')}
+                  >
+                    <span className={'refresh-card__icon refresh-card__icon--' + item.tone}>
+                      <Icon name={item.icon} width={18} height={18} />
+                    </span>
+                    <strong>{item.title}</strong>
+                    <span className="refresh-card__mastery">
+                      <small>{item.status}</small>
+                      <span
+                        className={'mastery-dots mastery-dots--' + item.tone}
+                        aria-label={item.strength + ' dari 5 tingkat penguasaan'}
+                      >
+                        {[1, 2, 3, 4, 5].map((dot) => (
+                          <i key={dot} data-filled={dot <= item.strength} />
+                        ))}
+                      </span>
+                    </span>
+                  </Tactile>
+                ))}
+              </div>
+            </section>
+
+            <section className="learning-paths-panel">
+              <div className="home-panel-heading">
+                <h2>Jalur belajarmu</h2>
+                <button
+                  type="button"
+                  className="home-flat-link"
+                  onClick={() => onNavigate('learn')}
+                >
+                  Lihat semua <Icon name="chevron" width={14} height={14} />
+                </button>
+              </div>
+              <div className="learning-paths-grid">
+                <Tactile
+                  variant="card"
+                  className="path-card path-card--active"
+                  onClick={() => onNavigate('math')}
+                >
+                  <span className="path-card__icon">
+                    <Icon name="math" width={24} height={24} />
+                  </span>
+                  <span className="path-card__copy">
+                    <strong>Matematika</strong>
+                    <small>SMP Kelas VII</small>
+                  </span>
+                  <Icon name="chevron" width={15} height={15} />
+                  {percent > 0 ? (
+                    <span className="path-card__progress">
+                      <b>{percent}%</b>
+                      <ProgressBar percent={percent} label={percent + '% Matematika selesai'} />
+                    </span>
+                  ) : (
+                    <span className="path-card__status">Belum dimulai</span>
+                  )}
+                </Tactile>
+
+                <article className="path-card path-card--passive" aria-label="IPA, segera hadir">
+                  <span className="path-card__icon path-card__icon--science">
+                    <Icon name="science" width={24} height={24} />
+                  </span>
+                  <span className="path-card__copy">
+                    <strong>IPA</strong>
+                    <small>SMP Kelas VII</small>
+                  </span>
+                  <Icon name="chevron" width={15} height={15} />
+                  <span className="path-card__status">Segera hadir</span>
+                </article>
+
+                <article
+                  className="path-card path-card--passive"
+                  aria-label="Informatika, dalam pengembangan"
+                >
+                  <span className="path-card__icon path-card__icon--computer">
+                    <Icon name="pages" width={24} height={24} />
+                  </span>
+                  <span className="path-card__copy">
+                    <strong>Informatika</strong>
+                    <small>SMP Kelas VII</small>
+                  </span>
+                  <Icon name="chevron" width={15} height={15} />
+                  <span className="path-card__status path-card__status--developing">
+                    Dalam pengembangan
+                  </span>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <aside className="home-side-column">
+            <section className="today-panel">
+              <h2>Target hari ini</h2>
+              <div className="today-panel__metrics">
+                <div>
+                  <span className="today-metric__icon today-metric__icon--time">
+                    <Icon name="clock" width={25} height={25} />
+                  </span>
+                  <span>
+                    <strong>{minutes} menit</strong>
+                    <small>Target belajar</small>
+                  </span>
+                </div>
+                <div>
+                  <span className="today-metric__icon today-metric__icon--activity">
+                    <Icon name="check" width={23} height={23} />
+                  </span>
+                  <span>
+                    <strong>{activityCount} / 5</strong>
+                    <small>Aktivitas selesai</small>
+                  </span>
+                </div>
+              </div>
+
+              <div className="week-streak">
+                <span className="week-streak__flame">
+                  <Icon name="flame" width={24} height={24} />
                 </span>
-              )}
+                <span className="week-streak__copy">
+                  <strong>{streakDays > 0 ? streakDays + ' hari' : 'Mulai'}</strong>
+                  <small>{streakDays > 0 ? 'konsisten!' : 'streak belajar'}</small>
+                </span>
+                <div className="week-streak__days">
+                  {['M', 'S', 'S', 'R', 'K', 'J', 'S'].map((day, index) => {
+                    const filled = isDemo && index < 6;
+                    return (
+                      <span key={day + '-' + index}>
+                        <small>{day}</small>
+                        <i data-active={filled}>{filled ? '✓' : ''}</i>
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
 
+            <section className="recommendation-panel">
+              <h2>Rekomendasi Lumo</h2>
+              <div className="recommendation-panel__message">
+                <Lumo size={74} title="Lumo" />
+                <p>
+                  {isDemo
+                    ? 'Kamu masih sedikit ragu saat membandingkan −8 dan −3. Coba latihan singkat selama 3 menit.'
+                    : 'Kenali dulu urutan modul Bilangan Bulat. Kamu bisa mulai saat kontennya siap.'}
+                </p>
+              </div>
               <Tactile
-                className="home-continue-panel__action"
-                onClick={() => onNavigate('integers')}
+                tone="amber"
+                fullWidth
+                onClick={() => onNavigate(isDemo ? 'review' : 'integers')}
               >
-                Lihat jalur
-                <Icon name="arrow" width={18} height={18} />
+                {isDemo ? 'Coba sekarang' : 'Lihat rencana'}
+                <Icon name="arrow" width={17} height={17} />
               </Tactile>
-            </div>
-          </section>
+            </section>
 
-          <aside className="home-rhythm-panel" aria-labelledby="home-rhythm-title">
-            <span className="page-kicker">Ritme belajarmu</span>
-            <h2 id="home-rhythm-title">Target yang ringan, tetap konsisten.</h2>
-            <div className="home-rhythm-panel__target">
-              <strong>{minutes}</strong>
-              <span>
-                menit
-                <small>target belajar</small>
-              </span>
-            </div>
-            <div className="home-rhythm-panel__days" aria-label="Hari belajar pilihan">
-              {rhythmDays.length > 0 ? (
-                rhythmDays.map((day, index) => <span key={day + '-' + index}>{day}</span>)
+            <section className="recent-saved-panel">
+              <div className="home-panel-heading">
+                <h2>Baru disimpan</h2>
+                <button
+                  type="button"
+                  className="home-flat-link"
+                  onClick={() => onNavigate('saved')}
+                >
+                  Lihat semua <Icon name="chevron" width={14} height={14} />
+                </button>
+              </div>
+              {savedCount > 0 ? (
+                <div className="recent-saved-list">
+                  {demoData?.savedConcepts.map((concept, index) => (
+                    <button type="button" key={concept.id} onClick={() => onNavigate('saved')}>
+                      <span
+                        className={
+                          'recent-saved-list__icon recent-saved-list__icon--' + (index + 1)
+                        }
+                      >
+                        <Icon
+                          name={index === 0 ? 'math' : index === 1 ? 'chevron' : 'science'}
+                          width={17}
+                          height={17}
+                        />
+                      </span>
+                      <span>
+                        <strong>{concept.title}</strong>
+                        <small>Bilangan Bulat</small>
+                      </span>
+                      <time>{savedTimeLabels[index]}</time>
+                    </button>
+                  ))}
+                </div>
               ) : (
-                <p>Belum ada hari yang dipilih.</p>
+                <div className="recent-saved-empty">
+                  <Icon name="bookmark" width={22} height={22} />
+                  <p>Konsep yang kamu simpan akan muncul di sini.</p>
+                  <button type="button" onClick={() => onNavigate('saved')}>
+                    Buka Simpanan
+                  </button>
+                </div>
               )}
-            </div>
-            <button
-              type="button"
-              className="home-rhythm-panel__settings"
-              onClick={() => onNavigate('settings')}
-            >
-              Atur ritme belajar
-              <Icon name="chevron" width={16} height={16} />
-            </button>
+            </section>
           </aside>
         </div>
       </div>

@@ -2969,3 +2969,213 @@
     justify-self: start;
   }
 }
+
+/* Home screenshot override — intentionally scoped so catalog/course pages stay unchanged. */
+.home-page--dashboard {
+  min-height: calc(100vh - 72px);
+  padding: 26px clamp(24px, 3.2vw, 38px) 56px;
+  background: #f8f8fb;
+}
+
+.home-page--dashboard .student-container {
+  width: min(100%, 1360px);
+}
+
+.home-page--dashboard .home-dashboard {
+  grid-template-columns: minmax(0, 1.92fr) minmax(330px, 0.98fr);
+  gap: clamp(24px, 3.2vw, 38px);
+}
+
+.home-page--dashboard .home-side-column {
+  margin-top: -4px;
+}
+
+.home-page--dashboard .home-intro h1 {
+  font-size: clamp(25px, 2.25vw, 31px);
+}
+
+.home-page--dashboard .continue-section {
+  padding-top: 18px;
+}
+
+.home-page--dashboard .continue-section__lumo {
+  top: -48px;
+  right: 8px;
+}
+
+.home-page--dashboard .continue-section__lumo > span {
+  min-width: 126px;
+}
+
+.home-page--dashboard .continue-card {
+  height: 188px;
+  min-height: 188px;
+}
+
+.home-page--dashboard .continue-card__action.lumera-tactile {
+  bottom: 12px;
+}
+
+.home-page--dashboard .continue-card__art > .lumera-artwork {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 19px 0 0 19px;
+  aspect-ratio: auto;
+}
+
+.home-page--dashboard .continue-card__art .lumera-artwork__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-page--dashboard .continue-section__lumo img,
+.home-page--dashboard .recommendation-panel__message img {
+  transform: scale(1.45);
+  transform-origin: center;
+}
+
+.home-page--dashboard .refresh-panel__action.lumera-tactile {
+  --tactile-surface: #ffffff;
+  --tactile-depth: #c8c1f0;
+  --tactile-foreground: #6d5ce7;
+  --tactile-border: #d8d2ff;
+}
+
+.home-page--dashboard .home-flat-link {
+  min-height: 24px;
+}
+
+.home-page--dashboard .learning-paths-panel {
+  margin-top: 20px;
+}
+
+.home-page--dashboard .learning-paths-grid {
+  margin-top: 2px;
+}
+
+.home-page--dashboard .path-card,
+.home-page--dashboard .path-card.lumera-tactile--card {
+  min-height: 104px;
+}
+
+.continue-card__ready {
+  margin-top: auto;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: #f0eeff;
+  color: #5143c8;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.home-page--dashboard .refresh-panel,
+.home-page--dashboard .learning-paths-panel,
+.home-page--dashboard .today-panel,
+.home-page--dashboard .recommendation-panel,
+.home-page--dashboard .recent-saved-panel,
+.home-page--dashboard .continue-card {
+  box-shadow: 0 3px 10px rgba(21, 23, 42, 0.045);
+}
+
+.home-page--dashboard .today-panel {
+  min-height: 212px;
+}
+
+.home-page--dashboard .today-panel__metrics {
+  margin-top: 10px;
+}
+
+.home-page--dashboard .recommendation-panel {
+  min-height: 200px;
+}
+
+.home-page--dashboard .recent-saved-panel {
+  min-height: 220px;
+}
+
+.home-page--dashboard .recommendation-panel__message {
+  min-height: 70px;
+  margin: 9px 0 8px;
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
+.home-page--dashboard .recent-saved-list {
+  margin-top: 2px;
+}
+
+.home-page--dashboard .recent-saved-list > button {
+  min-height: 48px;
+  padding-block: 2px;
+}
+
+.home-page--dashboard .recent-saved-empty {
+  min-height: 158px;
+}
+
+@media (max-width: 1040px) {
+  .home-page--dashboard .home-dashboard {
+    grid-template-columns: minmax(0, 1.72fr) minmax(310px, 0.9fr);
+    gap: 24px;
+  }
+
+  .home-page--dashboard .refresh-grid {
+    gap: 9px;
+  }
+
+  .home-page--dashboard .refresh-card.lumera-tactile--card {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-page--dashboard .home-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .home-page--dashboard .home-side-column {
+    margin-top: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-page--dashboard .recent-saved-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .home-page--dashboard {
+    padding: 24px 16px 48px;
+  }
+
+  .home-page--dashboard .home-side-column {
+    grid-template-columns: 1fr;
+  }
+
+  .home-page--dashboard .recent-saved-panel {
+    grid-column: auto;
+  }
+
+  .home-page--dashboard .continue-section__lumo {
+    right: 3px;
+  }
+}
+
+@media (max-width: 430px) {
+  .home-page--dashboard .continue-section {
+    padding-top: 28px;
+  }
+
+  .home-page--dashboard .continue-section__lumo {
+    top: -39px;
+  }
+
+  .home-page--dashboard .continue-card__art > .lumera-artwork {
+    border-radius: 19px 19px 0 0;
+  }
+
+  .home-page--dashboard .continue-card {
+    height: auto;
+  }
+}

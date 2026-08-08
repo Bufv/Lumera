@@ -11,7 +11,13 @@ export type ArtworkAsset = {
 export type ArtworkManifest = Readonly<Record<string, ArtworkAsset | string>>;
 
 /**
- * The Batch 1 manifest deliberately starts empty. Add approved PNG assets here
- * later; every ArtworkFrame with the matching assetKey will pick them up.
+ * Approved local artwork is mapped to stable product keys here so page
+ * components never need to import presentation assets directly.
  */
-export const artworkManifest: ArtworkManifest = {};
+export const artworkManifest: ArtworkManifest = {
+  'course-integers': {
+    src: '/assets/math_banner.png',
+    alt: 'Ilustrasi alat belajar Matematika',
+    objectPosition: 'center',
+  },
+};
