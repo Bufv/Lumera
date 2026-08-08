@@ -20,8 +20,13 @@ desktop.ini
 *.log
 tmp/
 temp/
+.wrangler/
 
 # Env / secrets
 .env
 .env.*
 !.env.example
+
+.wrangler/
+docs/sample/brilliant/
+docs/sample/mimo/
