@@ -6,7 +6,6 @@ import { Step5_WhyExplanation } from './steps/Step5_WhyExplanation';
 import { Step6_Reflection } from './steps/Step6_Reflection';
 import { Step7_Continue } from './steps/Step7_Continue';
 import type { AttemptResult, LessonModule, LessonStep } from './types';
-import { color, radius, spacing, typography } from '../design/tokens';
 import { selesaikanPelajaran } from '../progress/award';
 import { bacaSiswa } from '../progress/store';
 import { telemetry } from '../telemetry/adapter';
@@ -135,22 +134,7 @@ export function LessonShell<TState, TJawaban>({
   );
 
   const tombolLanjut = (label: string, aksi: () => void) => (
-    <button
-      type="button"
-      onClick={aksi}
-      style={{
-        width: '100%',
-        background: color.teal,
-        color: color.ivory,
-        border: 'none',
-        borderRadius: radius.pill,
-        padding: spacing.md,
-        fontFamily: typography.fontFamilyUI,
-        fontSize: typography.size.base,
-        fontWeight: typography.weight.semibold,
-        cursor: 'pointer',
-      }}
-    >
+    <button type="button" className="btn3d" style={{ width: '100%' }} onClick={aksi}>
       {label}
     </button>
   );
@@ -192,27 +176,13 @@ export function LessonShell<TState, TJawaban>({
     case 'why':
       isi = <Step5_WhyExplanation teks={teksKenapa} />;
       kontrol = (
-        <div style={{ display: 'flex', gap: spacing.sm }}>
+        <div className="pelajaran__aksi">
           {hasil && !hasil.benar ? (
-            <button
-              type="button"
-              onClick={cobaLagi}
-              style={{
-                flex: 1,
-                background: 'transparent',
-                color: color.teal,
-                border: `1px solid ${color.teal}`,
-                borderRadius: radius.pill,
-                padding: spacing.md,
-                fontFamily: typography.fontFamilyUI,
-                fontSize: typography.size.base,
-                cursor: 'pointer',
-              }}
-            >
+            <button type="button" className="btn3d btn3d--outline" onClick={cobaLagi}>
               Coba lagi
             </button>
           ) : null}
-          <div style={{ flex: 1 }}>{tombolLanjut('Lanjut', keDepan)}</div>
+          <div>{tombolLanjut('Lanjut', keDepan)}</div>
         </div>
       );
       break;

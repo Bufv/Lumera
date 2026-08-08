@@ -1,0 +1,112 @@
+.lumera-tactile {
+  --tactile-surface: #6d5ce7;
+  --tactile-depth: #5143c8;
+  --tactile-foreground: #ffffff;
+  --tactile-border: transparent;
+
+  box-sizing: border-box;
+  display: inline-flex;
+  min-height: 44px;
+  margin: 0 0 6px;
+  padding: 11px 18px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--tactile-foreground);
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  background: var(--tactile-surface);
+  border: 1px solid var(--tactile-border);
+  border-radius: 12px;
+  box-shadow: 0 4px 0 var(--tactile-depth);
+  cursor: pointer;
+  transform: translateY(0);
+  transition:
+    transform 140ms ease-out,
+    box-shadow 140ms ease-out,
+    background-color 140ms ease-out,
+    border-color 140ms ease-out;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  vertical-align: top;
+}
+
+.lumera-tactile--neutral {
+  --tactile-surface: #ffffff;
+  --tactile-depth: #cfd1db;
+  --tactile-foreground: #15172a;
+  --tactile-border: #e4e6ee;
+}
+
+.lumera-tactile--amber {
+  --tactile-surface: #f4b725;
+  --tactile-depth: #c78c00;
+  --tactile-foreground: #15172a;
+}
+
+.lumera-tactile--card {
+  min-height: 56px;
+  padding: 17px 18px;
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  border-radius: 16px;
+}
+
+.lumera-tactile--full {
+  width: 100%;
+}
+
+.lumera-tactile:focus-visible {
+  outline: 3px solid #6d5ce7;
+  outline-offset: 3px;
+}
+
+.lumera-tactile:active:not(:disabled):not([aria-disabled='true']) {
+  box-shadow: 0 0 0 var(--tactile-depth);
+  transform: translateY(4px);
+  transition-duration: 80ms;
+}
+
+.lumera-tactile:disabled,
+.lumera-tactile[aria-disabled='true'] {
+  --tactile-surface: #f1f2f5;
+  --tactile-depth: #d6d8e0;
+  --tactile-foreground: #667085;
+  --tactile-border: #e4e6ee;
+
+  cursor: not-allowed;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lumera-tactile:hover:not(:disabled):not([aria-disabled='true']) {
+    box-shadow: 0 6px 0 var(--tactile-depth);
+    transform: translateY(-2px);
+  }
+
+  .lumera-tactile:active:not(:disabled):not([aria-disabled='true']) {
+    box-shadow: 0 0 0 var(--tactile-depth);
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lumera-tactile,
+  .lumera-tactile:hover:not(:disabled):not([aria-disabled='true']),
+  .lumera-tactile:active:not(:disabled):not([aria-disabled='true']) {
+    transition: none;
+    transform: none;
+  }
+
+  .lumera-tactile:hover:not(:disabled):not([aria-disabled='true']) {
+    box-shadow: 0 4px 0 var(--tactile-depth);
+  }
+
+  .lumera-tactile:active:not(:disabled):not([aria-disabled='true']) {
+    box-shadow: 0 1px 0 var(--tactile-depth);
+  }
+}

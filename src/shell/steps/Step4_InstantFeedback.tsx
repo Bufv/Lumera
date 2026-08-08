@@ -1,4 +1,3 @@
-import { color, radius, spacing, typography } from '../../design/tokens';
 import type { AttemptResult } from '../types';
 
 /**
@@ -8,22 +7,8 @@ import type { AttemptResult } from '../types';
 export function Step4_InstantFeedback({ hasil }: { hasil: AttemptResult }) {
   const benar = hasil.benar;
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      style={{
-        background: benar ? color.correctSoft : color.incorrectSoft,
-        borderLeft: `3px solid ${benar ? color.correct : color.incorrect}`,
-        borderRadius: radius.sm,
-        padding: spacing.md,
-        fontFamily: typography.fontFamilyUI,
-        fontSize: typography.size.base,
-        color: color.ink,
-      }}
-    >
-      <strong style={{ color: benar ? color.correct : color.incorrect }}>
-        {benar ? 'Tepat.' : 'Belum tepat.'}
-      </strong>{' '}
+    <div role="status" aria-live="polite" className={benar ? 'umpan' : 'umpan umpan--salah'}>
+      <strong>{benar ? 'Tepat.' : 'Belum tepat.'}</strong>{' '}
       {benar
         ? 'Perhatikan alasannya di langkah berikutnya.'
         : `Percobaan ke-${hasil.nomorPercobaan}. Lihat penjelasannya, lalu coba lagi.`}

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import { color, radius, spacing, typography } from '../design/tokens';
+import { Icon } from '../design/Icon';
 import { LESSON_STEPS, type LessonStep } from './types';
+import './LessonChrome.css';
 
 /**
  * Layout UI pelajaran sesuai FR-011:
@@ -25,117 +26,48 @@ export function LessonChrome({
   const indeksAktif = LESSON_STEPS.indexOf(langkahAktif);
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: color.surface,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <header
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr auto 1fr',
-          alignItems: 'center',
-          gap: spacing.md,
-          padding: spacing.md,
-          borderBottom: `1px solid ${color.border}`,
-        }}
-      >
-        {/* kiri atas */}
-        <div style={{ justifySelf: 'start' }}>
-          <button
-            type="button"
-            onClick={onTutup}
-            aria-label="Tutup pelajaran"
-            style={{
-              background: 'transparent',
-              border: `1px solid ${color.border}`,
-              borderRadius: radius.pill,
-              width: '2.2rem',
-              height: '2.2rem',
-              cursor: 'pointer',
-              color: color.ink,
-              fontSize: typography.size.lg,
-              lineHeight: 1,
-              fontWeight: typography.weight.bold,
-            }}
-          >
-            ×
-          </button>
-        </div>
+    <div className="pelajaran">
+      <header className="pelajaran__atas">
+        <button
+          type="button"
+          className="pelajaran__tutup"
+          onClick={onTutup}
+          aria-label="Tutup pelajaran"
+        >
+          <Icon name="close" width={20} height={20} />
+        </button>
 
-        {/* tengah atas — progress dots */}
         <div
+          className="pelajaran__titik"
           role="progressbar"
           aria-valuemin={1}
           aria-valuemax={LESSON_STEPS.length}
           aria-valuenow={indeksAktif + 1}
           aria-label={`Langkah ${indeksAktif + 1} dari ${LESSON_STEPS.length}`}
-          style={{ display: 'flex', gap: spacing.xs, justifySelf: 'center' }}
         >
           {LESSON_STEPS.map((s, i) => (
-            <span
+            <i
               key={s}
-              style={{
-                width: i === indeksAktif ? '1.5rem' : '0.5rem',
-                height: '0.5rem',
-                borderRadius: radius.pill,
-                background: i <= indeksAktif ? color.orange : color.border,
-                transition: `all 200ms ease`,
-              }}
+              className={i === indeksAktif ? 'is-aktif' : i < indeksAktif ? 'is-lewat' : undefined}
             />
           ))}
         </div>
 
-        {/* kanan atas — Lumens & Streak */}
-        <div
-          style={{
-            justifySelf: 'end',
-            fontFamily: typography.fontFamilyUI,
-            fontSize: typography.size.sm,
-            fontWeight: typography.weight.semibold,
-            color: color.ink,
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing.xs,
-          }}
-        >
-          <span style={{ color: color.gold }}>◆</span>
-          {lumens} Lumens
+        <div className="pelajaran__lumens">
+          <Icon name="sparkles" width={16} height={16} />
+          {lumens} <span>Lumens</span>
         </div>
       </header>
 
-      {/* tengah — area interaksi/simulasi */}
-      <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '100%' }}>{children}</div>
+      <main className="pelajaran__isi">
+        <div>{children}</div>
       </main>
 
-      {/* bawah — kontrol jawaban */}
-      {kontrolJawaban ? (
-        <div
-          style={{
-            padding: spacing.md,
-            maxWidth: '46rem',
-            margin: '0 auto',
-            width: '100%',
-          }}
-        >
-          {kontrolJawaban}
-        </div>
-      ) : null}
+      {kontrolJawaban ? <div className="pelajaran__kontrol">{kontrolJawaban}</div> : null}
 
-      {/* paling bawah — bilah umpan balik */}
       {bilahUmpanBalik ? (
-        <div
-          style={{
-            borderTop: `1px solid ${color.border}`,
-            background: color.surfaceMuted,
-            padding: spacing.md,
-          }}
-        >
-          <div style={{ maxWidth: '46rem', margin: '0 auto' }}>{bilahUmpanBalik}</div>
+        <div className="pelajaran__bilah">
+          <div>{bilahUmpanBalik}</div>
         </div>
       ) : null}
     </div>

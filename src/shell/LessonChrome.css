@@ -1,0 +1,265 @@
+/* Chrome pelajaran — tata letak FR-011 di atas fondasi baru. */
+
+.pelajaran {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.pelajaran__atas {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-solid);
+}
+
+.pelajaran__tutup {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  justify-self: start;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.pelajaran__tutup:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+/** Titik langkah: yang aktif memanjang, yang sudah lewat tetap terisi. */
+.pelajaran__titik {
+  display: flex;
+  gap: 6px;
+  justify-self: center;
+}
+
+.pelajaran__titik i {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--bg-tertiary);
+  transition:
+    width 200ms ease-out,
+    background-color 200ms ease;
+}
+
+.pelajaran__titik i.is-lewat {
+  background: var(--violet-300);
+}
+
+.pelajaran__titik i.is-aktif {
+  width: 26px;
+  background: var(--violet-500);
+}
+
+.pelajaran__lumens {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: end;
+  padding: 8px 14px;
+  border-radius: var(--r-full);
+  background: var(--violet-50);
+  color: var(--violet-700);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.pelajaran__isi {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+
+.pelajaran__isi > div {
+  width: 100%;
+}
+
+.pelajaran__kontrol {
+  width: 100%;
+  max-width: 46rem;
+  margin-inline: auto;
+  padding: 0 24px 24px;
+}
+
+/** Bilah umpan balik menempel di dasar layar — titik pandang terakhir siswa. */
+.pelajaran__bilah {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-solid);
+  background: var(--bg-secondary);
+}
+
+.pelajaran__bilah > div {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+/* ------------------------------------------------------------- langkah */
+
+.langkah {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+.langkah__label {
+  margin: 0 0 12px;
+  color: var(--text-tertiary);
+}
+
+.langkah__prompt {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.kenapa {
+  max-width: 46rem;
+  margin-inline: auto;
+  padding: 24px;
+  border: 1px solid var(--border-solid);
+  border-radius: var(--r-xl);
+  background: var(--bg-primary);
+}
+
+.kenapa h2 {
+  margin: 0 0 12px;
+  color: var(--violet-700);
+}
+
+.kenapa p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 20px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.refleksi label {
+  display: block;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.refleksi textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border-solid);
+  border-radius: var(--r-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 200ms ease;
+}
+
+.refleksi textarea:focus {
+  border-color: var(--border-hover);
+}
+
+/**
+ * Umpan balik: warnanya sudah membawa arti, jadi nadanya sengaja tenang —
+ * Prinsip V melarang perayaan meledak-ledak.
+ */
+.umpan {
+  padding: 14px 18px;
+  border-left: 4px solid var(--green-500);
+  border-radius: var(--r-md);
+  background: var(--green-100);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.umpan strong {
+  color: var(--green-700);
+}
+
+.umpan--salah {
+  border-left-color: var(--rose-500);
+  background: var(--rose-100);
+}
+
+.umpan--salah strong {
+  color: var(--rose-700);
+}
+
+.selesai {
+  max-width: 46rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.selesai__judul {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.selesai__lumens {
+  margin: 12px 0 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--r-full);
+  background: var(--violet-50);
+  color: var(--violet-700);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pelajaran__aksi {
+  display: flex;
+  gap: 12px;
+}
+
+.pelajaran__aksi > * {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .pelajaran__atas {
+    padding: 12px 16px;
+  }
+
+  .pelajaran__isi {
+    padding: 24px 16px;
+  }
+
+  .pelajaran__kontrol {
+    padding: 0 16px 16px;
+  }
+
+  .pelajaran__lumens span {
+    display: none;
+  }
+
+  .langkah__prompt {
+    font-size: 20px;
+  }
+
+  .kenapa p,
+  .refleksi label {
+    font-size: 17px;
+  }
+}

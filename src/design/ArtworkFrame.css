@@ -1,0 +1,51 @@
+.lumera-artwork {
+  --artwork-background: #ffffff;
+  --artwork-foreground: #6d5ce7;
+
+  position: relative;
+  display: grid;
+  width: 100%;
+  place-items: center;
+  overflow: hidden;
+  color: var(--artwork-foreground);
+  background: var(--artwork-background);
+  border: 1px solid #e4e6ee;
+  border-radius: 16px;
+  isolation: isolate;
+}
+
+.lumera-artwork--square {
+  aspect-ratio: 1;
+}
+
+.lumera-artwork--wide {
+  aspect-ratio: 16 / 9;
+  border-radius: 20px;
+}
+
+.lumera-artwork--portrait {
+  aspect-ratio: 4 / 5;
+}
+
+.lumera-artwork--violet {
+  --artwork-background: #f0eeff;
+  --artwork-foreground: #6d5ce7;
+}
+
+.lumera-artwork--amber {
+  --artwork-background: #fff7dc;
+  --artwork-foreground: #9a6900;
+}
+
+.lumera-artwork__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.lumera-artwork__placeholder {
+  width: clamp(28px, 32%, 56px);
+  height: clamp(28px, 32%, 56px);
+  stroke-width: 1.65;
+}

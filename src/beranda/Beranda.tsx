@@ -1,10 +1,13 @@
-import { Icon, type IconName } from '../design/Icon';
+import { useMemo } from 'react';
+import { Icon } from '../design/Icon';
 import { Lumo } from '../design/Lumo';
-import { SUBJECT_WORLDS } from '../atlas/subject-worlds';
 import { semuaModul } from '../shell/registry';
 import { pilihUsulan } from '../progress/suggestions';
+import { CincinProgres } from '../courses/Progres';
+import { labelMenit, susunKatalog, type KursusTampil } from '../courses/katalog';
 import {
   TARGET_AKTIVITAS_HARIAN,
+  TITIK_KEKUATAN,
   aktivitasHariIni,
   aktivitasTerakhir,
   sapaanWaktu,
@@ -14,14 +17,11 @@ import {
 import type { Siswa } from '../progress/store';
 import './Beranda.css';
 
-const IKON_REFRESH: IconName[] = ['book', 'target', 'bar-chart', 'sparkles'];
-const IKON_DUNIA: Record<string, IconName> = {
-  matematika: 'math',
-  sains: 'science',
-  ekonomi: 'bar-chart',
-  sejarah: 'globe',
-};
-
+/**
+ * Beranda mengikuti susunan halaman Home di `docs/sample/brilliant/`: kolom
+ * utama berisi kartu "lanjutkan" per kursus, rail kanan berisi streak dan target
+ * harian. Liga dan leaderboard tidak diambil — PRD §7.5 melarangnya.
+ */
 export function Beranda({
   siswa,
   onMulai,
@@ -33,317 +33,276 @@ export function Beranda({
   onBukaPetaIlmu: () => void;
   onBukaBelajar: () => void;
 }) {
-  const modulLengkap = semuaModul();
-  const modulRingkas = modulLengkap.map((m) => ({
-    id: m.id,
-    judul: m.judul,
-    subjectWorldId: m.subjectWorldId,
-  }));
-  const usulan = pilihUsulan(modulRingkas, siswa, 5);
-  const utama = usulan[0];
-  const rekomendasi = usulan.find((item) => item.alasan === 'ulang') ?? utama;
-  const jumlahHariIni = aktivitasHariIni(siswa);
-  const hariStreak = stripStreak(siswa);
-  const judulModul = new Map(modulLengkap.map((m) => [m.id, m.judul]));
+  const modulLengkap = useMemo(() => semuaModul(), []);
+  const terdaftar = useMemo(() => new Set(modulLengkap.map((m) => m.id)), [modulLengkap]);
+  const katalog = useMemo(() => susunKatalog(siswa, terdaftar), [siswa, terdaftar]);
+
+  /** Kursus yang punya pelajaran siap, diurut: yang sedang digarap dulu. */
+  const lanjutkan = katalog
+    .flatMap((jalur) => jalur.kursus.map((kursus) => ({ kursus, hue: jalur.hue })))
+    .filter(({ kursus }) => kursus.jumlahTersedia > 0)
+    .sort((a, b) => nilaiUrut(b.kursus) - nilaiUrut(a.kursus))
+    .slice(0, 3);
+
+  const usulan = pilihUsulan(
+    modulLengkap.map((m) => ({ id: m.id, judul: m.judul, subjectWorldId: m.subjectWorldId })),
+    siswa,
+    4,
+  );
+  const terlemah = usulan.find((u) => u.alasan === 'ulang') ?? usulan[0] ?? null;
+
+  const judulModul = useMemo(
+    () => new Map(modulLengkap.map((m) => [m.id, m.judul])),
+    [modulLengkap],
+  );
   const riwayat = aktivitasTerakhir(siswa, judulModul);
-  const mastery = new Map(siswa.mastery.map((item) => [item.moduleId, item.masteryPersen]));
+  const selesaiHariIni = aktivitasHariIni(siswa);
+  const strip = stripStreak(siswa);
   const jam = new Date().getHours();
 
-  const jalur = SUBJECT_WORLDS.map((dunia) => {
-    const nilai = dunia.moduleIds
-      .map((id) => mastery.get(id))
-      .filter((x): x is number => x !== undefined);
-    const persen =
-      nilai.length > 0 ? Math.round(nilai.reduce((a, b) => a + b, 0) / nilai.length) : 0;
-    return { ...dunia, persen };
-  });
-
   return (
-    <div className="home-page">
-      <div className="home-page__intro">
-        <h1>
-          {sapaanWaktu(jam)}, Ardi <span aria-hidden>👋</span>
-        </h1>
-        <p>
-          {utama
-            ? 'Mau lanjut belajar atau menyegarkan ingatanmu?'
-            : 'Pilih jalur untuk mulai belajar.'}
-        </p>
-      </div>
+    <div className="beranda">
+      <div className="wadah beranda__wadah">
+        <main className="beranda__utama">
+          <header className="beranda__sapaan">
+            <div>
+              <h1 className="t-display-2xl">{sapaanWaktu(jam)}</h1>
+              <p className="t-body-lg">
+                {lanjutkan.length > 0
+                  ? 'Mau lanjut dari yang kemarin, atau menyegarkan ingatan dulu?'
+                  : 'Pilih jalur belajar untuk mulai.'}
+              </p>
+            </div>
+            <Lumo size={64} ekspresi="senang" title="Lumo" />
+          </header>
 
-      <main className="home-layout">
-        <div className="home-main">
-          {utama ? (
-            <section className="continue-card">
-              <div className="continue-card__art" aria-hidden>
-                <img src="/assets/math_banner.png" alt="" />
+          {lanjutkan.length > 0 ? (
+            <section className="seksi-beranda">
+              <div className="seksi-beranda__kepala">
+                <h2 className="t-heading-lg">Lanjutkan belajar</h2>
+                <button type="button" className="btn-flat" onClick={onBukaBelajar}>
+                  Semua jalur
+                  <Icon name="chevron" width={16} height={16} />
+                </button>
               </div>
-              <div className="continue-card__content">
-                <div className="continue-card__lumo" aria-hidden>
-                  <Lumo size={76} />
-                  <span>Kamu bisa hari ini.</span>
-                </div>
-                <span className="eyebrow">
-                  {utama.masteryPersen === null ? 'MULAI JALUR BELAJAR' : 'LANJUTKAN BELAJAR'}
-                </span>
-                <h2>{utama.judul}</h2>
-                <p className="continue-card__subject">
-                  <span />
-                  {utama.subjectWorldNama}
-                </p>
-                <div className="continue-card__footer">
-                  <div className="continue-card__progress">
-                    <span>{utama.masteryPersen ?? 0}% selesai</span>
-                    <ProgressBar value={utama.masteryPersen ?? 0} />
-                  </div>
-                  <button
-                    type="button"
-                    className="button button--primary"
-                    onClick={() => onMulai(utama.moduleId)}
-                  >
-                    {utama.masteryPersen === null ? 'Mulai belajar' : 'Lanjutkan'}
-                    <Icon name="arrow" width={20} height={20} />
-                  </button>
-                </div>
+
+              <div className="lanjut-grid">
+                {lanjutkan.map(({ kursus, hue }) => (
+                  <KartuLanjut key={kursus.id} kursus={kursus} hue={hue} onMulai={onMulai} />
+                ))}
               </div>
             </section>
           ) : (
-            <section className="empty-card">
+            <div className="kosong">
               <Icon name="book" width={28} height={28} />
               <div>
-                <h2>Belum ada pelajaran</h2>
-                <p>Tambahkan modul ke registry untuk mulai belajar.</p>
+                <b className="t-heading-sm">Belum ada pelajaran siap</b>
+                <p className="t-body-base">Daftarkan modul ke registry untuk mulai belajar.</p>
               </div>
-            </section>
+            </div>
           )}
 
-          <section className="panel refresh-panel">
-            <div className="section-heading">
+          <section className="seksi-beranda">
+            <div className="seksi-beranda__kepala">
               <div>
-                <div className="section-heading__title-row">
-                  <h2>Refresh Harian</h2>
-                  <span
-                    className="info-dot"
-                    title="Urutan diambil dari konsep yang paling perlu dilatih"
-                  >
-                    <Icon name="info" width={14} height={14} />
-                  </span>
-                </div>
-                <p>Segarkan konsep sebelum mulai terlupakan.</p>
+                <h2 className="t-heading-lg">Refresh harian</h2>
+                <p className="t-body-base seksi-beranda__sub">
+                  Urutannya dari konsep yang paling perlu dilatih.
+                </p>
               </div>
-              {rekomendasi && (
-                <button
-                  type="button"
-                  className="button button--soft"
-                  onClick={() => onMulai(rekomendasi.moduleId)}
-                >
-                  <Icon name="play" width={17} height={17} /> Latih yang terlemah
-                </button>
-              )}
+              <button type="button" className="btn-flat" onClick={onBukaPetaIlmu}>
+                Peta Ilmu
+                <Icon name="chevron" width={16} height={16} />
+              </button>
             </div>
 
-            <div className="refresh-grid">
-              {usulan.slice(0, 4).map((item, index) => {
+            <div className="refresh">
+              {usulan.map((item) => {
                 const kekuatan = tingkatKekuatan(item.masteryPersen);
                 return (
                   <button
                     key={item.moduleId}
                     type="button"
-                    className="refresh-card"
+                    className="refresh__baris"
                     onClick={() => onMulai(item.moduleId)}
                   >
-                    <span className={`icon-tile icon-tile--${index % 4}`}>
-                      <Icon name={IKON_REFRESH[index] ?? 'book'} width={23} height={23} />
+                    <span className="refresh__teks">
+                      <strong className="t-heading-sm">{item.judul}</strong>
+                      <small className="t-body-sm">{item.subjectWorldNama}</small>
                     </span>
-                    <strong>{item.judul}</strong>
-                    <span className="refresh-card__status">
-                      <span>{kekuatan.label}</span>
-                      <StrengthPills filled={kekuatan.terisi} color={kekuatan.warna} />
+                    <span className="refresh__kekuatan">
+                      <small className="t-body-xs">{kekuatan.label}</small>
+                      <span
+                        className="titik"
+                        aria-label={`${kekuatan.terisi} dari ${TITIK_KEKUATAN}`}
+                      >
+                        {Array.from({ length: TITIK_KEKUATAN }, (_, i) => (
+                          <i
+                            key={i}
+                            style={i < kekuatan.terisi ? { background: kekuatan.warna } : undefined}
+                          />
+                        ))}
+                      </span>
                     </span>
+                    <Icon name="arrow" width={18} height={18} />
                   </button>
                 );
               })}
             </div>
           </section>
+        </main>
 
-          <section className="panel paths-panel">
-            <div className="section-heading section-heading--compact">
-              <h2>Jalur belajarmu</h2>
-              <button type="button" className="text-button" onClick={onBukaBelajar}>
-                Lihat semua <Icon name="chevron" width={16} height={16} />
-              </button>
+        <aside className="beranda__rail">
+          <section className="kartu-rail" data-hue="amber">
+            <div className="streak-blok">
+              <Icon name="flame" width={30} height={30} />
+              <div>
+                <b className="t-heading-md">{siswa.streakCount} hari</b>
+                <small className="t-body-sm">berturut-turut</small>
+              </div>
             </div>
-            <div className="path-grid">
-              {jalur.map((dunia, index) => (
-                <button key={dunia.id} type="button" className="path-key" onClick={onBukaPetaIlmu}>
-                  <span className={`icon-tile path-key__icon path-key__icon--${index % 4}`}>
-                    <Icon name={IKON_DUNIA[dunia.id] ?? 'book'} width={27} height={27} />
-                  </span>
-                  <span className="path-key__copy">
-                    <strong>{dunia.nama}</strong>
-                    <small>{dunia.moduleIds.length} pelajaran visual</small>
-                  </span>
-                  <Icon className="path-key__chevron" name="chevron" width={18} height={18} />
-                  <span className="path-key__progress">
-                    <b>{dunia.persen}%</b>
-                    <ProgressBar value={dunia.persen} />
-                  </span>
-                </button>
+
+            <div className="strip">
+              {strip.map((hari) => (
+                <span
+                  key={hari.tanggal}
+                  className={`strip__hari${hari.hariIni ? ' strip__hari--kini' : ''}`}
+                  title={hari.tanggal}
+                >
+                  <small className="t-body-xs">{hari.label.slice(0, 1)}</small>
+                  <i className={hari.terisi ? 'is-terisi' : ''}>
+                    {hari.terisi && <Icon name="check" width={12} height={12} />}
+                  </i>
+                </span>
               ))}
             </div>
           </section>
-        </div>
 
-        <aside className="home-rail">
-          <section className="panel target-card">
-            <h2>Target hari ini</h2>
-            <div className="target-card__metrics">
-              <Metric
-                icon="sparkles"
-                value={siswa.lumens.toLocaleString('id-ID')}
-                label="Lumens terkumpul"
-                tone="violet"
+          <section className="kartu-rail">
+            <h2 className="t-heading-sm">Target hari ini</h2>
+            <div className="target">
+              <CincinProgres
+                persen={(selesaiHariIni / TARGET_AKTIVITAS_HARIAN) * 100}
+                ukuran={52}
+                tebal={7}
+                label={`${selesaiHariIni} dari ${TARGET_AKTIVITAS_HARIAN} pelajaran`}
               />
-              <Metric
-                icon="check"
-                value={`${jumlahHariIni} / ${TARGET_AKTIVITAS_HARIAN}`}
-                label="Aktivitas selesai"
-                tone="green"
-              />
+              <div>
+                <b className="t-heading-md">
+                  {selesaiHariIni} / {TARGET_AKTIVITAS_HARIAN}
+                </b>
+                <small className="t-body-sm">pelajaran hari ini</small>
+              </div>
             </div>
-            <div className="streak-card">
-              <div className="streak-card__summary">
-                <Icon name="flame" width={32} height={32} />
-                <span>
-                  <b>{siswa.streakCount} hari</b>
-                  <small>berturut-turut</small>
-                </span>
-              </div>
-              <div className="streak-days">
-                {hariStreak.map((hari) => (
-                  <span
-                    key={hari.tanggal}
-                    className={hari.hariIni ? 'streak-day streak-day--today' : 'streak-day'}
-                    title={hari.tanggal}
-                  >
-                    <small>{hari.label.slice(0, 1)}</small>
-                    <i className={hari.terisi ? 'is-filled' : ''}>
-                      {hari.terisi && <Icon name="check" width={11} height={11} />}
-                    </i>
-                  </span>
-                ))}
-              </div>
+            <div className="target__lumens">
+              <Icon name="sparkles" width={18} height={18} />
+              <span className="t-body-sm">{siswa.lumens.toLocaleString('id-ID')} Lumens</span>
             </div>
           </section>
 
-          <section className="lumo-card">
-            <h2>Rekomendasi Lumo</h2>
-            <div className="lumo-card__message">
-              <Lumo size={64} />
-              <p>
-                {rekomendasi ? (
-                  <>
-                    Fokus berikutnya: <strong>{rekomendasi.judul}</strong>.{' '}
-                    {rekomendasi.alasan === 'ulang'
-                      ? 'Penguasaanmu di sini paling perlu diperkuat.'
-                      : 'Pelajaran ini siap kamu mulai.'}
-                  </>
-                ) : (
-                  'Tambahkan pelajaran untuk mendapat rekomendasi.'
-                )}
-              </p>
-            </div>
-            {rekomendasi && (
-              <button
-                type="button"
-                className="button button--amber"
-                onClick={() => onMulai(rekomendasi.moduleId)}
-              >
-                Coba sekarang <Icon name="arrow" width={19} height={19} />
-              </button>
-            )}
-          </section>
+          {terlemah && (
+            <section className="kartu-rail kartu-rail--lumo">
+              <Lumo size={48} ekspresi="berpikir" />
+              <div>
+                <b className="t-heading-sm">Saran Lumo</b>
+                <p className="t-body-sm">
+                  Mulai dari <strong>{terlemah.judul}</strong>
+                  {terlemah.masteryPersen !== null
+                    ? ` — penguasaanmu di sini baru ${terlemah.masteryPersen}%.`
+                    : ' — kamu belum pernah mencobanya.'}
+                </p>
+                <button
+                  type="button"
+                  className="btn3d btn3d--sm"
+                  onClick={() => onMulai(terlemah.moduleId)}
+                >
+                  Coba sekarang
+                  <Icon name="arrow" width={16} height={16} />
+                </button>
+              </div>
+            </section>
+          )}
 
-          <section className="panel activity-card">
-            <div className="section-heading section-heading--compact">
-              <h2>Aktivitas terakhir</h2>
-              <button type="button" className="text-button" onClick={onBukaBelajar}>
-                Lihat jalur <Icon name="chevron" width={16} height={16} />
-              </button>
-            </div>
+          <section className="kartu-rail">
+            <h2 className="t-heading-sm">Aktivitas terakhir</h2>
             {riwayat.length > 0 ? (
-              <div className="activity-list">
-                {riwayat.map((item, index) => (
-                  <button key={item.moduleId} type="button" onClick={() => onMulai(item.moduleId)}>
-                    <span className={`activity-list__icon activity-list__icon--${index % 3}`}>
-                      <Icon name={IKON_REFRESH[index] ?? 'book'} width={20} height={20} />
-                    </span>
-                    <span>
-                      <strong>{item.judul}</strong>
-                      <small>{item.masteryPersen}% dikuasai</small>
-                    </span>
-                    <time>{item.labelWaktu}</time>
-                  </button>
+              <ul className="riwayat">
+                {riwayat.map((item) => (
+                  <li key={item.moduleId}>
+                    <button type="button" onClick={() => onMulai(item.moduleId)}>
+                      <span>
+                        <strong className="t-body-base">{item.judul}</strong>
+                        <small className="t-body-xs">{item.masteryPersen}% dikuasai</small>
+                      </span>
+                      <time className="t-body-xs">{item.labelWaktu}</time>
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
-              <div className="activity-empty">
-                <Icon name="book" width={24} height={24} />
-                <p>Aktivitasmu akan muncul setelah satu pelajaran selesai.</p>
-              </div>
+              <p className="t-body-sm kartu-rail__kosong">
+                Selesaikan satu pelajaran, dan jejakmu muncul di sini.
+              </p>
             )}
           </section>
         </aside>
-      </main>
+      </div>
     </div>
   );
 }
 
-function ProgressBar({ value }: { value: number }) {
-  const aman = Math.max(0, Math.min(100, value));
-  return (
-    <span
-      className="progress-bar"
-      role="progressbar"
-      aria-valuenow={aman}
-      aria-valuemin={0}
-      aria-valuemax={100}
-    >
-      <i style={{ width: `${aman}%` }} />
-    </span>
-  );
+/** Kursus yang sedang digarap paling atas, lalu yang belum dimulai. */
+function nilaiUrut(kursus: KursusTampil): number {
+  if (kursus.persen > 0 && kursus.persen < 100) return 2;
+  if (kursus.persen === 0) return 1;
+  return 0;
 }
 
-function StrengthPills({ filled, color }: { filled: number; color: string }) {
-  return (
-    <span className="strength-pills" aria-label={`${filled} dari 5 tingkat kekuatan`}>
-      {[0, 1, 2, 3, 4].map((n) => (
-        <i key={n} style={{ background: n < filled ? color : undefined }} />
-      ))}
-    </span>
-  );
-}
-
-function Metric({
-  icon,
-  value,
-  label,
-  tone,
+function KartuLanjut({
+  kursus,
+  hue,
+  onMulai,
 }: {
-  icon: IconName;
-  value: string;
-  label: string;
-  tone: 'violet' | 'green';
+  kursus: KursusTampil;
+  hue: string;
+  onMulai: (moduleId: string) => void;
 }) {
+  const berikutnya = kursus.berikutnya;
+  const level = kursus.level.find((lv) => lv.pelajaran.some((p) => p.id === berikutnya?.id));
+
   return (
-    <div className="metric">
-      <span className={`metric__icon metric__icon--${tone}`}>
-        <Icon name={icon} width={25} height={25} />
+    <article className="lanjut card3d card3d--hue" data-hue={hue}>
+      <span className="ubin-ikon">
+        <Icon name={kursus.ikon} width={26} height={26} />
       </span>
-      <span>
-        <b>{value}</b>
-        <small>{label}</small>
-      </span>
-    </div>
+
+      <h3 className="t-heading-md">{kursus.judul}</h3>
+      {level && <span className="t-action-sm lanjut__level">Level {level.urutan}</span>}
+
+      {berikutnya && (
+        <p className="t-body-sm lanjut__berikutnya">
+          {berikutnya.judul} · {labelMenit(berikutnya.menit)}
+        </p>
+      )}
+
+      <div className="lanjut__kaki">
+        <CincinProgres
+          persen={kursus.persen}
+          ukuran={36}
+          tebal={5}
+          label={`${kursus.persen} persen dikuasai`}
+        />
+        {berikutnya?.moduleId ? (
+          <button
+            type="button"
+            className="btn3d btn3d--sm"
+            onClick={() => onMulai(berikutnya.moduleId as string)}
+          >
+            {berikutnya.status === 'terbuka' ? 'Mulai' : 'Lanjutkan'}
+            <Icon name="arrow" width={16} height={16} />
+          </button>
+        ) : null}
+      </div>
+    </article>
   );
 }

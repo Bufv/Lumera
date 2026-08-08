@@ -1,4 +1,4 @@
-import { color, radius, spacing, typography } from '../../design/tokens';
+import { Icon } from '../../design/Icon';
 
 /**
  * Lanjutkan (langkah 7). Milik Shell.
@@ -13,52 +13,17 @@ export function Step7_Continue({
   lumensDidapat: number;
 }) {
   return (
-    <section
-      style={{
-        maxWidth: '46rem',
-        margin: '0 auto',
-        padding: spacing.lg,
-        textAlign: 'center',
-      }}
-    >
-      <p
-        style={{
-          fontFamily: typography.fontFamily,
-          fontSize: typography.size.xl,
-          color: color.ink,
-          marginBottom: spacing.sm,
-        }}
-      >
-        Pelajaran selesai.
+    <section className="selesai">
+      <p className="selesai__judul">Pelajaran selesai.</p>
+      <p className="selesai__lumens">
+        <Icon name="sparkles" width={17} height={17} />+{lumensDidapat} Lumens
       </p>
-      <p
-        style={{
-          fontFamily: typography.fontFamilyUI,
-          fontSize: typography.size.base,
-          color: color.inkMuted,
-          marginBottom: spacing.xl,
-        }}
-      >
-        +{lumensDidapat} Lumens
-      </p>
-      <button
-        type="button"
-        onClick={onLanjutkan}
-        style={{
-          background: color.orange,
-          color: '#FFFFFF',
-          border: 'none',
-          borderRadius: radius.pill,
-          padding: `${spacing.md} ${spacing.xl}`,
-          fontFamily: typography.fontFamilyUI,
-          fontSize: typography.size.base,
-          fontWeight: typography.weight.bold,
-          cursor: 'pointer',
-          boxShadow: '0 4px 14px rgba(255, 131, 0, 0.4)',
-        }}
-      >
-        Lanjutkan
-      </button>
+      <div>
+        <button type="button" className="btn3d" onClick={onLanjutkan}>
+          Lanjutkan
+          <Icon name="arrow" width={20} height={20} />
+        </button>
+      </div>
     </section>
   );
 }

@@ -1,6 +1,9 @@
-import { color, radius, spacing, typography } from '../design/tokens';
-import type { Siswa } from './store';
+import { Icon } from '../design/Icon';
+import { CincinProgres } from '../courses/Progres';
 import { semuaModul } from '../shell/registry';
+import { TITIK_KEKUATAN, tingkatKekuatan } from '../beranda/harian';
+import type { Siswa } from './store';
+import './ProgressSummary.css';
 
 /**
  * Ringkasan progres (US8). Nada sengaja tenang — Prinsip V melarang perayaan
@@ -8,124 +11,96 @@ import { semuaModul } from '../shell/registry';
  */
 export function ProgressSummary({ siswa }: { siswa: Siswa }) {
   const modul = semuaModul();
+  const dinilai = modul
+    .map((m) => ({
+      id: m.id,
+      judul: m.judul,
+      catatan: siswa.mastery.find((x) => x.moduleId === m.id) ?? null,
+    }))
+    .map((m) => ({ ...m, persen: m.catatan?.masteryPersen ?? null }));
 
-  const kartu = (label: string, nilai: string) => (
-    <div
-      style={{
-        flex: 1,
-        minWidth: '8rem',
-        background: color.surface,
-        border: `1px solid ${color.border}`,
-        borderRadius: radius.md,
-        padding: spacing.md,
-        textAlign: 'center',
-      }}
-    >
-      <div
-        style={{
-          fontFamily: typography.fontFamily,
-          fontSize: typography.size.xxl,
-          color: color.ink,
-        }}
-      >
-        {nilai}
-      </div>
-      <div
-        style={{
-          fontFamily: typography.fontFamilyUI,
-          fontSize: typography.size.xs,
-          color: color.inkMuted,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-        }}
-      >
-        {label}
-      </div>
-    </div>
-  );
+  const rata = dinilai.filter((m) => m.persen !== null);
+  const rataRata =
+    rata.length > 0
+      ? Math.round(rata.reduce((total, m) => total + (m.persen ?? 0), 0) / rata.length)
+      : 0;
 
   return (
-    <section style={{ maxWidth: '46rem', margin: '0 auto', padding: spacing.lg }}>
-      <h2
-        style={{
-          fontFamily: typography.fontFamilyUI,
-          fontSize: typography.size.sm,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-          color: color.inkMuted,
-          marginBottom: spacing.md,
-        }}
-      >
-        Progres kamu
-      </h2>
+    <section className="progres">
+      <header className="progres__kepala">
+        <div>
+          <h2 className="t-display-xl">Progres kamu</h2>
+          <p className="t-body-base">
+            {rata.length > 0
+              ? `Rata-rata penguasaan dari ${rata.length} pelajaran yang sudah kamu kerjakan.`
+              : 'Selesaikan satu pelajaran untuk mulai melihat penguasaanmu di sini.'}
+          </p>
+        </div>
+        <CincinProgres
+          persen={rataRata}
+          ukuran={72}
+          tebal={9}
+          label={`${rataRata} persen rata-rata penguasaan`}
+        />
+      </header>
 
-      <div style={{ display: 'flex', gap: spacing.md, flexWrap: 'wrap' }}>
-        {kartu('Lumens', String(siswa.lumens))}
-        {kartu('Streak', `${siswa.streakCount} hari`)}
-        {kartu('Modul selesai', String(siswa.modulSelesai.length))}
+      <div className="progres__angka">
+        <Angka ikon="sparkles" nilai={siswa.lumens.toLocaleString('id-ID')} label="Lumens" />
+        <Angka ikon="flame" nilai={`${siswa.streakCount}`} label="Hari berturut-turut" />
+        <Angka
+          ikon="check"
+          nilai={`${siswa.modulSelesai.length}`}
+          label="Pelajaran selesai"
+        />
       </div>
 
-      <h3
-        style={{
-          fontFamily: typography.fontFamilyUI,
-          fontSize: typography.size.sm,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-          color: color.inkMuted,
-          margin: `${spacing.xl} 0 ${spacing.md}`,
-        }}
-      >
-        Penguasaan per modul
-      </h3>
+      <h3 className="t-heading-sm progres__subjudul">Penguasaan per pelajaran</h3>
 
       {modul.length === 0 ? (
-        <p style={{ fontFamily: typography.fontFamilyUI, color: color.inkMuted }}>
-          Belum ada modul terdaftar.
-        </p>
+        <p className="t-body-base progres__kosong">Belum ada modul terdaftar.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {modul.map((m) => {
-            const rec = siswa.mastery.find((x) => x.moduleId === m.id);
-            const persen = rec?.masteryPersen ?? 0;
+        <ul className="progres__daftar">
+          {dinilai.map((m) => {
+            const kekuatan = tingkatKekuatan(m.persen);
             return (
-              <li key={m.id} style={{ marginBottom: spacing.md }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    fontFamily: typography.fontFamilyUI,
-                    fontSize: typography.size.sm,
-                    color: color.ink,
-                    marginBottom: spacing.xs,
-                  }}
-                >
-                  <span>{m.judul}</span>
-                  <span style={{ color: rec ? color.orange : color.inkFaint }}>
-                    {rec ? `${persen}%` : 'belum dimulai'}
+              <li key={m.id}>
+                <div className="progres__baris">
+                  <span className="t-body-base">{m.judul}</span>
+                  <span className="t-body-sm progres__nilai">
+                    {m.persen === null ? 'Belum dimulai' : `${m.persen}% · ${kekuatan.label}`}
                   </span>
                 </div>
-                <div
-                  style={{
-                    height: '6px',
-                    background: color.border,
-                    borderRadius: radius.pill,
-                    overflow: 'hidden',
-                  }}
+                <span
+                  className="titik"
+                  aria-label={`${kekuatan.terisi} dari ${TITIK_KEKUATAN} tingkat kekuatan`}
                 >
-                  <div
-                    style={{
-                      width: `${persen}%`,
-                      height: '100%',
-                      background: color.orange,
-                      transition: 'width 200ms ease',
-                    }}
-                  />
-                </div>
+                  {Array.from({ length: TITIK_KEKUATAN }, (_, i) => (
+                    <i key={i} style={i < kekuatan.terisi ? { background: kekuatan.warna } : undefined} />
+                  ))}
+                </span>
               </li>
             );
           })}
         </ul>
       )}
     </section>
+  );
+}
+
+function Angka({
+  ikon,
+  nilai,
+  label,
+}: {
+  ikon: 'sparkles' | 'flame' | 'check';
+  nilai: string;
+  label: string;
+}) {
+  return (
+    <div className="angka">
+      <Icon name={ikon} width={22} height={22} />
+      <b className="t-display-lg">{nilai}</b>
+      <small className="t-body-sm">{label}</small>
+    </div>
   );
 }

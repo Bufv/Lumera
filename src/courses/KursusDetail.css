@@ -1,0 +1,343 @@
+/* Halaman kursus — anatomi halaman course dari docs/sample/brilliant/. */
+
+.kursus {
+  padding: 40px 0 96px;
+  background: var(--bg-primary);
+}
+
+.kursus__wadah {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--kolom-pelajaran);
+  gap: 64px;
+  align-items: start;
+}
+
+/* ------------------------------------------------------------- ringkasan */
+
+.kursus__ringkas {
+  position: sticky;
+  top: 96px;
+  max-width: 30rem;
+}
+
+.kursus__balik {
+  margin: 0 0 24px -12px;
+  color: var(--text-secondary);
+}
+
+.kursus__balik-ikon {
+  transform: rotate(180deg);
+}
+
+.kursus__ringkas h1 {
+  margin: 20px 0 0;
+  color: var(--text-primary);
+}
+
+.kursus__ringkas-teks {
+  margin: 12px 0 0;
+  color: var(--text-secondary);
+}
+
+.kursus__meta {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+.kursus__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+}
+
+.kursus__meta svg {
+  flex: none;
+  color: var(--hue-text);
+}
+
+.kursus__progres {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--r-xl);
+  background: var(--bg-secondary);
+}
+
+.kursus__progres b {
+  display: block;
+  color: var(--text-primary);
+}
+
+.kursus__progres small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-secondary);
+}
+
+.kursus__mulai {
+  width: 100%;
+  margin-top: 24px;
+}
+
+.kursus__belum {
+  margin: 24px 0 0;
+  padding: 16px;
+  border: 1px dashed var(--border-solid);
+  border-radius: var(--r-lg);
+  color: var(--text-secondary);
+}
+
+.kursus__catatan {
+  margin: 12px 0 0;
+  color: var(--text-tertiary);
+}
+
+/* ---------------------------------------------------------------- level */
+
+.kursus__kolom {
+  min-width: 0;
+}
+
+.level + .level {
+  margin-top: 8px;
+}
+
+/**
+ * Kepala level lengket di bawah header aplikasi. Papannya memakai keycap
+ * berwarna rona kursus sehingga terbaca sebagai penanda babak, bukan judul biasa.
+ */
+.level__kepala {
+  position: sticky;
+  top: 76px;
+  z-index: 2;
+  padding: 16px 0;
+  background: linear-gradient(
+    180deg,
+    var(--bg-primary) 0%,
+    var(--bg-primary) 62%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.level__papan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 20px 16px;
+  border-radius: var(--r-2xl);
+  background: var(--hue-tint);
+  box-shadow: 0 4px 0 0 var(--hue-border);
+  text-align: center;
+}
+
+.level__papan--mati {
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 0 0 var(--border-solid);
+}
+
+.level__nomor {
+  color: var(--hue-text);
+}
+
+.level__papan--mati .level__nomor {
+  color: var(--text-tertiary);
+}
+
+.level__judul {
+  color: var(--text-primary);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.level__peta {
+  position: relative;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.level__peta svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.level__konsep {
+  margin: 8px 0 0;
+  padding: 16px 20px;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-radius: var(--r-xl);
+  background: var(--bg-secondary);
+}
+
+.level__konsep li {
+  padding: 6px 12px;
+  border-radius: var(--r-full);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+}
+
+/* --------------------------------------------------------------- simpul */
+
+/**
+ * Yang dipatok pada titik jalur adalah KARTUNYA, bukan seluruh baris — lebar
+ * label berbeda-beda, jadi memusatkan seluruh baris akan menggeser kartunya
+ * keluar dari jalur. Sisi yang dipatok ditentukan di KursusDetail.tsx; di sini
+ * tinggal menggeser setengah kartu.
+ */
+.simpul {
+  --setengah-kartu: 38px;
+
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transform: translateY(-50%);
+}
+
+.simpul--kanan {
+  flex-direction: row;
+  margin-left: calc(-1 * var(--setengah-kartu));
+}
+
+.simpul--kiri {
+  flex-direction: row-reverse;
+  margin-right: calc(-1 * var(--setengah-kartu));
+}
+
+.simpul--kiri .simpul__teks {
+  text-align: right;
+}
+
+.simpul__kartu {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: var(--r-2xl);
+  background: var(--bg-primary);
+  color: var(--hue-text);
+}
+
+.simpul__no {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.simpul__teks {
+  width: 118px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.simpul__judul {
+  color: var(--text-primary);
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+
+.simpul__menit {
+  color: var(--text-tertiary);
+}
+
+.simpul--selesai .simpul__kartu {
+  border-color: var(--green-500);
+  background: var(--green-500);
+  box-shadow: 0 4px 0 0 var(--green-600);
+  color: var(--text-on-color);
+}
+
+.simpul--selesai .simpul__kartu:hover {
+  border-color: var(--green-600);
+  box-shadow: 0 4px 0 0 var(--green-600);
+}
+
+.simpul--sedang .simpul__kartu {
+  background: var(--hue-tint);
+}
+
+.simpul--cek .simpul__kartu {
+  border-radius: var(--r-3xl);
+}
+
+.simpul--mati {
+  cursor: default;
+}
+
+.simpul--mati .simpul__kartu {
+  border: 2px dashed var(--border-solid);
+  background: var(--bg-secondary);
+  color: var(--text-disabled);
+}
+
+.simpul--mati .simpul__judul {
+  color: var(--text-tertiary);
+}
+
+/* ------------------------------------------------------------ layar kecil */
+
+@media (max-width: 1080px) {
+  .kursus__wadah {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    justify-items: center;
+  }
+
+  .kursus__ringkas {
+    position: static;
+    width: 100%;
+    max-width: var(--kolom-pelajaran);
+  }
+
+  .kursus__kolom {
+    width: 100%;
+    max-width: var(--kolom-pelajaran);
+  }
+}
+
+@media (max-width: 768px) {
+  .kursus {
+    padding-top: 24px;
+  }
+
+  .level__kepala {
+    top: 64px;
+  }
+
+  .simpul {
+    --setengah-kartu: 32px;
+  }
+
+  .simpul__kartu {
+    width: 64px;
+    height: 64px;
+  }
+
+  .simpul__teks {
+    width: 104px;
+  }
+
+  .simpul__no {
+    font-size: 20px;
+  }
+}

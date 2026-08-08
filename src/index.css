@@ -1,4 +1,135 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/**
+ * Kembaran CSS dari src/design/tokens.ts, ditambah primitif komponen yang
+ * dipakai lintas layar. Alasan setiap keputusan ada di docs/desain-fondasi.md.
+ */
+
+:root {
+  /* --- netral akromatik: sengaja tanpa rona --- */
+  --gray-50: #faf9f6;
+  --gray-100: #f4f3f0;
+  --gray-200: #e4e6ee;
+  --gray-300: #d3d6df;
+  --gray-400: #a4a8b5;
+  --gray-700: #667085;
+  --gray-950: #15172a;
+
+  --violet-50: #faf9ff;
+  --violet-100: #f0eeff;
+  --violet-200: #ded9fb;
+  --violet-300: #bdb4f5;
+  --violet-400: #8b7dec;
+  --violet-500: #6d5ce7;
+  --violet-600: #5143c8;
+  --violet-700: #4135a6;
+
+  --amber-100: #fff7dc;
+  --amber-200: #ffebaf;
+  --amber-400: #f8c84e;
+  --amber-500: #f4b725;
+  --amber-600: #d99a0b;
+  --amber-700: #99660a;
+
+  --green-100: #e0fae9;
+  --green-200: #bdf2ce;
+  --green-400: #4ed07c;
+  --green-500: #2ead68;
+  --green-600: #178f3c;
+  --green-700: #147132;
+
+  --blue-100: #e4eeff;
+  --blue-200: #c7dcff;
+  --blue-400: #62a0fb;
+  --blue-500: #3b82f6;
+  --blue-600: #2668d6;
+  --blue-700: #1d51ab;
+
+  --rose-100: #ffe6e6;
+  --rose-500: #d65a5a;
+  --rose-700: #a72020;
+
+  /* --- lapisan semantik --- */
+  --bg-primary: #faf9f6;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: var(--gray-100);
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(0, 0, 0, 0.08);
+  --bg-disabled: rgba(0, 0, 0, 0.05);
+
+  --text-primary: #15172a;
+  --text-secondary: #667085;
+  --text-tertiary: #7a8193;
+  --text-disabled: #a4a8b5;
+  --text-on-color: #ffffff;
+
+  --border-solid: var(--gray-200);
+  --border-hover: #b8bdca;
+  --border-subtle: rgba(21, 23, 42, 0.08);
+
+  /* --- elevasi difus, tanpa offset vertikal --- */
+  --shadow-subtle: 0 1px 2px rgba(21, 23, 42, 0.04);
+  --shadow-base: 0 10px 28px rgba(21, 23, 42, 0.07);
+  --shadow-md: 0 18px 44px rgba(21, 23, 42, 0.12);
+  --shadow-outline: 0 0 0 3px rgba(109, 92, 231, 0.34);
+
+  /* --- radius --- */
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-2xl: 20px;
+  --r-3xl: 32px;
+  --r-full: 9999px;
+
+  --konten: 1240px;
+  --kolom-pelajaran: 392px;
+
+  /**
+   * Rona aktif sebuah subtree. Komponen berwarna membaca variabel ini, bukan
+   * hex, sehingga satu komponen melayani semua mapel.
+   */
+  --hue-tint: var(--violet-100);
+  --hue-soft: var(--violet-200);
+  --hue-border: var(--violet-400);
+  --hue-fill: var(--violet-500);
+  --hue-depth: var(--violet-600);
+  --hue-text: var(--violet-700);
+}
+
+[data-hue='violet'] {
+  --hue-tint: var(--violet-100);
+  --hue-soft: var(--violet-200);
+  --hue-border: var(--violet-400);
+  --hue-fill: var(--violet-500);
+  --hue-depth: var(--violet-600);
+  --hue-text: var(--violet-700);
+}
+[data-hue='amber'] {
+  --hue-tint: var(--amber-100);
+  --hue-soft: var(--amber-200);
+  --hue-border: var(--amber-400);
+  --hue-fill: var(--amber-500);
+  --hue-depth: var(--amber-600);
+  --hue-text: var(--amber-700);
+}
+[data-hue='green'] {
+  --hue-tint: var(--green-100);
+  --hue-soft: var(--green-200);
+  --hue-border: var(--green-400);
+  --hue-fill: var(--green-500);
+  --hue-depth: var(--green-600);
+  --hue-text: var(--green-700);
+}
+[data-hue='blue'] {
+  --hue-tint: var(--blue-100);
+  --hue-soft: var(--blue-200);
+  --hue-border: var(--blue-400);
+  --hue-fill: var(--blue-500);
+  --hue-depth: var(--blue-600);
+  --hue-text: var(--blue-700);
+}
+
+/* ------------------------------------------------------------------ dasar */
 
 *,
 *::before,
@@ -12,13 +143,7 @@ body,
   margin: 0;
   padding: 0;
   min-height: 100%;
-  font-family:
-    'Plus Jakarta Sans',
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: 'Plus Jakarta Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 html {
@@ -26,8 +151,10 @@ html {
 }
 
 body {
-  background: #f8f8fc;
-  color: #101936;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -44,36 +171,298 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
-button:not(:disabled) {
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease;
-}
-
-button:not(:disabled):active {
-  transform: translateY(1px);
-}
-
-input[type='range'] {
-  accent-color: #6c4ff8;
-  height: 1.5rem;
-}
-
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-[tabindex]:focus-visible {
-  outline: 3px solid rgba(108, 79, 248, 0.34);
-  outline-offset: 2px;
+:focus-visible {
+  outline: 3px solid rgba(109, 92, 231, 0.42);
+  outline-offset: 3px;
 }
 
 img,
 svg,
 canvas {
   max-width: 100%;
+}
+
+/* ------------------------------------------------------------- tipografi */
+
+.t-display-lg,
+.t-display-xl,
+.t-display-2xl,
+.t-display-3xl {
+  font-weight: 500;
+  line-height: 1.1;
+}
+.t-display-lg {
+  font-size: 24px;
+}
+.t-display-xl {
+  font-size: 30px;
+}
+.t-display-2xl {
+  font-size: 36px;
+  letter-spacing: -0.36px;
+}
+.t-display-3xl {
+  font-size: 40px;
+  letter-spacing: -0.4px;
+}
+
+.t-heading-xs,
+.t-heading-sm {
+  font-weight: 700;
+  line-height: 1.4;
+}
+.t-heading-xs {
+  font-size: 14px;
+}
+.t-heading-sm {
+  font-size: 16px;
+}
+
+.t-heading-md,
+.t-heading-lg,
+.t-heading-xl {
+  font-weight: 700;
+  line-height: 1.25;
+}
+.t-heading-md {
+  font-size: 20px;
+}
+.t-heading-lg {
+  font-size: 24px;
+}
+.t-heading-xl {
+  font-size: 30px;
+}
+
+.t-body-xs,
+.t-body-sm,
+.t-body-base,
+.t-body-lg {
+  font-weight: 400;
+  line-height: 1.5;
+}
+.t-body-xs {
+  font-size: 12px;
+}
+.t-body-sm {
+  font-size: 14px;
+}
+.t-body-base {
+  font-size: 16px;
+}
+.t-body-lg {
+  font-size: 20px;
+}
+
+/** Satu-satunya teks huruf besar di aplikasi. */
+.t-action-sm {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.48px;
+  text-transform: uppercase;
+}
+
+.t-action-base {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+/* --------------------------------------------------------------- primitif */
+
+/**
+ * Kartu 3D: terangkat 4px, meninggalkan sisi setebal 4px sewarna garisnya.
+ * Bukan bayangan gelap — itu yang membuatnya terbaca sebagai benda.
+ */
+.card3d {
+  position: relative;
+  border: 2px solid var(--border-solid);
+  border-radius: var(--r-2xl);
+  background: #ffffff;
+  box-shadow: 0 4px 0 0 var(--border-solid);
+  transform: translateY(0);
+  transition:
+    transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+
+.card3d:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 6px 0 0 var(--border-hover);
+  transform: translateY(-2px);
+}
+
+.card3d:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 0 transparent;
+}
+
+.card3d--hue {
+  border-color: var(--hue-border);
+  box-shadow: 0 4px 0 0 var(--hue-border);
+}
+
+.card3d--hue:hover {
+  border-color: var(--hue-fill);
+  box-shadow: 0 6px 0 0 var(--hue-fill);
+}
+
+/**
+ * Tombol keycap: ditekan berarti memendek, bukan bergeser. Padding bawah 4px
+ * lebih tebal dari atas; saat aktif selisih itu dipindah ke margin-top,
+ * sehingga tinggi total tetap dan tata letak tidak bergoyang.
+ */
+.btn3d {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  margin-bottom: 4px;
+  padding: 12px 20px;
+  border: 2px solid transparent;
+  border-radius: var(--r-xl);
+  background: var(--hue-fill);
+  box-shadow: 0 4px 0 0 var(--hue-depth);
+  color: var(--text-on-color);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  transition:
+    background-color 140ms ease,
+    transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.btn3d:hover:not(:disabled) {
+  box-shadow: 0 6px 0 0 var(--hue-depth);
+  transform: translateY(-2px);
+}
+
+.btn3d:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 0 transparent;
+}
+
+.btn3d:disabled {
+  background: var(--bg-disabled);
+  box-shadow: none;
+  color: var(--text-disabled);
+  cursor: default;
+}
+
+.btn3d--outline {
+  border-color: var(--border-solid);
+  background: #ffffff;
+  box-shadow: 0 4px 0 0 var(--border-solid);
+  color: var(--text-primary);
+}
+
+.btn3d--outline:hover:not(:disabled) {
+  border-color: var(--border-hover);
+  background: #ffffff;
+  box-shadow: 0 6px 0 0 var(--border-hover);
+}
+
+.btn3d--sm {
+  min-height: 44px;
+  padding: 9px 14px;
+  border-radius: var(--r-lg);
+  font-size: 14px;
+}
+
+/** Tombol datar untuk aksi sekunder — tanpa keycap, jadi hierarkinya jelas. */
+.btn-flat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+  transition: background-color 150ms ease;
+}
+
+.btn-flat:hover {
+  background: var(--bg-hover);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--r-md);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.badge--hue {
+  background: var(--hue-tint);
+  color: var(--hue-text);
+}
+.badge--solid {
+  background: var(--hue-fill);
+  color: var(--text-on-color);
+}
+.badge--green {
+  background: var(--green-100);
+  color: var(--green-700);
+}
+.badge--amber {
+  background: var(--amber-100);
+  color: var(--amber-700);
+}
+.badge--minimal {
+  padding: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  letter-spacing: 0.48px;
+  text-transform: uppercase;
+}
+
+/** Pil progres: cincin 20px + teks, dipakai di kepala setiap jalur. */
+.pil-progres {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--r-full);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.cincin-track {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-opacity: 0.1;
+}
+
+.cincin-isi {
+  fill: none;
+  stroke: var(--hue-fill);
+  stroke-linecap: round;
+  transition: stroke-dasharray 400ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -84,5 +473,12 @@ canvas {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .card3d:hover,
+  .card3d:active,
+  .btn3d:hover:not(:disabled),
+  .btn3d:active:not(:disabled) {
+    transform: none;
   }
 }

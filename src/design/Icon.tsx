@@ -9,12 +9,16 @@ export type IconName =
   | 'check'
   | 'chevron'
   | 'clock'
+  | 'close'
   | 'code'
   | 'flame'
   | 'globe'
+  | 'graduation'
+  | 'grid'
   | 'home'
   | 'info'
   | 'list'
+  | 'pages'
   | 'lock'
   | 'math'
   | 'play'
@@ -74,6 +78,13 @@ export function Icon({ name, ...props }: { name: IconName } & SVGProps<SVGSVGEle
       </svg>
     );
   }
+  if (name === 'close') {
+    return (
+      <svg {...common} strokeWidth={2.2}>
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    );
+  }
   if (name === 'clock') {
     return (
       <svg {...common}>
@@ -128,6 +139,34 @@ export function Icon({ name, ...props }: { name: IconName } & SVGProps<SVGSVGEle
         <circle cx="5" cy="18" r="2" />
         <circle cx="19" cy="6" r="2" />
         <path d="M7 18h2.5a3 3 0 0 0 3-3V9a3 3 0 0 1 3-3H17" />
+      </svg>
+    );
+  }
+  if (name === 'graduation') {
+    return (
+      <svg {...common}>
+        <path d="M2.6 8.6 12 4.3l9.4 4.3L12 12.9Z" />
+        <path d="M6.6 10.7v4.6c0 1.7 2.4 3 5.4 3s5.4-1.3 5.4-3v-4.6" />
+        <path d="M21.4 8.9v5.4" />
+      </svg>
+    );
+  }
+  if (name === 'grid') {
+    return (
+      <svg {...common}>
+        <rect x="4" y="4" width="7" height="7" rx="2" />
+        <rect x="13" y="4" width="7" height="7" rx="2" />
+        <rect x="4" y="13" width="7" height="7" rx="2" />
+        <rect x="13" y="13" width="7" height="7" rx="2" />
+      </svg>
+    );
+  }
+  if (name === 'pages') {
+    return (
+      <svg {...common}>
+        <rect x="3.5" y="5" width="17" height="14" rx="2.4" />
+        <path d="M8.6 5v14" />
+        <path d="M11.6 9.4h5.6M11.6 13.4h5.6" />
       </svg>
     );
   }
