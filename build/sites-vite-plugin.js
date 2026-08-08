@@ -14,13 +14,10 @@ export function sites() {
     async closeBundle() {
       const outputDirectory = resolve(root, 'dist');
       const metadataDirectory = resolve(outputDirectory, '.openai');
-      const serverDirectory = resolve(outputDirectory, 'server');
 
       await rm(metadataDirectory, { recursive: true, force: true });
       await mkdir(metadataDirectory, { recursive: true });
-      await mkdir(serverDirectory, { recursive: true });
       await cp(resolve(root, '.openai', 'hosting.json'), resolve(metadataDirectory, 'hosting.json'));
-      await cp(resolve(root, 'worker', 'index.js'), resolve(serverDirectory, 'index.js'));
     },
   };
 }
