@@ -197,9 +197,19 @@ export function StudentApp() {
   const content = (() => {
     switch (location.route) {
       case 'learn':
-        return <LearnScreen onNavigate={navigate} />;
+        return (
+          <LearnScreen
+            onNavigate={navigate}
+            progressPercent={demoData?.courseProgress.percent ?? 0}
+          />
+        );
       case 'math':
-        return <MathScreen onNavigate={navigate} />;
+        return (
+          <MathScreen
+            onNavigate={navigate}
+            progressPercent={demoData?.courseProgress.percent ?? 0}
+          />
+        );
       case 'integers':
         return (
           <IntegerCourseScreen

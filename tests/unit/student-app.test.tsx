@@ -130,13 +130,31 @@ describe('Lumera Batch 1 student shell', () => {
     render(<App />);
 
     expect(screen.getByRole('heading', { name: 'Satu jalur, langkah demi langkah.' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Lihat jalur kursus Bilangan Bulat' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /Pecahan dan Desimal/i })).toBeNull();
     expect(screen.getByLabelText('Pecahan dan Desimal, segera hadir')).toBeTruthy();
     expect(screen.getAllByText('Segera hadir')).toHaveLength(10);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Lihat jalur kursus Bilangan Bulat' }));
+    fireEvent.click(screen.getByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ }));
     await waitFor(() => expect(window.location.hash).toBe('#/belajar/matematika/bilangan-bulat'));
+  });
+
+  it('filters learning paths and subjects with the local Belajar search', async () => {
+    saveLearnerProfile(completedProfile());
+    await setHash('#/belajar');
+    render(<App />);
+
+    const search = screen.getByRole('searchbox', {
+      name: 'Cari jalur, kursus, atau mata pelajaran',
+    });
+    fireEvent.change(search, { target: { value: 'IPA' } });
+
+    expect(screen.getByText('1 hasil ditemukan')).toBeTruthy();
+    expect(screen.getByText('IPA')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hapus pencarian' }));
+    expect(screen.getByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ })).toBeTruthy();
   });
 
   it('renders the Mathematics legacy URL as the same focused Belajar page', async () => {

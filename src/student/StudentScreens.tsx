@@ -9,6 +9,7 @@ import type { ArdiDemoFixture, DemoSavedConcept } from './demo';
 import type { CourseView, RouteName } from './routes';
 import type { StudentModuleSummary, StudentSubjectId } from './types';
 import './StudentScreens.css';
+import './LearnScreen.css';
 
 const SUBJECT_ICONS: Record<StudentSubjectId, IconName> = {
   matematika: 'math',
@@ -19,6 +20,27 @@ const SUBJECT_ICONS: Record<StudentSubjectId, IconName> = {
   informatika: 'pages',
   'koding-ai': 'code',
   'literasi-finansial': 'bar-chart',
+};
+
+const SUBJECT_TONES: Record<StudentSubjectId, 'violet' | 'amber' | 'blue' | 'green'> = {
+  matematika: 'violet',
+  ipa: 'green',
+  'bahasa-indonesia': 'amber',
+  'bahasa-inggris': 'blue',
+  ips: 'amber',
+  informatika: 'blue',
+  'koding-ai': 'violet',
+  'literasi-finansial': 'green',
+};
+
+const COURSE_VISUALS: Record<
+  string,
+  { icon: IconName; variant: 'violet' | 'amber'; tone: 'violet' | 'amber' | 'blue' }
+> = {
+  'bilangan-bulat': { icon: 'math', variant: 'violet', tone: 'violet' },
+  'pecahan-dan-desimal': { icon: 'pages', variant: 'amber', tone: 'amber' },
+  'perbandingan-dan-skala': { icon: 'bar-chart', variant: 'violet', tone: 'blue' },
+  'bentuk-aljabar': { icon: 'sparkles', variant: 'amber', tone: 'violet' },
 };
 
 const GOAL_LABELS: Record<LearningGoal, string> = {
@@ -428,137 +450,311 @@ export function HomeScreen({
   );
 }
 
-export function LearnScreen({ onNavigate }: { onNavigate: (route: RouteName) => void }) {
+function normalizeLearningQuery(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('id-ID')
+    .trim();
+}
+
+export function LearnScreen({
+  onNavigate,
+  progressPercent = 0,
+}: {
+  onNavigate: (route: RouteName) => void;
+  progressPercent?: number;
+}) {
+  const [query, setQuery] = useState('');
   const path = MATHEMATICS_GRADE_7_PATH;
+  const safeProgress = Math.max(0, Math.min(100, progressPercent));
+  const normalizedQuery = normalizeLearningQuery(query);
+  const pathMatches = normalizeLearningQuery(
+    ['Matematika', path.title, path.description, 'SMP Kelas VII'].join(' '),
+  ).includes(normalizedQuery);
+  const visibleCourses =
+    normalizedQuery === '' || pathMatches
+      ? path.courses
+      : path.courses.filter((course) =>
+          normalizeLearningQuery(
+            [course.title, course.description, course.gradeLabel].join(' '),
+          ).includes(normalizedQuery),
+        );
+  const visibleSubjects =
+    normalizedQuery === ''
+      ? STUDENT_SUBJECTS
+      : STUDENT_SUBJECTS.filter((subject) =>
+          normalizeLearningQuery([subject.title, subject.description].join(' ')).includes(
+            normalizedQuery,
+          ),
+        );
+  const showPath = visibleCourses.length > 0;
+  const resultCount = visibleCourses.length + visibleSubjects.length;
 
   return (
     <main className="student-page learn-page">
-      <div className="student-container">
-        <PageHeading
-          eyebrow="Belajar"
-          title="Satu jalur, langkah demi langkah."
-          description="Mulai dari Matematika SMP Kelas VII. Mata pelajaran berikutnya akan hadir dengan struktur yang sama jelasnya."
-        />
-
-        <section className="learning-path-band" aria-labelledby="active-path-title">
-          <div className="learning-path-band__copy">
-            <span className="catalog-status catalog-status--available">Jalur tersedia</span>
-            <h2 id="active-path-title">{path.title}</h2>
-            <p>{path.description}</p>
-            <dl>
-              <div>
-                <dt>Jenjang</dt>
-                <dd>SMP Kelas VII</dd>
-              </div>
-              <div>
-                <dt>Isi jalur</dt>
-                <dd>
-                  {path.courses.length} kursus · {INTEGER_COURSE.modules.length} modul
-                </dd>
-              </div>
-            </dl>
+      <div className="student-container learn-catalog">
+        <header className="learn-catalog__hero">
+          <div className="learn-catalog__intro">
+            <span className="page-kicker">Belajar</span>
+            <h1>
+              Satu jalur, <span>langkah demi langkah.</span>
+            </h1>
+            <p>Pilih urutan yang jelas, mulai dari fondasi, lalu maju saat kamu sudah siap.</p>
           </div>
-          <ArtworkFrame
-            assetKey="subject-mathematics"
-            placeholderIcon="math"
-            alt="Ilustrasi jalur Matematika"
-            ratio="wide"
-            variant="violet"
-          />
-        </section>
 
-        <section className="course-rail-section" aria-labelledby="course-rail-title">
-          <div className="section-title-row section-title-row--large">
-            <div>
-              <span className="page-kicker">Di jalur ini</span>
-              <h2 id="course-rail-title">Kursus</h2>
+          <div className="learn-search-card">
+            <span className="learn-search-card__icon" aria-hidden="true">
+              <Icon name="route" width={22} height={22} />
+            </span>
+            <label className="learn-search-card__copy" htmlFor="learn-catalog-search">
+              <strong>Apa yang ingin kamu pelajari?</strong>
+              <span>Cari jalur, kursus, atau mata pelajaran.</span>
+            </label>
+            <div className="learn-search">
+              <Icon name="search" width={19} height={19} />
+              <input
+                id="learn-catalog-search"
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Contoh: Bilangan Bulat"
+                aria-label="Cari jalur, kursus, atau mata pelajaran"
+              />
+              {query !== '' && (
+                <button type="button" onClick={() => setQuery('')} aria-label="Hapus pencarian">
+                  <Icon name="close" width={16} height={16} />
+                </button>
+              )}
             </div>
-            <p>Urutan kursus mengikuti fondasi yang dibutuhkan siswa Kelas VII.</p>
+            <span className="learn-search-card__status" aria-live="polite">
+              {normalizedQuery === ''
+                ? 'Mulai dengan satu topik yang membuatmu penasaran.'
+                : `${resultCount} hasil ditemukan`}
+            </span>
           </div>
-          <div className="course-rail">
-            {path.courses.map((course, index) =>
-              course.status === 'available' ? (
-                <Tactile
-                  key={course.id}
-                  variant="card"
-                  className="course-rail__card course-rail__card--active"
-                  onClick={() => onNavigate('integers')}
-                  aria-label={'Lihat jalur kursus ' + course.title}
-                >
-                  <span className="course-rail__number">{String(index + 1).padStart(2, '0')}</span>
-                  <Icon name="arrow" width={20} height={20} />
-                  <ArtworkFrame
-                    assetKey={course.artworkKey}
-                    placeholderIcon="math"
-                    decorative
-                    ratio="wide"
-                    variant="violet"
-                  />
-                  <span className="course-rail__copy">
-                    <small>Kursus aktif</small>
-                    <strong>{course.title}</strong>
-                    <p>{course.description}</p>
-                    <span>{course.modules.length} modul · Struktur tersedia</span>
-                  </span>
-                </Tactile>
-              ) : (
-                <article
-                  key={course.id}
-                  className="course-rail__card course-rail__card--passive"
-                  aria-label={course.title + ', segera hadir'}
-                >
-                  <span className="course-rail__number">{String(index + 1).padStart(2, '0')}</span>
-                  <span className="catalog-status">Segera hadir</span>
-                  <ArtworkFrame
-                    assetKey={course.artworkKey}
-                    placeholderIcon="math"
-                    decorative
-                    ratio="wide"
-                  />
-                  <span className="course-rail__copy">
-                    <small>Kursus berikutnya</small>
-                    <strong>{course.title}</strong>
-                    <p>{course.description}</p>
-                  </span>
-                </article>
-              ),
-            )}
-          </div>
-        </section>
+        </header>
 
-        <section className="subject-directory" aria-labelledby="subject-directory-title">
-          <div className="section-title-row section-title-row--large">
-            <div>
-              <span className="page-kicker">Direktori</span>
-              <h2 id="subject-directory-title">Mata pelajaran Lumera</h2>
+        {showPath && (
+          <section className="learn-paths" aria-labelledby="your-paths-title">
+            <div className="learn-section-heading">
+              <div>
+                <span>Jalur belajarmu</span>
+                <h2 id="your-paths-title">Mulai dari yang paling relevan</h2>
+              </div>
+              <p>Setiap kursus tersusun berurutan agar fondasinya tidak terlewat.</p>
             </div>
-            <p>Delapan bidang belajar, dengan status ketersediaan yang selalu jujur.</p>
-          </div>
-          <div className="subject-directory__grid">
-            {STUDENT_SUBJECTS.map((subject) => (
-              <article
-                key={subject.id}
-                className="subject-directory__item"
-                data-available={subject.status === 'available'}
-              >
-                <span className="subject-directory__icon">
-                  <Icon name={SUBJECT_ICONS[subject.id]} width={21} height={21} />
+
+            <article
+              className="learn-path"
+              id="jalur-matematika"
+              aria-labelledby="active-path-title"
+            >
+              <header className="learn-path__header">
+                <span className="learn-path__mark" aria-hidden="true">
+                  <Icon name="math" width={34} height={34} />
                 </span>
-                <span>
-                  <strong>{subject.title}</strong>
-                  <small>{subject.status === 'available' ? 'Tersedia' : 'Segera hadir'}</small>
-                </span>
-              </article>
-            ))}
-          </div>
-        </section>
+
+                <div className="learn-path__copy">
+                  <span className="learn-path__grade">SMP Kelas VII</span>
+                  <h3 id="active-path-title">{path.title}</h3>
+                  <p>{path.description}</p>
+                </div>
+
+                <div className="learn-path__progress">
+                  <span>{safeProgress > 0 ? 'Progres kursus aktif' : 'Status jalur'}</span>
+                  <strong>{safeProgress > 0 ? `${safeProgress}% selesai` : 'Siap dimulai'}</strong>
+                  {safeProgress > 0 ? (
+                    <ProgressBar
+                      percent={safeProgress}
+                      label={`${safeProgress}% kursus aktif selesai`}
+                    />
+                  ) : (
+                    <small>Mulai dari Bilangan Bulat</small>
+                  )}
+                </div>
+              </header>
+
+              <div className="learn-path__rail-shell">
+                <div className="learn-path__rail-heading">
+                  <span>
+                    <Icon name="route" width={18} height={18} />
+                    Urutan kursus
+                  </span>
+                  <small>{path.courses.length} langkah dalam jalur ini</small>
+                </div>
+
+                <div
+                  className="learn-path__scroller"
+                  role="region"
+                  aria-label={`Urutan kursus ${path.title}`}
+                  tabIndex={0}
+                >
+                  <ol className="learn-course-sequence">
+                    {visibleCourses.map((course) => {
+                      const stepIndex = path.courses.findIndex((item) => item.id === course.id);
+                      const visual = COURSE_VISUALS[course.id] ?? {
+                        icon: 'math' as IconName,
+                        variant: 'violet' as const,
+                        tone: 'violet' as const,
+                      };
+                      const courseDescriptionId = `learn-course-description-${course.id}`;
+                      const courseState =
+                        safeProgress > 0 ? `${safeProgress}% selesai` : 'mulai di sini';
+                      const content = (
+                        <>
+                          <span className="learn-course__visual" data-tone={visual.tone}>
+                            <span className="learn-course__step">
+                              {String(stepIndex + 1).padStart(2, '0')}
+                            </span>
+                            <ArtworkFrame
+                              assetKey={course.artworkKey}
+                              placeholderIcon={visual.icon}
+                              decorative
+                              ratio="square"
+                              variant={visual.variant}
+                            />
+                          </span>
+                          <span className="learn-course__copy">
+                            <small>{course.gradeLabel}</small>
+                            <strong>{course.title}</strong>
+                            <p id={courseDescriptionId}>{course.description}</p>
+                            {course.status === 'available' && (
+                              <span className="learn-course__meta">
+                                {course.modules.length} modul
+                                <Icon name="arrow" width={17} height={17} />
+                              </span>
+                            )}
+                          </span>
+                        </>
+                      );
+
+                      return (
+                        <li
+                          key={course.id}
+                          className="learn-course-sequence__item"
+                          data-last={stepIndex === path.courses.length - 1}
+                        >
+                          {course.status === 'available' ? (
+                            <Tactile
+                              variant="card"
+                              className="learn-course learn-course--active"
+                              onClick={() => onNavigate('integers')}
+                              aria-label={`Lihat jalur kursus ${course.title}, ${courseState}, ${course.modules.length} modul`}
+                              aria-describedby={courseDescriptionId}
+                            >
+                              <span className="learn-course__status learn-course__status--active">
+                                {safeProgress > 0 ? `${safeProgress}% selesai` : 'Mulai di sini'}
+                              </span>
+                              {content}
+                            </Tactile>
+                          ) : (
+                            <article
+                              className="learn-course learn-course--passive"
+                              aria-label={course.title + ', segera hadir'}
+                              aria-describedby={courseDescriptionId}
+                            >
+                              <span className="learn-course__status">Segera hadir</span>
+                              {content}
+                            </article>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
+              </div>
+            </article>
+          </section>
+        )}
+
+        {visibleSubjects.length > 0 && (
+          <section className="learn-subjects" aria-labelledby="subject-directory-title">
+            <div className="learn-section-heading">
+              <div>
+                <span>Jelajahi bidang</span>
+                <h2 id="subject-directory-title">Mata pelajaran Lumera</h2>
+              </div>
+              <p>Ketersediaan ditampilkan apa adanya, tanpa kelas atau materi semu.</p>
+            </div>
+
+            <div className="learn-subjects__grid">
+              {visibleSubjects.map((subject) => {
+                const subjectDescriptionId = `learn-subject-description-${subject.id}`;
+                const inner = (
+                  <>
+                    <span className="learn-subject__icon" aria-hidden="true">
+                      <Icon name={SUBJECT_ICONS[subject.id]} width={23} height={23} />
+                    </span>
+                    <span className="learn-subject__copy">
+                      <strong>{subject.title}</strong>
+                      <small id={subjectDescriptionId}>{subject.description}</small>
+                    </span>
+                    <span
+                      className={`learn-subject__status${
+                        subject.status === 'available' ? ' learn-subject__status--available' : ''
+                      }`}
+                    >
+                      {subject.status === 'available' ? 'Tersedia' : 'Segera hadir'}
+                    </span>
+                  </>
+                );
+
+                return subject.status === 'available' ? (
+                  <Tactile
+                    key={subject.id}
+                    variant="card"
+                    className="learn-subject learn-subject--active"
+                    data-tone={SUBJECT_TONES[subject.id]}
+                    onClick={() => onNavigate('math')}
+                    aria-label={`Buka mata pelajaran ${subject.title}, tersedia`}
+                    aria-describedby={subjectDescriptionId}
+                  >
+                    {inner}
+                  </Tactile>
+                ) : (
+                  <article
+                    key={subject.id}
+                    className="learn-subject"
+                    data-tone={SUBJECT_TONES[subject.id]}
+                    aria-label={`${subject.title}, segera hadir`}
+                    aria-describedby={subjectDescriptionId}
+                  >
+                    {inner}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {!showPath && visibleSubjects.length === 0 && (
+          <section className="learn-empty">
+            <span aria-hidden="true">
+              <Icon name="search" width={25} height={25} />
+            </span>
+            <div>
+              <h2>Belum ada yang cocok</h2>
+              <p>Coba istilah yang lebih singkat, misalnya “Matematika” atau “IPA”.</p>
+            </div>
+            <button type="button" onClick={() => setQuery('')}>
+              Hapus pencarian
+            </button>
+          </section>
+        )}
       </div>
     </main>
   );
 }
 
-export function MathScreen({ onNavigate }: { onNavigate: (route: RouteName) => void }) {
-  return <LearnScreen onNavigate={onNavigate} />;
+export function MathScreen({
+  onNavigate,
+  progressPercent = 0,
+}: {
+  onNavigate: (route: RouteName) => void;
+  progressPercent?: number;
+}) {
+  return <LearnScreen onNavigate={onNavigate} progressPercent={progressPercent} />;
 }
 
 function ModuleControl({
