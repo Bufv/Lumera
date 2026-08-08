@@ -21,6 +21,10 @@ describe('Ardi demo fixture', () => {
       courseId: 'bilangan-bulat',
       percent: 45,
     });
+    expect(ARDI_DEMO_FIXTURE.moduleProgress).toEqual([
+      { moduleId: 'bilangan-di-bawah-nol', percent: 90 },
+      { moduleId: 'operasi-bilangan-bulat', percent: 0 },
+    ]);
     expect(ARDI_DEMO_FIXTURE.savedConcepts).toHaveLength(3);
     expect(ARDI_DEMO_FIXTURE.reviewConcepts).toHaveLength(2);
   });
@@ -28,10 +32,20 @@ describe('Ardi demo fixture', () => {
   it('references only courses and modules that exist in the Batch-1 catalog', () => {
     expect(findStudentCourse(ARDI_DEMO_FIXTURE.courseProgress.courseId)).not.toBeNull();
 
-    const moduleIds = [...ARDI_DEMO_FIXTURE.savedConcepts, ...ARDI_DEMO_FIXTURE.reviewConcepts].map(
-      (concept) => concept.moduleId,
-    );
+    const moduleIds = [
+      ...ARDI_DEMO_FIXTURE.moduleProgress,
+      ...ARDI_DEMO_FIXTURE.savedConcepts,
+      ...ARDI_DEMO_FIXTURE.reviewConcepts,
+    ].map((concept) => concept.moduleId);
     expect(moduleIds.every((moduleId) => findStudentModule(moduleId) !== null)).toBe(true);
+  });
+
+  it('keeps aggregate course progress equal to the rounded module mean', () => {
+    const moduleMean = Math.round(
+      ARDI_DEMO_FIXTURE.moduleProgress.reduce((sum, item) => sum + item.percent, 0) /
+        ARDI_DEMO_FIXTURE.moduleProgress.length,
+    );
+    expect(moduleMean).toBe(ARDI_DEMO_FIXTURE.courseProgress.percent);
   });
 
   it('creates fresh but structurally deterministic copies for resets', () => {

@@ -6,7 +6,7 @@ import { Tactile } from '../design/Tactile';
 import type { LearnerProfile, LearningGoal, StudyDay } from '../profile';
 import { INTEGER_COURSE, MATHEMATICS_GRADE_7_PATH, STUDENT_SUBJECTS } from './catalog';
 import type { ArdiDemoFixture, DemoSavedConcept } from './demo';
-import type { RouteName } from './routes';
+import type { CourseView, RouteName } from './routes';
 import type { StudentModuleSummary, StudentSubjectId } from './types';
 import './StudentScreens.css';
 
@@ -35,6 +35,17 @@ const DAY_LABELS: Record<StudyDay, string> = {
   friday: 'Jum',
   saturday: 'Sab',
   sunday: 'Min',
+};
+
+const COMPACT_DAY_LABELS: Readonly<Record<string, string>> = {
+  ...DAY_LABELS,
+  senin: 'Sen',
+  selasa: 'Sel',
+  rabu: 'Rab',
+  kamis: 'Kam',
+  jumat: 'Jum',
+  sabtu: 'Sab',
+  minggu: 'Min',
 };
 
 function Breadcrumbs({ items }: { items: { label: string; onClick?: () => void }[] }) {
@@ -101,306 +112,95 @@ export function HomeScreen({
 }) {
   const displayName = demoData?.profile.displayName ?? (profile.displayName || 'Pelajar');
   const percent = demoData?.courseProgress.percent ?? 0;
-  const savedCount = demoData?.savedConcepts.length ?? 0;
-  const reviewCount = demoData?.reviewConcepts.length ?? 0;
   const minutes = demoData?.profile.dailyMinutes ?? profile.dailyMinutes;
-  const activityCount = demoData ? 3 : 0;
-  const streakDays = demoData?.streakDays ?? 0;
-  const savedTimeLabels = ['2 jam lalu', 'Kemarin', '2 hari lalu'];
-  const refreshItems: {
-    title: string;
-    icon: IconName;
-    tone: string;
-    strength: number;
-    status: string;
-  }[] = [
-    {
-      title: 'Positif, Negatif, dan Nol',
-      icon: 'pages',
-      tone: 'blue',
-      strength: demoData ? 4 : 0,
-      status: demoData ? 'Kuat' : 'Belum mulai',
-    },
-    {
-      title: 'Garis Bilangan',
-      icon: 'target',
-      tone: 'orange',
-      strength: demoData ? 3 : 0,
-      status: demoData ? 'Stabil' : 'Belum mulai',
-    },
-    {
-      title: 'Nilai Mutlak',
-      icon: 'bar-chart',
-      tone: 'violet',
-      strength: demoData ? 2 : 0,
-      status: demoData ? 'Mulai pudar' : 'Belum mulai',
-    },
-    {
-      title: 'Penjumlahan Bilangan Bulat',
-      icon: 'sparkles',
-      tone: 'amber',
-      strength: demoData ? 2 : 0,
-      status: demoData ? 'Perlu diulangi' : 'Belum mulai',
-    },
-  ];
+  const dayKeys: readonly string[] = demoData ? demoData.profile.studyDays : profile.studyDays;
+  const rhythmDays = dayKeys.map(
+    (day) =>
+      COMPACT_DAY_LABELS[day] ?? day.slice(0, 3).replace(/^./, (letter) => letter.toUpperCase()),
+  );
 
   return (
-    <main className="student-page home-page">
+    <main className="student-page home-page home-page--focused">
       <div className="student-container">
-        <div className="home-dashboard">
-          <div className="home-main-column">
-            <header className="home-intro">
-              <h1>
-                Selamat malam, {displayName} <span aria-hidden="true">👋</span>
-              </h1>
-              <p>Mau lanjut belajar atau menyegarkan ingatanmu?</p>
-            </header>
+        <header className="home-intro home-intro--focused">
+          <h1>
+            Selamat malam, {displayName} <span aria-hidden="true">👋</span>
+          </h1>
+          <p>Mau lanjut belajar atau menyegarkan ingatanmu?</p>
+        </header>
 
-            <section className="continue-section" aria-label="Lanjutkan belajar">
-              <div className="continue-section__lumo" aria-hidden="true">
-                <Lumo size={100} title="" />
-                <span>
-                  Kamu bisa
-                  <br />
-                  hari ini! 💪
-                </span>
-              </div>
-              <div className="continue-card">
-                <div className="continue-card__art">
-                  <img src="/assets/math_banner.png" alt="Ilustrasi Matematika Bilangan Bulat" />
-                </div>
-                <div className="continue-card__body">
-                  <span className="continue-card__eyebrow">Lanjutkan belajar</span>
-                  <strong>Menjelajahi Bilangan Negatif</strong>
-                  <span className="continue-card__module">
-                    <i /> Membandingkan Bilangan Negatif
-                  </span>
-                  <span className="continue-card__progress-copy">
-                    <b>{percent}% selesai</b>
-                    <i>•</i>
-                    <span>{percent > 0 ? 'sekitar 4 menit lagi' : 'mulai dari sini'}</span>
-                  </span>
-                  <span className="continue-card__progress-row">
-                    <ProgressBar percent={percent} label={`${percent}% kursus selesai`} />
-                  </span>
-                  <Tactile className="continue-card__action" onClick={() => onNavigate('integers')}>
-                    {percent > 0 ? 'Lanjutkan' : 'Lihat rencana'}
-                    <Icon name="arrow" width={18} height={18} />
-                  </Tactile>
-                </div>
-              </div>
-            </section>
+        <div className="home-overview">
+          <section className="home-continue-panel" aria-labelledby="home-course-title">
+            <div className="home-continue-panel__art">
+              <ArtworkFrame
+                assetKey="course-integers"
+                placeholderIcon="math"
+                decorative
+                ratio="wide"
+                variant="violet"
+              />
+              <span className="home-continue-panel__lumo" aria-hidden="true">
+                <Lumo size={62} title="" />
+              </span>
+            </div>
 
-            <section className="refresh-panel">
-              <div className="home-panel-heading">
-                <div>
-                  <h2>
-                    Daily Refresh <Icon name="info" width={14} height={14} />
-                  </h2>
-                  <p>Segarkan kembali konsep sebelum mulai terlupakan.</p>
-                </div>
-                <Tactile className="refresh-panel__action" onClick={() => onNavigate('review')}>
-                  <Icon name="play" width={14} height={14} />
-                  {reviewCount > 0 ? 'Mulai Refresh' : 'Lihat Ulangi'}
-                </Tactile>
-              </div>
-              <div className="refresh-grid">
-                {refreshItems.map((item) => (
-                  <Tactile
-                    key={item.title}
-                    variant="card"
-                    className="refresh-card"
-                    onClick={() => onNavigate('review')}
-                  >
-                    <span className={`refresh-card__icon refresh-card__icon--${item.tone}`}>
-                      <Icon name={item.icon} width={18} height={18} />
-                    </span>
-                    <strong>{item.title}</strong>
-                    <span className="refresh-card__mastery">
-                      <small>{item.status}</small>
-                      <span
-                        className={`mastery-dots mastery-dots--${item.tone}`}
-                        aria-label={`${item.strength} dari 5 tingkat penguasaan`}
-                      >
-                        {[1, 2, 3, 4, 5].map((dot) => (
-                          <i key={dot} data-filled={dot <= item.strength} />
-                        ))}
-                      </span>
-                    </span>
-                  </Tactile>
-                ))}
-              </div>
-            </section>
+            <div className="home-continue-panel__body">
+              <span className="page-kicker">Matematika · SMP Kelas VII</span>
+              <h2 id="home-course-title">Menjelajahi Bilangan Negatif</h2>
+              <p>Membandingkan Bilangan Negatif</p>
 
-            <section className="learning-paths-panel">
-              <div className="home-panel-heading">
-                <h2>Jalur belajarmu</h2>
-                <button
-                  type="button"
-                  className="home-flat-link"
-                  onClick={() => onNavigate('learn')}
-                >
-                  Lihat semua <Icon name="chevron" width={14} height={14} />
-                </button>
-              </div>
-              <div className="learning-paths-grid">
-                <Tactile
-                  variant="card"
-                  className="path-card path-card--active"
-                  onClick={() => onNavigate('math')}
-                >
-                  <span className="path-card__icon">
-                    <Icon name="math" width={24} height={24} />
-                  </span>
-                  <span className="path-card__copy">
-                    <strong>Matematika</strong>
-                    <small>SMP Kelas VII</small>
-                  </span>
-                  <Icon name="chevron" width={15} height={15} />
-                  <span className="path-card__progress">
-                    <b>{percent}%</b>
-                    <ProgressBar percent={percent} label={`${percent}% Matematika selesai`} />
-                  </span>
-                </Tactile>
-                <article className="path-card path-card--passive" aria-label="IPA, segera hadir">
-                  <span className="path-card__icon path-card__icon--science">
-                    <Icon name="science" width={24} height={24} />
-                  </span>
-                  <span className="path-card__copy">
-                    <strong>IPA</strong>
-                    <small>SMP Kelas VII</small>
-                  </span>
-                  <Icon name="chevron" width={15} height={15} />
-                  <span className="path-card__status">Segera hadir</span>
-                </article>
-                <article
-                  className="path-card path-card--passive"
-                  aria-label="Informatika, dalam pengembangan"
-                >
-                  <span className="path-card__icon path-card__icon--computer">
-                    <Icon name="pages" width={24} height={24} />
-                  </span>
-                  <span className="path-card__copy">
-                    <strong>Informatika</strong>
-                    <small>SMP Kelas VII</small>
-                  </span>
-                  <Icon name="chevron" width={15} height={15} />
-                  <span className="path-card__status path-card__status--developing">
-                    Dalam pengembangan
-                  </span>
-                </article>
-              </div>
-            </section>
-          </div>
-
-          <aside className="home-side-column">
-            <section className="today-panel">
-              <h2>Target hari ini</h2>
-              <div className="today-panel__metrics">
-                <div>
-                  <span className="today-metric__icon today-metric__icon--time">
-                    <Icon name="clock" width={25} height={25} />
-                  </span>
+              {percent > 0 ? (
+                <div className="home-course-progress">
                   <span>
-                    <strong>
-                      {minutes} <small>menit</small>
-                    </strong>
-                    <small>Waktu belajar</small>
+                    <strong>{percent}%</strong> selesai
                   </span>
-                </div>
-                <div>
-                  <span className="today-metric__icon today-metric__icon--activity">
-                    <Icon name="check" width={23} height={23} />
-                  </span>
-                  <span>
-                    <strong>{activityCount} / 5</strong>
-                    <small>Aktivitas selesai</small>
-                  </span>
-                </div>
-              </div>
-              <div className="week-streak">
-                <span className="week-streak__flame">
-                  <Icon name="flame" width={24} height={24} />
-                </span>
-                <span className="week-streak__copy">
-                  <strong>{streakDays} hari</strong>
-                  <small>{streakDays > 0 ? 'konsisten!' : 'mulai hari ini'}</small>
-                </span>
-                <div className="week-streak__days">
-                  {['M', 'S', 'S', 'R', 'K', 'J', 'S'].map((day, index) => (
-                    <span key={`${day}-${index}`}>
-                      <small>{day}</small>
-                      <i data-active={index < streakDays && index < 6}>
-                        {index < streakDays && index < 6 ? '✓' : ''}
-                      </i>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section className="recommendation-panel">
-              <h2>Rekomendasi Lumo</h2>
-              <div className="recommendation-panel__message">
-                <Lumo size={92} title="Lumo" />
-                <p>
-                  {percent > 0
-                    ? 'Kamu masih sedikit ragu saat membandingkan −8 dan −3. Coba tinjau konsepnya selama 3 menit.'
-                    : 'Mulai dari struktur Bilangan Bulat. Kenali urutan modulnya sebelum latihan interaktif hadir.'}
-                </p>
-              </div>
-              <Tactile
-                tone="amber"
-                fullWidth
-                onClick={() => onNavigate(percent > 0 ? 'review' : 'integers')}
-              >
-                {percent > 0 ? 'Coba sekarang' : 'Lihat rencana'}
-                <Icon name="arrow" width={17} height={17} />
-              </Tactile>
-            </section>
-
-            <section className="recent-saved-panel">
-              <div className="home-panel-heading">
-                <h2>Baru disimpan</h2>
-                <button
-                  type="button"
-                  className="home-flat-link"
-                  onClick={() => onNavigate('saved')}
-                >
-                  Lihat semua <Icon name="chevron" width={14} height={14} />
-                </button>
-              </div>
-              {savedCount > 0 ? (
-                <div className="recent-saved-list">
-                  {demoData?.savedConcepts.map((concept, index) => (
-                    <button type="button" key={concept.id} onClick={() => onNavigate('saved')}>
-                      <span
-                        className={`recent-saved-list__icon recent-saved-list__icon--${index + 1}`}
-                      >
-                        <Icon
-                          name={index === 0 ? 'math' : index === 1 ? 'chevron' : 'science'}
-                          width={17}
-                          height={17}
-                        />
-                      </span>
-                      <span>
-                        <strong>{concept.title}</strong>
-                        <small>Bilangan Bulat</small>
-                      </span>
-                      <time>{savedTimeLabels[index]}</time>
-                    </button>
-                  ))}
+                  <ProgressBar
+                    percent={percent}
+                    label={percent + '% kursus Bilangan Bulat selesai'}
+                  />
                 </div>
               ) : (
-                <div className="recent-saved-empty">
-                  <Icon name="bookmark" width={22} height={22} />
-                  <p>Konsep yang kamu simpan akan muncul di sini.</p>
-                  <button type="button" onClick={() => onNavigate('saved')}>
-                    Buka Simpanan
-                  </button>
-                </div>
+                <span className="home-course-ready">
+                  <Icon name="check" width={17} height={17} />
+                  Siap dimulai
+                </span>
               )}
-            </section>
+
+              <Tactile
+                className="home-continue-panel__action"
+                onClick={() => onNavigate('integers')}
+              >
+                Lihat jalur
+                <Icon name="arrow" width={18} height={18} />
+              </Tactile>
+            </div>
+          </section>
+
+          <aside className="home-rhythm-panel" aria-labelledby="home-rhythm-title">
+            <span className="page-kicker">Ritme belajarmu</span>
+            <h2 id="home-rhythm-title">Target yang ringan, tetap konsisten.</h2>
+            <div className="home-rhythm-panel__target">
+              <strong>{minutes}</strong>
+              <span>
+                menit
+                <small>target belajar</small>
+              </span>
+            </div>
+            <div className="home-rhythm-panel__days" aria-label="Hari belajar pilihan">
+              {rhythmDays.length > 0 ? (
+                rhythmDays.map((day, index) => <span key={day + '-' + index}>{day}</span>)
+              ) : (
+                <p>Belum ada hari yang dipilih.</p>
+              )}
+            </div>
+            <button
+              type="button"
+              className="home-rhythm-panel__settings"
+              onClick={() => onNavigate('settings')}
+            >
+              Atur ritme belajar
+              <Icon name="chevron" width={16} height={16} />
+            </button>
           </aside>
         </div>
       </div>
@@ -409,68 +209,127 @@ export function HomeScreen({
 }
 
 export function LearnScreen({ onNavigate }: { onNavigate: (route: RouteName) => void }) {
+  const path = MATHEMATICS_GRADE_7_PATH;
+
   return (
-    <main className="student-page">
+    <main className="student-page learn-page">
       <div className="student-container">
         <PageHeading
           eyebrow="Belajar"
-          title="Pilih jalur, bukan tumpukan materi."
-          description="Lumera menyusun mata pelajaran menjadi urutan yang bisa dipahami. Batch pertama dimulai dari Matematika SMP Kelas VII."
+          title="Satu jalur, langkah demi langkah."
+          description="Mulai dari Matematika SMP Kelas VII. Mata pelajaran berikutnya akan hadir dengan struktur yang sama jelasnya."
         />
 
-        <section className="catalog-feature">
-          <Tactile
-            variant="card"
-            fullWidth
-            className="featured-subject"
-            onClick={() => onNavigate('math')}
-          >
-            <ArtworkFrame
-              assetKey="subject-mathematics"
-              placeholderIcon="math"
-              alt="Ilustrasi Matematika"
-              ratio="wide"
-              variant="violet"
-            />
-            <span className="featured-subject__body">
-              <span className="catalog-status catalog-status--available">Tersedia sekarang</span>
-              <strong>Matematika</strong>
-              <p>Bangun nalar bilangan dan dasar pemecahan masalah melalui jalur SMP Kelas VII.</p>
-              <span className="featured-subject__meta">
-                <Icon name="route" width={17} height={17} /> 1 jalur · 1 kursus · 2 modul
-              </span>
-            </span>
-            <span className="featured-subject__action">
-              Jelajahi <Icon name="arrow" width={19} height={19} />
-            </span>
-          </Tactile>
+        <section className="learning-path-band" aria-labelledby="active-path-title">
+          <div className="learning-path-band__copy">
+            <span className="catalog-status catalog-status--available">Jalur tersedia</span>
+            <h2 id="active-path-title">{path.title}</h2>
+            <p>{path.description}</p>
+            <dl>
+              <div>
+                <dt>Jenjang</dt>
+                <dd>SMP Kelas VII</dd>
+              </div>
+              <div>
+                <dt>Isi jalur</dt>
+                <dd>
+                  {path.courses.length} kursus · {INTEGER_COURSE.modules.length} modul
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <ArtworkFrame
+            assetKey="subject-mathematics"
+            placeholderIcon="math"
+            alt="Ilustrasi jalur Matematika"
+            ratio="wide"
+            variant="violet"
+          />
         </section>
 
-        <section className="future-catalog">
+        <section className="course-rail-section" aria-labelledby="course-rail-title">
           <div className="section-title-row section-title-row--large">
             <div>
-              <span className="page-kicker">Berikutnya</span>
-              <h2>Mata pelajaran lain</h2>
+              <span className="page-kicker">Di jalur ini</span>
+              <h2 id="course-rail-title">Kursus</h2>
             </div>
-            <p>Ditampilkan sekarang agar arah kurikulum Lumera tetap jelas.</p>
+            <p>Urutan kursus mengikuti fondasi yang dibutuhkan siswa Kelas VII.</p>
           </div>
-          <div className="subject-grid">
-            {STUDENT_SUBJECTS.filter((subject) => subject.status === 'comingSoon').map(
-              (subject) => (
-                <article className="future-subject" key={subject.id}>
+          <div className="course-rail">
+            {path.courses.map((course, index) =>
+              course.status === 'available' ? (
+                <Tactile
+                  key={course.id}
+                  variant="card"
+                  className="course-rail__card course-rail__card--active"
+                  onClick={() => onNavigate('integers')}
+                  aria-label={'Lihat jalur kursus ' + course.title}
+                >
+                  <span className="course-rail__number">{String(index + 1).padStart(2, '0')}</span>
+                  <Icon name="arrow" width={20} height={20} />
                   <ArtworkFrame
-                    assetKey={subject.artworkKey}
-                    placeholderIcon={SUBJECT_ICONS[subject.id]}
-                    alt={`Ilustrasi ${subject.title}`}
+                    assetKey={course.artworkKey}
+                    placeholderIcon="math"
+                    decorative
+                    ratio="wide"
+                    variant="violet"
                   />
-                  <div>
-                    <strong>{subject.title}</strong>
-                    <p>{subject.description}</p>
-                  </div>
+                  <span className="course-rail__copy">
+                    <small>Kursus aktif</small>
+                    <strong>{course.title}</strong>
+                    <p>{course.description}</p>
+                    <span>{course.modules.length} modul · Struktur tersedia</span>
+                  </span>
+                </Tactile>
+              ) : (
+                <article
+                  key={course.id}
+                  className="course-rail__card course-rail__card--passive"
+                  aria-label={course.title + ', segera hadir'}
+                >
+                  <span className="course-rail__number">{String(index + 1).padStart(2, '0')}</span>
                   <span className="catalog-status">Segera hadir</span>
+                  <ArtworkFrame
+                    assetKey={course.artworkKey}
+                    placeholderIcon="math"
+                    decorative
+                    ratio="wide"
+                  />
+                  <span className="course-rail__copy">
+                    <small>Kursus berikutnya</small>
+                    <strong>{course.title}</strong>
+                    <p>{course.description}</p>
+                  </span>
                 </article>
               ),
             )}
+          </div>
+        </section>
+
+        <section className="subject-directory" aria-labelledby="subject-directory-title">
+          <div className="section-title-row section-title-row--large">
+            <div>
+              <span className="page-kicker">Direktori</span>
+              <h2 id="subject-directory-title">Mata pelajaran Lumera</h2>
+            </div>
+            <p>Delapan bidang belajar, dengan status ketersediaan yang selalu jujur.</p>
+          </div>
+          <div className="subject-directory__grid">
+            {STUDENT_SUBJECTS.map((subject) => (
+              <article
+                key={subject.id}
+                className="subject-directory__item"
+                data-available={subject.status === 'available'}
+              >
+                <span className="subject-directory__icon">
+                  <Icon name={SUBJECT_ICONS[subject.id]} width={21} height={21} />
+                </span>
+                <span>
+                  <strong>{subject.title}</strong>
+                  <small>{subject.status === 'available' ? 'Tersedia' : 'Segera hadir'}</small>
+                </span>
+              </article>
+            ))}
           </div>
         </section>
       </div>
@@ -479,88 +338,91 @@ export function LearnScreen({ onNavigate }: { onNavigate: (route: RouteName) => 
 }
 
 export function MathScreen({ onNavigate }: { onNavigate: (route: RouteName) => void }) {
+  return <LearnScreen onNavigate={onNavigate} />;
+}
+
+function ModuleControl({
+  module,
+  index,
+  progress,
+  variant,
+  onOpen,
+}: {
+  module: StudentModuleSummary;
+  index: number;
+  progress: number;
+  variant: CourseView;
+  onOpen: (module: StudentModuleSummary) => void;
+}) {
+  const safeProgress = Math.max(0, Math.min(100, progress));
+
   return (
-    <main className="student-page">
-      <div className="student-container student-container--narrow">
-        <Breadcrumbs
-          items={[
-            { label: 'Belajar', onClick: () => onNavigate('learn') },
-            { label: 'Matematika' },
-          ]}
-        />
+    <Tactile
+      variant="card"
+      fullWidth
+      className={'course-module-control course-module-control--' + variant}
+      onClick={() => onOpen(module)}
+      aria-label={'Lihat ringkasan modul ' + module.title}
+    >
+      <span className="course-module-control__number">{String(index + 1).padStart(2, '0')}</span>
+      <ArtworkFrame
+        assetKey={module.artworkKey}
+        placeholderIcon={index === 0 ? 'route' : 'math'}
+        decorative
+        variant={index === 0 ? 'amber' : 'violet'}
+      />
+      <span className="course-module-control__copy">
+        <strong>{module.title}</strong>
+        <small>{module.description}</small>
+      </span>
+      <span className="course-module-control__state" data-progress={safeProgress > 0}>
+        {safeProgress > 0 ? safeProgress + '% selesai' : 'Belum dimulai'}
+        <Icon name="chevron" width={17} height={17} />
+      </span>
+    </Tactile>
+  );
+}
 
-        <section className="subject-hero">
-          <div className="subject-hero__copy">
-            <span className="page-kicker">Mata pelajaran</span>
-            <h1>Matematika</h1>
-            <p>
-              Memahami pola, bilangan, dan pemecahan masalah secara bertahap—dimulai dari fondasi
-              Kelas VII.
-            </p>
-            <div className="subject-hero__facts">
-              <span>
-                <Icon name="graduation" width={18} height={18} /> SMP Kelas VII
-              </span>
-              <span>
-                <Icon name="route" width={18} height={18} /> 1 jalur tersedia
-              </span>
-            </div>
-          </div>
-          <ArtworkFrame
-            assetKey="subject-mathematics"
-            placeholderIcon="math"
-            alt="Ilustrasi Matematika"
-            ratio="wide"
-            variant="violet"
-          />
-        </section>
-
-        <section className="path-section">
-          <header className="path-section__heading">
-            <span>Jalur belajar</span>
-            <h2>{MATHEMATICS_GRADE_7_PATH.title}</h2>
-            <p>{MATHEMATICS_GRADE_7_PATH.description}</p>
-          </header>
-
-          <Tactile
-            variant="card"
-            fullWidth
-            className="course-card"
-            onClick={() => onNavigate('integers')}
-          >
-            <span className="course-card__number">01</span>
-            <ArtworkFrame
-              assetKey={INTEGER_COURSE.artworkKey}
-              placeholderIcon="math"
-              alt="Ilustrasi Bilangan Bulat"
-              variant="violet"
-            />
-            <span className="course-card__copy">
-              <span>Kursus pertama</span>
-              <strong>{INTEGER_COURSE.title}</strong>
-              <p>{INTEGER_COURSE.description}</p>
-              <small>2 modul · Struktur kursus tersedia</small>
-            </span>
-            <Icon name="arrow" width={21} height={21} />
-          </Tactile>
-        </section>
-      </div>
-    </main>
+function ModuleOutcomes({
+  outcomes,
+  ordered = false,
+}: {
+  outcomes: readonly string[];
+  ordered?: boolean;
+}) {
+  const Tag = ordered ? 'ol' : 'ul';
+  return (
+    <Tag className="course-module-outcomes">
+      {outcomes.map((outcome, index) => (
+        <li key={outcome}>
+          <span>{index + 1}</span>
+          <p>{outcome}</p>
+        </li>
+      ))}
+    </Tag>
   );
 }
 
 export function IntegerCourseScreen({
   percent,
+  view,
+  onChangeView,
+  moduleProgress,
   onNavigate,
   onOpenModule,
 }: {
   percent: number;
+  view: CourseView;
+  onChangeView: (view: CourseView) => void;
+  moduleProgress: Readonly<Record<string, number>>;
   onNavigate: (route: RouteName) => void;
   onOpenModule: (module: StudentModuleSummary) => void;
 }) {
+  const safePercent = Math.max(0, Math.min(100, percent));
+
   return (
-    <main className="student-page">
-      <div className="student-container student-container--narrow">
+    <main className="student-page course-page">
+      <div className="student-container">
         <Breadcrumbs
           items={[
             { label: 'Belajar', onClick: () => onNavigate('learn') },
@@ -569,70 +431,109 @@ export function IntegerCourseScreen({
           ]}
         />
 
-        <section className="course-hero">
+        <section className="course-summary" aria-labelledby="course-summary-title">
           <ArtworkFrame
-            assetKey="course-integers"
+            assetKey={INTEGER_COURSE.artworkKey}
             placeholderIcon="math"
             alt="Ilustrasi Bilangan Bulat"
             ratio="wide"
             variant="violet"
           />
-          <div className="course-hero__copy">
+          <div className="course-summary__copy">
             <span className="page-kicker">Kursus · SMP Kelas VII</span>
-            <h1>Bilangan Bulat</h1>
-            <p>Membangun pemahaman bilangan positif dan negatif untuk situasi sehari-hari.</p>
-            <div className="course-hero__progress">
-              <div>
-                <span>Progres kursus</span>
-                <strong>{percent}%</strong>
-              </div>
-              <ProgressBar percent={percent} label={`${percent}% kursus Bilangan Bulat selesai`} />
-            </div>
+            <h1 id="course-summary-title">{INTEGER_COURSE.title}</h1>
+            <p>{INTEGER_COURSE.description}</p>
+            <span className="course-summary__meta">
+              {INTEGER_COURSE.modules.length} modul · 6 capaian pemahaman
+            </span>
+          </div>
+          <div className="course-summary__progress">
+            {safePercent > 0 ? (
+              <>
+                <span>
+                  <strong>{safePercent}%</strong>
+                  <small>progres kursus</small>
+                </span>
+                <ProgressBar
+                  percent={safePercent}
+                  label={safePercent + '% kursus Bilangan Bulat selesai'}
+                />
+              </>
+            ) : (
+              <span className="course-summary__ready">
+                <Icon name="check" width={17} height={17} />
+                Siap dimulai
+              </span>
+            )}
           </div>
         </section>
 
-        <section className="module-section">
-          <div className="section-title-row section-title-row--large">
+        <section className="course-structure" aria-labelledby="course-structure-title">
+          <header className="course-structure__heading">
             <div>
               <span className="page-kicker">Struktur kursus</span>
-              <h2>2 modul fondasi</h2>
+              <h2 id="course-structure-title">Dua modul fondasi</h2>
+              <p>Pilih modul untuk membaca tujuan dan cakupannya.</p>
             </div>
-            <p>
-              Pilih modul untuk melihat tujuan dan cakupannya. Tidak ada pelajaran atau soal pada
-              batch ini.
-            </p>
-          </div>
-          <div className="module-list">
-            {INTEGER_COURSE.modules.map((module, index) => (
-              <Tactile
-                key={module.id}
-                variant="card"
-                fullWidth
-                className="module-row"
-                onClick={() => onOpenModule(module)}
-                aria-label={`Lihat ringkasan modul ${module.title}`}
+            <div className="course-view-switch" role="group" aria-label="Pilih tampilan kursus">
+              <button
+                type="button"
+                data-active={view === 'roadmap'}
+                aria-pressed={view === 'roadmap'}
+                onClick={() => onChangeView('roadmap')}
               >
-                <span className="module-row__number">{String(index + 1).padStart(2, '0')}</span>
-                <ArtworkFrame
-                  assetKey={module.artworkKey}
-                  placeholderIcon={index === 0 ? 'route' : 'math'}
-                  alt={`Ilustrasi ${module.title}`}
-                  variant={index === 0 ? 'amber' : 'violet'}
-                />
-                <span className="module-row__copy">
-                  <strong>{module.title}</strong>
-                  <small>{module.description}</small>
-                </span>
-                <span className="module-row__action">
-                  Lihat modul <Icon name="chevron" width={18} height={18} />
-                </span>
-              </Tactile>
-            ))}
-          </div>
-          <p className="deferred-note">
-            <Icon name="info" width={18} height={18} /> Pelajaran interaktif akan ditambahkan
-            setelah shell dan onboarding disetujui.
-          </p>
+                <Icon name="route" width={17} height={17} />
+                Jalur
+              </button>
+              <button
+                type="button"
+                data-active={view === 'list'}
+                aria-pressed={view === 'list'}
+                onClick={() => onChangeView('list')}
+              >
+                <Icon name="list" width={17} height={17} />
+                Daftar
+              </button>
+            </div>
+          </header>
+
+          {view === 'roadmap' ? (
+            <div className="course-roadmap" data-view="roadmap">
+              {INTEGER_COURSE.modules.map((module, index) => (
+                <section className="course-roadmap__checkpoint" key={module.id}>
+                  <span className="course-roadmap__step">
+                    Modul {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <ModuleControl
+                    module={module}
+                    index={index}
+                    progress={moduleProgress[module.id] ?? 0}
+                    variant="roadmap"
+                    onOpen={onOpenModule}
+                  />
+                  <ModuleOutcomes outcomes={module.outcomes} />
+                </section>
+              ))}
+            </div>
+          ) : (
+            <div className="course-list-view" data-view="list">
+              {INTEGER_COURSE.modules.map((module, index) => (
+                <section className="course-list-view__section" key={module.id}>
+                  <ModuleControl
+                    module={module}
+                    index={index}
+                    progress={moduleProgress[module.id] ?? 0}
+                    variant="list"
+                    onOpen={onOpenModule}
+                  />
+                  <div className="course-list-view__outcomes">
+                    <strong>Yang akan dipahami</strong>
+                    <ModuleOutcomes outcomes={module.outcomes} ordered />
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </main>

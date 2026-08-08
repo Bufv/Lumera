@@ -33,6 +33,11 @@ export interface DemoReviewConcept {
   reason: string;
 }
 
+export interface DemoModuleProgress {
+  moduleId: string;
+  percent: number;
+}
+
 export interface ArdiDemoFixture {
   mode: 'demo';
   disclosure: 'Mode demo · Data ilustratif';
@@ -43,6 +48,7 @@ export interface ArdiDemoFixture {
     courseId: 'bilangan-bulat';
     percent: 45;
   };
+  moduleProgress: readonly DemoModuleProgress[];
   savedConcepts: readonly DemoSavedConcept[];
   reviewConcepts: readonly DemoReviewConcept[];
 }
@@ -70,6 +76,16 @@ export function createArdiDemoFixture(): ArdiDemoFixture {
       courseId: 'bilangan-bulat',
       percent: 45,
     },
+    moduleProgress: [
+      {
+        moduleId: 'bilangan-di-bawah-nol',
+        percent: 90,
+      },
+      {
+        moduleId: 'operasi-bilangan-bulat',
+        percent: 0,
+      },
+    ],
     savedConcepts: [
       {
         id: 'saved-number-line',

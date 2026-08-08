@@ -48,6 +48,40 @@ export const INTEGER_COURSE: StudentCourse = {
   modules: INTEGER_MODULES,
 };
 
+export const MATHEMATICS_COURSES: readonly StudentCourse[] = [
+  INTEGER_COURSE,
+  {
+    id: 'pecahan-dan-desimal',
+    learningPathId: 'matematika-smp-kelas-7',
+    title: 'Pecahan dan Desimal',
+    description: 'Menghubungkan pecahan, desimal, dan penggunaannya dalam berbagai situasi.',
+    gradeLabel: 'SMP Kelas VII',
+    status: 'comingSoon',
+    artworkKey: 'course-fractions-decimals',
+    modules: [],
+  },
+  {
+    id: 'perbandingan-dan-skala',
+    learningPathId: 'matematika-smp-kelas-7',
+    title: 'Perbandingan dan Skala',
+    description: 'Membandingkan besaran dan membaca hubungan skala dalam kehidupan sehari-hari.',
+    gradeLabel: 'SMP Kelas VII',
+    status: 'comingSoon',
+    artworkKey: 'course-ratio-scale',
+    modules: [],
+  },
+  {
+    id: 'bentuk-aljabar',
+    learningPathId: 'matematika-smp-kelas-7',
+    title: 'Bentuk Aljabar',
+    description: 'Mengenali variabel dan menyatakan hubungan matematika dengan bentuk aljabar.',
+    gradeLabel: 'SMP Kelas VII',
+    status: 'comingSoon',
+    artworkKey: 'course-algebraic-expressions',
+    modules: [],
+  },
+];
+
 export const MATHEMATICS_GRADE_7_PATH: StudentLearningPath = {
   id: 'matematika-smp-kelas-7',
   subjectId: 'matematika',
@@ -56,7 +90,7 @@ export const MATHEMATICS_GRADE_7_PATH: StudentLearningPath = {
   stage: 'smp',
   grade: 7,
   status: 'available',
-  courses: [INTEGER_COURSE],
+  courses: MATHEMATICS_COURSES,
 };
 
 const COMING_SOON_SUBJECTS: readonly StudentSubject[] = [
@@ -178,7 +212,10 @@ function courseSearchRecord(
     title: course.title,
     description: course.description,
     status: course.status,
-    href: '#/belajar/matematika/bilangan-bulat',
+    href:
+      course.status === 'available' && course.id === INTEGER_COURSE.id
+        ? '#/belajar/matematika/bilangan-bulat'
+        : null,
     breadcrumbs: [subject.title, path.title],
     keywords: [subject.title, path.title, course.gradeLabel, course.description],
   };
@@ -197,7 +234,10 @@ function moduleSearchRecord(
     title: module.title,
     description: module.description,
     status: module.status,
-    href: '#/belajar/matematika/bilangan-bulat',
+    href:
+      module.status === 'available' && course.id === INTEGER_COURSE.id
+        ? '#/belajar/matematika/bilangan-bulat'
+        : null,
     breadcrumbs: [subject.title, path.title, course.title],
     keywords: [module.description, ...module.outcomes],
   };

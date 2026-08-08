@@ -32,7 +32,6 @@ function routeIsActive(current: RouteName, target: RouteName): boolean {
 export function StudentShell({
   route,
   displayName,
-  streakDays,
   demo,
   children,
   onNavigate,
@@ -41,7 +40,6 @@ export function StudentShell({
 }: {
   route: RouteName;
   displayName: string;
-  streakDays: number;
   demo: boolean;
   children: ReactNode;
   onNavigate: (route: RouteName) => void;
@@ -129,22 +127,6 @@ export function StudentShell({
               <span>Cari apa pun...</span>
               <kbd>Ctrl K</kbd>
             </button>
-
-            <div
-              className="student-streak"
-              data-active={streakDays > 0}
-              title={
-                streakDays > 0 ? `${streakDays} hari berturut-turut` : 'Mulai streak belajarmu'
-              }
-            >
-              <span className="student-streak__icon">
-                <Icon name="flame" width={21} height={21} />
-              </span>
-              <span className="student-streak__copy">
-                <strong>{streakDays > 0 ? streakDays : 'Mulai'}</strong>
-                <small>{streakDays > 0 ? 'hari beruntun' : 'streak belajar'}</small>
-              </span>
-            </div>
 
             <div className="profile-control">
               <button

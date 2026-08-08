@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   INTEGER_COURSE,
+  MATHEMATICS_COURSES,
   MATHEMATICS_GRADE_7_PATH,
   STUDENT_SEARCH_RECORDS,
   STUDENT_SUBJECTS,
@@ -31,7 +32,20 @@ describe('Batch-1 student catalog', () => {
   it('exposes only the agreed module-level Mathematics hierarchy', () => {
     const mathematics = findStudentSubject('matematika');
     expect(mathematics?.learningPaths).toEqual([MATHEMATICS_GRADE_7_PATH]);
-    expect(MATHEMATICS_GRADE_7_PATH.courses).toEqual([INTEGER_COURSE]);
+    expect(MATHEMATICS_GRADE_7_PATH.courses).toEqual(MATHEMATICS_COURSES);
+    expect(MATHEMATICS_COURSES.map((course) => course.title)).toEqual([
+      'Bilangan Bulat',
+      'Pecahan dan Desimal',
+      'Perbandingan dan Skala',
+      'Bentuk Aljabar',
+    ]);
+    expect(MATHEMATICS_COURSES.map((course) => course.status)).toEqual([
+      'available',
+      'comingSoon',
+      'comingSoon',
+      'comingSoon',
+    ]);
+    expect(MATHEMATICS_COURSES.slice(1).every((course) => course.modules.length === 0)).toBe(true);
     expect(INTEGER_COURSE.modules.map((module) => module.title)).toEqual([
       'Bilangan di Bawah Nol',
       'Operasi Bilangan Bulat',
@@ -68,6 +82,35 @@ describe('student content search', () => {
       entityId: 'koding-ai',
       status: 'comingSoon',
       href: null,
+    });
+  });
+
+  it('keeps future Mathematics courses searchable but non-navigable', () => {
+    const unavailable = searchStudentContent('Pecahan dan Desimal')[0];
+    expect(unavailable).toMatchObject({
+      entityId: 'pecahan-dan-desimal',
+      kind: 'course',
+      status: 'comingSoon',
+      href: null,
+    });
+
+    const available = searchStudentContent('Bilangan Bulat')[0];
+    expect(available).toMatchObject({
+      entityId: 'bilangan-bulat',
+      kind: 'course',
+      status: 'available',
+      href: '#/belajar/matematika/bilangan-bulat',
+    });
+  });
+
+  it('focuses subject and learning-path search on the Mathematics route', () => {
+    expect(searchStudentContent('Matematika')[0]).toMatchObject({
+      kind: 'subject',
+      href: '#/belajar/matematika',
+    });
+    expect(searchStudentContent('Matematika SMP Kelas VII')[0]).toMatchObject({
+      kind: 'learningPath',
+      href: '#/belajar/matematika',
     });
   });
 

@@ -12,9 +12,11 @@ import { findStudentModule } from './catalog';
 import { ARDI_DEMO_FIXTURE, type DemoSavedConcept } from './demo';
 import { OnboardingFlow } from './OnboardingFlow';
 import {
+  hashForCourseView,
   hashForRoute,
   isOnboardingRoute,
   parseStudentHash,
+  type CourseView,
   type RouteName,
   type StudentLocation,
 } from './routes';
@@ -68,7 +70,17 @@ export function StudentApp() {
   const [selectedConcept, setSelectedConcept] = useState<DemoSavedConcept | null>(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
   const demoData = location.demo ? ARDI_DEMO_FIXTURE : null;
-  const visibleProfile = useMemo(() => (location.demo ? demoProfile() : profile), [location.demo, profile]);
+  const visibleProfile = useMemo(
+    () => (location.demo ? demoProfile() : profile),
+    [location.demo, profile],
+  );
+  const moduleProgress = useMemo(
+    () =>
+      Object.fromEntries(
+        (demoData?.moduleProgress ?? []).map((item) => [item.moduleId, item.percent]),
+      ),
+    [demoData],
+  );
 
   useEffect(() => {
     if (!window.location.hash) {
@@ -103,13 +115,24 @@ export function StudentApp() {
   }, [location.route, location.demo]);
 
   const navigate = (route: RouteName, demo = location.demo) => {
-    const nextHash = hashForRoute(route, demo);
+    const nextCourseView = route === 'integers' ? location.courseView : 'roadmap';
+    const nextHash = hashForRoute(route, demo, nextCourseView);
     setSelectedModule(null);
     setSelectedConcept(null);
     if (window.location.hash === nextHash) {
-      setLocation({ route, demo });
+      setLocation({ route, demo, courseView: nextCourseView });
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
+    } else {
+      window.location.hash = nextHash;
+    }
+  };
+
+  const changeCourseView = (courseView: CourseView) => {
+    const nextHash = hashForCourseView(courseView, location.demo);
+    setSelectedModule(null);
+    if (window.location.hash === nextHash) {
+      setLocation({ route: 'integers', demo: location.demo, courseView });
     } else {
       window.location.hash = nextHash;
     }
@@ -181,6 +204,9 @@ export function StudentApp() {
         return (
           <IntegerCourseScreen
             percent={demoData?.courseProgress.percent ?? 0}
+            moduleProgress={moduleProgress}
+            view={location.courseView}
+            onChangeView={changeCourseView}
             onNavigate={navigate}
             onOpenModule={setSelectedModule}
           />
@@ -218,7 +244,6 @@ export function StudentApp() {
     <StudentShell
       route={location.route}
       displayName={visibleProfile.displayName || 'Pelajar Lumera'}
-      streakDays={demoData?.streakDays ?? 0}
       demo={location.demo}
       onNavigate={navigate}
       onExitDemo={exitDemo}
@@ -227,26 +252,59 @@ export function StudentApp() {
       {content}
 
       {selectedModule && (
-        <InfoDrawer title={selectedModule.title} eyebrow="Ringkasan modul" onClose={() => setSelectedModule(null)}>
+        <InfoDrawer
+          title={selectedModule.title}
+          eyebrow="Ringkasan modul"
+          onClose={() => setSelectedModule(null)}
+        >
           <p>{selectedModule.description}</p>
           <h3>Yang akan dipahami</h3>
-          <ul>{selectedModule.outcomes.map((outcome) => <li key={outcome}><Icon name="check" width={17} height={17} />{outcome}</li>)}</ul>
-          <div className="drawer-note"><Icon name="info" width={18} height={18} /> Pelajaran interaktif untuk modul ini hadir pada batch berikutnya.</div>
+          <ul>
+            {selectedModule.outcomes.map((outcome) => (
+              <li key={outcome}>
+                <Icon name="check" width={17} height={17} />
+                {outcome}
+              </li>
+            ))}
+          </ul>
+          <div className="drawer-note">
+            <Icon name="info" width={18} height={18} /> Pelajaran interaktif untuk modul ini hadir
+            pada batch berikutnya.
+          </div>
         </InfoDrawer>
       )}
 
       {selectedConcept && (
-        <InfoDrawer title={selectedConcept.title} eyebrow="Konsep tersimpan" onClose={() => setSelectedConcept(null)}>
+        <InfoDrawer
+          title={selectedConcept.title}
+          eyebrow="Konsep tersimpan"
+          onClose={() => setSelectedConcept(null)}
+        >
           <p>{selectedConcept.summary}</p>
-          <dl className="concept-meta"><div><dt>Kursus</dt><dd>Bilangan Bulat</dd></div><div><dt>Status</dt><dd>Data ilustratif</dd></div></dl>
+          <dl className="concept-meta">
+            <div>
+              <dt>Kursus</dt>
+              <dd>Bilangan Bulat</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd>Data ilustratif</dd>
+            </div>
+          </dl>
         </InfoDrawer>
       )}
 
       {confirmAction && (
         <ConfirmDialog
           title={confirmAction === 'reset-profile' ? 'Ulangi onboarding?' : 'Reset data demo?'}
-          description={confirmAction === 'reset-profile' ? 'Nama, tujuan, dan ritme belajar lokal akan dihapus. Progres lesson engine tetap dipertahankan.' : 'Mode demo akan kembali ke data ilustratif awal milik Ardi.'}
-          confirmLabel={confirmAction === 'reset-profile' ? 'Ya, ulangi onboarding' : 'Reset data demo'}
+          description={
+            confirmAction === 'reset-profile'
+              ? 'Nama, tujuan, dan ritme belajar lokal akan dihapus. Progres lesson engine tetap dipertahankan.'
+              : 'Mode demo akan kembali ke data ilustratif awal milik Ardi.'
+          }
+          confirmLabel={
+            confirmAction === 'reset-profile' ? 'Ya, ulangi onboarding' : 'Reset data demo'
+          }
           onCancel={() => setConfirmAction(null)}
           onConfirm={confirmReset}
         />
@@ -266,11 +324,32 @@ function InfoDrawer({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [onClose]);
+
   return (
     <div className="student-overlay" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
-      <button type="button" className="student-overlay__backdrop" onClick={onClose} aria-label="Tutup ringkasan" />
+      <button
+        type="button"
+        className="student-overlay__backdrop"
+        onClick={onClose}
+        aria-label="Tutup ringkasan"
+      />
       <aside className="info-drawer">
-        <header><div><span>{eyebrow}</span><h2 id="drawer-title">{title}</h2></div><button type="button" onClick={onClose} aria-label="Tutup"><Icon name="close" width={20} height={20} /></button></header>
+        <header>
+          <div>
+            <span>{eyebrow}</span>
+            <h2 id="drawer-title">{title}</h2>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Tutup" autoFocus>
+            <Icon name="close" width={20} height={20} />
+          </button>
+        </header>
         <div className="info-drawer__content">{children}</div>
       </aside>
     </div>
@@ -291,13 +370,31 @@ function ConfirmDialog({
   onConfirm: () => void;
 }) {
   return (
-    <div className="student-overlay student-overlay--center" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-description">
-      <button type="button" className="student-overlay__backdrop" onClick={onCancel} aria-label="Batal" />
+    <div
+      className="student-overlay student-overlay--center"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-description"
+    >
+      <button
+        type="button"
+        className="student-overlay__backdrop"
+        onClick={onCancel}
+        aria-label="Batal"
+      />
       <section className="confirm-dialog">
-        <span className="confirm-dialog__icon"><Icon name="info" width={24} height={24} /></span>
+        <span className="confirm-dialog__icon">
+          <Icon name="info" width={24} height={24} />
+        </span>
         <h2 id="confirm-title">{title}</h2>
         <p id="confirm-description">{description}</p>
-        <div><button type="button" className="confirm-dialog__cancel" onClick={onCancel}>Batal</button><Tactile onClick={onConfirm}>{confirmLabel}</Tactile></div>
+        <div>
+          <button type="button" className="confirm-dialog__cancel" onClick={onCancel}>
+            Batal
+          </button>
+          <Tactile onClick={onConfirm}>{confirmLabel}</Tactile>
+        </div>
       </section>
     </div>
   );

@@ -14,9 +14,12 @@ export type RouteName =
   | 'progress'
   | 'settings';
 
+export type CourseView = 'roadmap' | 'list';
+
 export interface StudentLocation {
   route: RouteName;
   demo: boolean;
+  courseView: CourseView;
 }
 
 export const ROUTE_PATHS: Record<RouteName, string> = {
@@ -36,22 +39,33 @@ export const ROUTE_PATHS: Record<RouteName, string> = {
   settings: '/pengaturan',
 };
 
-const PATH_ROUTES = new Map(Object.entries(ROUTE_PATHS).map(([name, path]) => [path, name as RouteName]));
+const PATH_ROUTES = new Map(
+  Object.entries(ROUTE_PATHS).map(([name, path]) => [path, name as RouteName]),
+);
 
-export function parseStudentHash(
-  hash: string,
-  onboardingComplete = false,
-): StudentLocation {
+export function parseStudentHash(hash: string, onboardingComplete = false): StudentLocation {
   const normalized = hash.replace(/^#/, '') || '';
   const [rawPath = '', rawQuery = ''] = normalized.split('?');
   const path = rawPath.length > 1 ? rawPath.replace(/\/$/, '') : rawPath;
   const route = PATH_ROUTES.get(path) ?? (onboardingComplete ? 'home' : 'welcome');
   const params = new URLSearchParams(rawQuery);
-  return { route, demo: params.get('mode') === 'demo' };
+  const courseView: CourseView = params.get('view') === 'list' ? 'list' : 'roadmap';
+  return { route, demo: params.get('mode') === 'demo', courseView };
 }
 
-export function hashForRoute(route: RouteName, demo = false): string {
-  return `#${ROUTE_PATHS[route]}${demo ? '?mode=demo' : ''}`;
+export function hashForRoute(
+  route: RouteName,
+  demo = false,
+  courseView: CourseView = 'roadmap',
+): string {
+  const query: string[] = [];
+  if (demo) query.push('mode=demo');
+  if (route === 'integers' && courseView === 'list') query.push('view=list');
+  return `#${ROUTE_PATHS[route]}${query.length > 0 ? `?${query.join('&')}` : ''}`;
+}
+
+export function hashForCourseView(courseView: CourseView, demo = false): string {
+  return hashForRoute('integers', demo, courseView);
 }
 
 export function isOnboardingRoute(route: RouteName): boolean {
