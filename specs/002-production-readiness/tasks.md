@@ -62,6 +62,7 @@ bergantung pada `ci.yml` sebagai gerbang dan pada environment yang didefinisikan
 
 - [X] T003 Buat `.github/workflows/ci.yml`: jalankan berurutan lint (`npm run lint`), type-check (`tsc -b`), `npm test`, `npm audit --audit-level=high`, dan `npm run build` pada setiap push/PR, sesuai `contracts/ci-pipeline-contract.md` gerbang 1–5
 - [X] T004 [P] Tambahkan environment bernama `staging` dan `production` (nama Worker berbeda) di `wrangler.jsonc` sesuai R-002 `research.md`
+  **KOREKSI 2026-08-09 (bug ditemukan setelah task ini awalnya ditandai selesai)**: `env.staging`/`env.production` di `wrangler.jsonc` saja **tidak cukup** — terverifikasi lewat `wrangler deploy --dry-run` lokal bahwa override `name`/`vars` di blok `env` TIDAK bertahan lewat config redirect yang dibuat `@cloudflare/vite-plugin` saat `vite build`, persis alur yang dipakai `deploy.yml` (build dulu, baru `wrangler deploy --env <x>`) — staging dan production akan diam-diam ter-deploy dengan nama Worker dan vars yang SAMA. Diperbaiki dengan menambahkan `--name`/`--var` eksplisit di CLI `deploy.yml` (dan `docs/ops-runbook.md` untuk rollback), yang terverifikasi bertahan lewat redirect yang sama. `wrangler.jsonc`'s blok `env` dipertahankan hanya sebagai daftar nama environment yang sah bagi wrangler, bukan sumber kebenaran nama/vars lagi.
 - [X] T005 Tambahkan penyematan commit SHA sebagai `VITE_APP_VERSION` saat build (`vite.config.ts` `define`), dibaca lewat `import.meta.env` — dasar untuk FR-005 (keterlacakan rilis) dan `ErrorReportContext.appVersion` di US3
 
 **Checkpoint**: `ci.yml` menjalankan seluruh gerbang dan environment staging/production sudah
@@ -142,9 +143,11 @@ rilis ditahan. Periksa response staging/production → verifikasi header keamana
 - [X] T019 [US4] Ubah `run_worker_first` menjadi `true` di `wrangler.jsonc` (Complexity Tracking, plan.md) — prasyarat agar header dapat disisipkan pada seluruh response, bukan hanya fallback
 - [X] T020 [US4] Implementasikan penyisipan header di `worker/index.js`: bungkus response `env.ASSETS.fetch(request)` dan tambahkan seluruh header pada `contracts/security-headers-contract.md` sebelum dikembalikan. Bergantung pada T019
   **CATATAN**: diekstrak ke `worker/security-headers.js` (bukan inline di `index.js`) supaya T021 bisa mengujinya sebagai fungsi murni. `worker/` ditambahkan ke `tsconfig.json` (`allowJs`, `include`) agar test TypeScript bisa meng-impornya.
+  **BUG DITEMUKAN & DIPERBAIKI 2026-08-09**: CSP ketat di atas memblokir `<script>` inline preamble React Fast Refresh yang disuntikkan Vite, membuat `npm run dev` gagal total sejak halaman pertama ("can't detect preamble" — regresi nyata, dilaporkan langsung oleh pengguna). Diperbaiki dengan CSP kondisional berbasis `import.meta.env.DEV` (konstanta build-time Vite — bukan wrangler `vars`, lihat koreksi T004 di atas untuk alasannya): longgar (dengan `unsafe-inline`) hanya saat `vite dev`, ketat untuk seluruh output `vite build` (staging maupun production). Diverifikasi: (a) `npm run dev` sungguhan sekarang menyajikan halaman dengan CSP longgar + preamble berjalan; (b) build production sungguhan diperiksa byte-per-byte — cabang CSP longgar tereliminasi total dari bundle (0 kemunculan `unsafe-eval`), bukan sekadar tidak terpilih saat runtime. Lihat `worker/security-headers.js` untuk catatan lengkap.
 - [X] T021 [P] [US4] Ekstrak logika pembangun header ke fungsi murni yang diuji di `tests/unit/security-headers.test.ts` (agar testable tanpa runtime Worker sungguhan)
+  **DIPERBARUI**: +4 test untuk perilaku `isDev` (pelonggaran CSP dev, fail-closed untuk `isDev` falsy/tidak dikirim) — 9 test total di berkas ini sekarang.
 - [ ] T022 [US4] Jalankan Quickstart V-4: verifikasi `npm audit --audit-level=high` (T003) menahan dependency rentan; verifikasi header hadir di kedua jenis response; verifikasi aset Rive (`koji-gameboard.riv`) dan canvas modul Fisika tidak diblokir CSP
-  **SEBAGIAN**: `npm audit --audit-level=high` sungguhan dijalankan lokal — menemukan 10 kerentanan baseline pra-eksisting (wrangler/typescript-eslint toolchain, bukan dependency aplikasi), semuanya `fixAvailable`; `npm audit fix` diblokir proses `workerd.exe` sisa yang mengunci file di lingkungan lokal ini (bukan masalah kode — runner CI bersih tidak akan mengalami ini). Header teruji via T021 (4 test). Verifikasi CSP-vs-Rive/canvas sungguhan di browser BELUM dijalankan — butuh deploy staging (T011).
+  **SEBAGIAN**: `npm audit --audit-level=high` sungguhan dijalankan lokal — menemukan 10 kerentanan baseline pra-eksisting (wrangler/typescript-eslint toolchain, bukan dependency aplikasi), semuanya `fixAvailable`; `npm audit fix` diblokir proses `workerd.exe` sisa yang mengunci file di lingkungan lokal ini (bukan masalah kode — runner CI bersih tidak akan mengalami ini). Header teruji via T021 (9 test, termasuk cabang dev). `npm run dev` lokal terverifikasi sungguhan bekerja (lihat catatan T020). Verifikasi CSP-vs-Rive/canvas di deployment staging sungguhan BELUM dijalankan — butuh deploy staging (T011).
 
 **Checkpoint**: Gerbang keamanan otomatis aktif di CI dan di response — US4 dapat didemokan
 independen dari US1–US3.
@@ -310,9 +313,30 @@ penuh — menunda seluruh story tidak menambah risiko baru di atas yang sudah ad
 
 ## Status Implementasi (2026-08-09)
 
-**29 dari 40 task selesai** (branch `002-production-readiness`, commit lokal — belum di-push).
-`npx tsc -b`, `npm run lint`, dan `npx vitest run` (**220/220 test**, naik dari 198 sebelum spec
-002) seluruhnya bersih. Build production (`npm run build`) sukses, nol berkas `.map` di `dist/`.
+**29 dari 40 task selesai** (branch `002-production-readiness`). `npx tsc -b`, `npm run lint`, dan
+`npx vitest run` (**224/224 test**) seluruhnya bersih. Build production (`npm run build`) sukses,
+nol berkas `.map` di `dist/`. `npm run dev` diverifikasi sungguhan bekerja setelah perbaikan bug
+CSP (lihat catatan T020).
+
+### Koreksi pasca-commit pertama (ditemukan lewat laporan bug pengguna)
+
+Dua masalah nyata ditemukan SETELAH commit pertama menandai T004/T020 selesai — dicatat di sini
+secara eksplisit karena keduanya berarti klaim "selesai" sebelumnya tidak sepenuhnya akurat:
+
+1. **`npm run dev` gagal total** — CSP ketat (T020) memblokir `<script>` inline preamble React
+   Fast Refresh milik Vite. Diperbaiki: CSP kondisional lewat `import.meta.env.DEV`, bukan pernah
+   longgar untuk output `vite build` manapun. Lihat catatan T020.
+2. **`wrangler.jsonc`'s `env.staging`/`env.production` tidak benar-benar memisahkan deploy** — nama
+   Worker dan `vars` per-environment terbukti tidak bertahan lewat config redirect
+   `@cloudflare/vite-plugin` pada alur build+deploy yang sama persis dipakai `deploy.yml`. Ditemukan
+   *saat menyelidiki* masalah #1 (memverifikasi mekanisme yang tadinya mau dipakai untuk membedakan
+   dev/staging/production), bukan dari laporan terpisah. Diperbaiki: `--name`/`--var` eksplisit di
+   CLI `deploy.yml` dan `docs/ops-runbook.md`, diverifikasi bertahan lewat redirect yang sama lewat
+   `wrangler deploy --dry-run`. Lihat catatan T004.
+
+**Pelajaran**: `wrangler deploy --dry-run` tanpa kredensial Cloudflare sungguhan tetap terbukti
+bernilai untuk menangkap kelas bug ini (konfigurasi tidak ter-resolve seperti yang diharapkan) —
+tapi bukan pengganti deploy nyata (T008/T011), yang masih diperlukan untuk kepercayaan penuh.
 
 ### Yang BELUM selesai dan alasannya
 

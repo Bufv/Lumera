@@ -42,8 +42,14 @@ jobs:
         env:
           VITE_APP_VERSION: ${{ github.event.workflow_run.head_sha }}
 
+      # --name/--var eksplisit di CLI, BUKAN hanya --env: wrangler.jsonc's
+      # env.staging.name/vars terbukti tidak bertahan lewat config redirect
+      # yang dibuat @cloudflare/vite-plugin pada langkah Build di atas (lihat
+      # catatan di wrangler.jsonc dan worker/security-headers.js) — tanpa
+      # --name eksplisit, ini bisa diam-diam deploy ke Worker yang sama
+      # dengan production.
       - name: Deploy (wrangler --env staging)
-        run: npx wrangler deploy --env staging
+        run: npx wrangler deploy --env staging --name lumera-student-batch-1-staging --var ENVIRONMENT:staging
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -78,8 +84,9 @@ jobs:
         env:
           VITE_APP_VERSION: ${{ github.event.workflow_run.head_sha }}
 
+      # --name/--var eksplisit di CLI — lihat catatan di job staging di atas.
       - name: Deploy (wrangler --env production)
-        run: npx wrangler deploy --env production
+        run: npx wrangler deploy --env production --name lumera-student-batch-1-production --var ENVIRONMENT:production
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

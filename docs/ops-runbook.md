@@ -32,11 +32,15 @@ Cloudflare Workers menyimpan riwayat versi deploy secara native — rollback **t
 build ulang dari kode (FR-004).
 
 ```sh
-# Lihat daftar versi yang pernah di-deploy untuk environment production
-npx wrangler versions list --env production
+# Lihat daftar versi yang pernah di-deploy untuk environment production.
+# --name eksplisit (bukan hanya --env) -- lihat catatan di wrangler.jsonc:
+# env.production.name terbukti tidak selalu bertahan lewat config redirect
+# @cloudflare/vite-plugin jika ada sisa build lokal di direktori ini.
+npx wrangler versions list --env production --name lumera-student-batch-1-production
 
-# Kembalikan production ke versi sebelumnya (ganti <VERSION_ID> dari daftar di atas)
-npx wrangler rollback --env production --version-id <VERSION_ID>
+# Kembalikan production ke versi sebelumnya (VERSION_ID dari daftar di atas,
+# argumen posisi -- BUKAN flag --version-id, itu tidak ada di wrangler rollback)
+npx wrangler rollback <VERSION_ID> --env production --name lumera-student-batch-1-production
 ```
 
 Rollback **selalu dijalankan manual oleh tim**, bukan otomatis (lihat R-003

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { applySecurityHeaders, SECURITY_HEADERS } from '../../worker/security-headers.js';
+import {
+  applySecurityHeaders,
+  headersUntukEnvironment,
+  SECURITY_HEADERS,
+} from '../../worker/security-headers.js';
 
 /**
  * contracts/security-headers-contract.md: header ini WAJIB hadir pada setiap
@@ -49,5 +53,33 @@ describe('applySecurityHeaders (US4 spec 002)', () => {
     expect(csp).toContain('connect-src');
     expect(csp).not.toContain("connect-src *");
     expect(csp).toContain('sentry.io');
+  });
+
+  // Regresi nyata (2026-08-09): CSP ketat memblokir <script> inline preamble
+  // React Fast Refresh yang disuntikkan Vite, membuat `npm run dev` gagal
+  // total di halaman pertama ("can't detect preamble"). Dikendalikan lewat
+  // import.meta.env.DEV (bukan wrangler `vars`/`env.ENVIRONMENT`) — lihat
+  // catatan panjang di worker/security-headers.js untuk alasannya: vars
+  // per-environment terbukti TIDAK bertahan lewat config redirect
+  // @cloudflare/vite-plugin pada alur build+deploy yang dipakai deploy.yml.
+  describe('pelonggaran CSP khusus isDev (fix npm run dev)', () => {
+    it('melonggarkan script-src dengan unsafe-inline HANYA saat isDev true', () => {
+      const csp = headersUntukEnvironment(true)['Content-Security-Policy'];
+      expect(csp).toContain("script-src 'self' 'unsafe-inline'");
+    });
+
+    it('isDev false (staging/production, hasil vite build) TIDAK PERNAH mendapat CSP longgar', () => {
+      expect(headersUntukEnvironment(false)).toEqual(SECURITY_HEADERS);
+    });
+
+    it('isDev tidak terkirim sama sekali MUST fail-closed ke CSP ketat, bukan longgar', () => {
+      expect(headersUntukEnvironment(undefined)).toEqual(SECURITY_HEADERS);
+    });
+
+    it('applySecurityHeaders meneruskan isDev sampai ke CSP yang benar-benar terpasang', () => {
+      const response = new Response('<html></html>', { status: 200 });
+      const hasil = applySecurityHeaders(response, true);
+      expect(hasil.headers.get('Content-Security-Policy')).toContain("'unsafe-inline'");
+    });
   });
 });
