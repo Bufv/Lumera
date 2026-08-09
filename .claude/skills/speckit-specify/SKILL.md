@@ -73,11 +73,30 @@ Given that feature description, do this:
      - "Create a dashboard for analytics" → "analytics-dashboard"
      - "Fix payment processing timeout bug" → "fix-payment-timeout"
 
-2. **Branch creation** (optional, via hook):
+2. **Branch creation** (mandatory — local project policy, enforced by this command regardless of hooks):
 
-   If a `before_specify` hook ran successfully in the Pre-Execution Checks above, it will have created/switched to a git branch and output JSON containing `BRANCH_NAME` and `FEATURE_NUM`. Note these values for reference, but the branch name does **not** dictate the spec directory name.
+   Every new spec MUST get its own dedicated git branch, created **before** the spec directory
+   in step 3 below — no spec is ever written directly onto a shared branch (`main`, `interface`,
+   or any other branch not dedicated to this feature).
 
-   If the user explicitly provided `GIT_BRANCH_NAME`, pass it through to the hook so the branch script uses the exact value as the branch name (bypassing all prefix/suffix generation).
+   - If a `before_specify` hook already ran successfully in the Pre-Execution Checks above and
+     reported `BRANCH_NAME`/`FEATURE_NUM`, reuse that branch and skip the steps below.
+   - Otherwise, perform branch creation yourself, in this order:
+     1. If the user explicitly provided `GIT_BRANCH_NAME`, use that value verbatim as
+        `BRANCH_NAME`. Otherwise compute it by running
+        `.specify/scripts/powershell/create-new-feature.ps1 -DryRun -Json -ShortName "<short-name from step 1>"`
+        (add `-Number N` only if the user explicitly requested a specific number) — this reuses
+        the exact same numbering/naming logic step 3 will use for the spec directory, so
+        `BRANCH_NAME` and the eventual directory name stay identical. `-DryRun` means nothing is
+        written to disk yet; only `BRANCH_NAME`/`FEATURE_NUM` are read from its JSON output.
+     2. Confirm the working tree is either clean or only contains changes that clearly belong to
+        *this* new feature. If it contains unrelated uncommitted work, surface that to the user
+        before proceeding rather than silently sweeping it onto the new branch.
+     3. Run `git checkout -b <BRANCH_NAME>` from the current `HEAD`. (`checkout -b` carries any
+        uncommitted working-tree changes forward automatically — no stash is needed for this
+        routine case.)
+     4. Note `BRANCH_NAME`/`FEATURE_NUM` for step 3 below.
+   - Never create the spec directory (step 3) before this branch exists and is checked out.
 
 3. **Create the spec feature directory**:
 
@@ -273,12 +292,15 @@ Check if `.specify/extensions.yml` exists in the project root.
 ## Completion Report
 
 Report completion to the user with:
+- `BRANCH_NAME` — the git branch created/checked out for this feature (step 2)
 - `SPECIFY_FEATURE_DIRECTORY` — the feature directory path
 - `SPEC_FILE` — the spec file path
 - Checklist results summary
 - Readiness for the next phase (`/speckit-clarify` or `/speckit-plan`)
 
-**NOTE:** Branch creation is handled by the `before_specify` hook (git extension). Spec directory and file creation are always handled by this core command.
+**NOTE:** Branch creation is mandatory and performed directly by this command (step 2) unless a
+`before_specify` hook already handled it. Spec directory and file creation are always handled by
+this core command.
 
 ## Quick Guidelines
 

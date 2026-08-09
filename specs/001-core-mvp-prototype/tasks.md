@@ -369,3 +369,18 @@ alur Shell karena tiga hal terikat SC-004/SC-006 yang **tidak terlihat pada demo
 yang gagal ditulis, Lumens yang terlanjur diberikan pada pelajaran yang ditinggalkan, dan
 penjelasan "Kenapa?" yang hilang pada jawaban benar. Ketiganya lolos mata telanjang, jadi justru
 di sanalah test otomatis paling berharga.
+
+---
+
+## Phase 10: Convergence
+
+**Purpose**: Close the gap between spec 001's core deliverable (Atlas → 7-step lesson →
+gamification) and what the currently shipped app (`App.tsx` → `StudentApp`) actually exposes to a
+user. The code below is built and unit-tested in isolation but unreachable from the live entry
+point.
+
+- [ ] T085 Make Lumera Atlas (or an equivalent peta node visual) the reachable homepage/entry point of the shipped app, replacing or absorbing into `StudentApp`'s current `HomeScreen`, so FR-001/FR-002 and US1/AC1-2 are actually satisfiable by a user of the running app per FR-001 (contradicts)
+- [ ] T086 Wire `LessonShell` and the registered modules (math-slope, physics-motion, econ-supply-demand, history-causal-chain) into a reachable route in `StudentApp` so a student can actually complete the 7-step lesson flow end-to-end, instead of the static "hadir pada batch berikutnya" info drawer currently shown by `IntegerCourseScreen`/`StudentApp.onOpenModule` (and locked in by `tests/unit/student-app.test.tsx` "opens module information but never a lesson player") per FR-003 (missing)
+- [ ] T087 Connect the live `HomeScreen`/`ProgressScreen` to the persisted `Siswa` record in `src/progress/store.ts` (lumens, streak, mastery) instead of only the static `ARDI_DEMO_FIXTURE`, so completing a real lesson (once T086 lands) visibly updates what the student sees outside demo mode per FR-007 (missing)
+- [ ] T088 Re-run SC-001 through SC-005 against the running app once T085-T086 land, since they measure the Atlas-to-lesson-completion flow that is currently unreachable and therefore unverifiable per SC-001 (missing)
+- [ ] T089 Decide and record whether to integrate or remove each UI generation left orphaned with no reachable route (`src/atlas/`, `src/beranda/`, `src/courses/`), so the repository has one authoritative home/navigation implementation instead of three coexisting, unreferenced ones per plan: project structure (unrequested)
