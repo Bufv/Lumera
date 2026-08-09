@@ -1,6 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { App } from '../../src/App';
+import { daftarkanSemuaModul } from '../../src/modules';
 import {
   createDefaultLearnerProfile,
   saveLearnerProfile,
@@ -24,6 +25,13 @@ async function setHash(hash: string) {
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   });
 }
+
+beforeAll(() => {
+  // Modul spec 001 (math-slope, dst.) didaftarkan di main.tsx pada aplikasi
+  // sungguhan; di test ini App di-render tanpa main.tsx jadi harus dilakukan
+  // eksplisit — sama seperti tests/unit/layar-belajar.test.tsx.
+  daftarkanSemuaModul();
+});
 
 beforeEach(() => {
   localStorage.clear();
@@ -56,15 +64,15 @@ describe('Lumera Batch 1 student shell', () => {
 
     const wordmark = screen.getByRole('button', { name: 'Lumera — ke Beranda' });
     expect(wordmark.querySelector('img, svg')).toBeNull();
-    const knowledgeMap = screen.getByRole('button', { name: /Peta Ilmu/i });
-    expect(knowledgeMap).toHaveAttribute('aria-disabled', 'true');
-    expect(knowledgeMap).toBeDisabled();
+    // Peta Ilmu (Atlas) is a real, reachable route since spec 001 T086 — no longer
+    // a locked "coming soon" placeholder.
+    const knowledgeMap = screen.getByRole('button', { name: 'Peta Ilmu' });
+    expect(knowledgeMap).not.toBeDisabled();
     expect(document.querySelector('.student-streak')).toHaveTextContent('Mulai');
 
-    const beforeMapClick = window.location.hash;
     fireEvent.click(knowledgeMap);
-    expect(window.location.hash).toBe(beforeMapClick);
-    expect(screen.queryByText(/Langkah 1 dari 7/i)).toBeNull();
+    expect(window.location.hash).toBe('#/peta-ilmu');
+    expect(await screen.findByRole('heading', { name: 'Peta Ilmu' })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Buka pemberitahuan' }));
     expect(screen.getByRole('dialog', { name: 'Pemberitahuan' })).toBeTruthy();
@@ -223,7 +231,7 @@ describe('Lumera Batch 1 student shell', () => {
     );
   });
 
-  it('opens module information but never a lesson player', async () => {
+  it('opens module information but never a lesson player (Batch 1 integer catalog only — not yet real content)', async () => {
     saveLearnerProfile(completedProfile());
     await setHash('#/belajar/matematika/bilangan-bulat');
     render(<App />);
@@ -238,6 +246,40 @@ describe('Lumera Batch 1 student shell', () => {
 
     fireEvent.keyDown(window, { key: 'Escape' });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('opens a REAL LessonShell from Peta Ilmu — spec 001 T086 reachability fix', async () => {
+    saveLearnerProfile(completedProfile());
+    await setHash('#/peta-ilmu');
+    render(<App />);
+
+    expect(screen.getByRole('heading', { name: 'Peta Ilmu' })).toBeTruthy();
+
+    // Contrast with the test above: this launches one of the four spec-001
+    // modules (math-slope, physics-motion, econ-supply-demand,
+    // history-causal-chain) through the real LessonShell, not a static drawer.
+    fireEvent.click(screen.getByRole('button', { name: /Mulai belajar|Lanjutkan belajar/ }));
+
+    expect(window.location.hash).toMatch(/^#\/pelajaran\?modul=/);
+    expect(
+      await screen.findByRole('progressbar', { name: /Langkah 1 dari 7/i }),
+    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Tutup pelajaran' })).toBeTruthy();
+
+    // Leaving the lesson returns to Peta Ilmu, not a dead end.
+    fireEvent.click(screen.getByRole('button', { name: 'Tutup pelajaran' }));
+    expect(await screen.findByRole('heading', { name: 'Peta Ilmu' })).toBeTruthy();
+    expect(window.location.hash).toBe('#/peta-ilmu');
+  });
+
+  it('falls back gracefully when a lesson link points at an unregistered module', async () => {
+    saveLearnerProfile(completedProfile());
+    await setHash('#/pelajaran?modul=modul-tidak-ada');
+    render(<App />);
+
+    expect(screen.getByRole('heading', { name: 'Modul tidak ditemukan' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Kembali ke Peta Ilmu/ }));
+    expect(await screen.findByRole('heading', { name: 'Peta Ilmu' })).toBeTruthy();
   });
 
   it('closes transient drawers when browser history changes the route', async () => {

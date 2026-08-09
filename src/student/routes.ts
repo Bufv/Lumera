@@ -12,7 +12,9 @@ export type RouteName =
   | 'review'
   | 'saved'
   | 'progress'
-  | 'settings';
+  | 'settings'
+  | 'peta-ilmu'
+  | 'lesson';
 
 export type CourseView = 'roadmap' | 'list';
 
@@ -20,6 +22,8 @@ export interface StudentLocation {
   route: RouteName;
   demo: boolean;
   courseView: CourseView;
+  /** Hanya terisi saat `route === 'lesson'` — id modul di `src/shell/registry.ts`. */
+  lessonModuleId?: string | null;
 }
 
 export const ROUTE_PATHS: Record<RouteName, string> = {
@@ -37,6 +41,8 @@ export const ROUTE_PATHS: Record<RouteName, string> = {
   saved: '/simpanan',
   progress: '/progres',
   settings: '/pengaturan',
+  'peta-ilmu': '/peta-ilmu',
+  lesson: '/pelajaran',
 };
 
 const PATH_ROUTES = new Map(
@@ -50,7 +56,15 @@ export function parseStudentHash(hash: string, onboardingComplete = false): Stud
   const route = PATH_ROUTES.get(path) ?? (onboardingComplete ? 'home' : 'welcome');
   const params = new URLSearchParams(rawQuery);
   const courseView: CourseView = params.get('view') === 'list' ? 'list' : 'roadmap';
-  return { route, demo: params.get('mode') === 'demo', courseView };
+  return {
+    route,
+    demo: params.get('mode') === 'demo',
+    courseView,
+    // Kunci opsional ini sengaja tidak pernah muncul di objek untuk rute selain
+    // 'lesson', agar bentuk StudentLocation untuk rute lama tetap sama persis
+    // (lihat tests/unit/student-routes.test.ts yang membandingkan bentuk penuh).
+    ...(route === 'lesson' ? { lessonModuleId: params.get('modul') } : {}),
+  };
 }
 
 export function hashForRoute(
@@ -66,6 +80,13 @@ export function hashForRoute(
 
 export function hashForCourseView(courseView: CourseView, demo = false): string {
   return hashForRoute('integers', demo, courseView);
+}
+
+/** US1/US2 spec 001 (T086): tautan langsung ke sebuah modul lewat LessonShell. */
+export function hashForLesson(moduleId: string, demo = false): string {
+  const query = [`modul=${encodeURIComponent(moduleId)}`];
+  if (demo) query.push('mode=demo');
+  return `#${ROUTE_PATHS.lesson}?${query.join('&')}`;
 }
 
 export function isOnboardingRoute(route: RouteName): boolean {

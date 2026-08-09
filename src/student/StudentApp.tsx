@@ -8,11 +8,16 @@ import {
   type LearnerProfile,
   type StudyDay,
 } from '../profile';
+import { Atlas } from '../atlas/Atlas';
+import { LessonShell } from '../shell/LessonShell';
+import { ambilModul } from '../shell/registry';
+import { bacaSiswa, type Siswa } from '../progress/store';
 import { findStudentModule } from './catalog';
 import { ARDI_DEMO_FIXTURE, type DemoSavedConcept } from './demo';
 import { OnboardingFlow } from './OnboardingFlow';
 import {
   hashForCourseView,
+  hashForLesson,
   hashForRoute,
   isOnboardingRoute,
   parseStudentHash,
@@ -69,6 +74,11 @@ export function StudentApp() {
   const [selectedModule, setSelectedModule] = useState<StudentModuleSummary | null>(null);
   const [selectedConcept, setSelectedConcept] = useState<DemoSavedConcept | null>(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
+  // Progres nyata (Lumens/streak/mastery) dari LessonShell — terpisah dari
+  // LearnerProfile/demoData di atas, yang hanya menyimpan preferensi onboarding.
+  // Dibaca ulang setiap kali Peta Ilmu dibuka agar mencerminkan pelajaran yang
+  // baru saja diselesaikan (spec 001 T086).
+  const [siswa, setSiswa] = useState<Siswa>(() => bacaSiswa());
   const demoData = location.demo ? ARDI_DEMO_FIXTURE : null;
   const visibleProfile = useMemo(
     () => (location.demo ? demoProfile() : profile),
@@ -114,6 +124,12 @@ export function StudentApp() {
     setConfirmAction(null);
   }, [location.route, location.demo]);
 
+  // Muat ulang progres nyata setiap kali Peta Ilmu dibuka, supaya pelajaran yang
+  // baru diselesaikan (rute 'lesson') langsung terlihat begitu siswa kembali.
+  useEffect(() => {
+    if (location.route === 'peta-ilmu') setSiswa(bacaSiswa());
+  }, [location.route]);
+
   const navigate = (route: RouteName, demo = location.demo) => {
     const nextCourseView = route === 'integers' ? location.courseView : 'roadmap';
     const nextHash = hashForRoute(route, demo, nextCourseView);
@@ -126,6 +142,13 @@ export function StudentApp() {
     } else {
       window.location.hash = nextHash;
     }
+  };
+
+  /** spec 001 T086: buka sebuah modul lewat LessonShell — bukan drawer info statis. */
+  const openLesson = (moduleId: string) => {
+    setSelectedModule(null);
+    setSelectedConcept(null);
+    window.location.hash = hashForLesson(moduleId, location.demo);
   };
 
   const changeCourseView = (courseView: CourseView) => {
@@ -194,8 +217,45 @@ export function StudentApp() {
     );
   }
 
+  // spec 001 T086: LessonShell dirender lepas dari StudentShell — ia punya chrome
+  // penuh sendiri (tombol tutup, progress dots, Lumens) sesuai FR-011, jadi tidak
+  // boleh dibungkus header/nav StudentShell lagi.
+  if (location.route === 'lesson') {
+    const modul = location.lessonModuleId ? ambilModul(location.lessonModuleId) : undefined;
+    if (!modul) {
+      return (
+        <section className="empty-state" role="alert">
+          <h2>Modul tidak ditemukan</h2>
+          <p>Pelajaran ini belum terdaftar atau tautannya tidak valid.</p>
+          <Tactile tone="neutral" onClick={() => navigate('peta-ilmu', location.demo)}>
+            Kembali ke Peta Ilmu
+            <Icon name="arrow" width={18} height={18} />
+          </Tactile>
+        </section>
+      );
+    }
+    return (
+      <LessonShell
+        modul={modul}
+        onKeluar={() => navigate('peta-ilmu', location.demo)}
+        onSelesai={() => {
+          setSiswa(bacaSiswa());
+          navigate('peta-ilmu', location.demo);
+        }}
+      />
+    );
+  }
+
   const content = (() => {
     switch (location.route) {
+      case 'peta-ilmu':
+        return (
+          <Atlas
+            siswa={siswa}
+            onPilihModul={openLesson}
+            onKembali={() => navigate('home', location.demo)}
+          />
+        );
       case 'learn':
         return (
           <LearnScreen

@@ -134,11 +134,10 @@ export function StudentShell({
             ))}
             <button
               type="button"
-              className="student-nav__item student-nav__item--locked"
-              aria-disabled="true"
-              aria-label="Peta Ilmu, segera hadir"
-              title="Peta Ilmu · Segera hadir"
-              disabled
+              className="student-nav__item"
+              data-active={routeIsActive(route, 'peta-ilmu')}
+              aria-current={routeIsActive(route, 'peta-ilmu') ? 'page' : undefined}
+              onClick={() => navigate('peta-ilmu')}
             >
               Peta Ilmu
             </button>
@@ -244,16 +243,9 @@ export function StudentShell({
                     <Icon name="grid" width={18} height={18} />
                     Pengaturan
                   </button>
-                  <button
-                    type="button"
-                    className="profile-menu__locked"
-                    role="menuitem"
-                    aria-disabled="true"
-                    title="Peta Ilmu · Segera hadir"
-                    disabled
-                  >
+                  <button type="button" role="menuitem" onClick={() => navigate('peta-ilmu')}>
+                    <Icon name="route" width={18} height={18} />
                     Peta Ilmu
-                    <small>Segera hadir</small>
                   </button>
                   {demo && (
                     <button type="button" role="menuitem" onClick={onExitDemo}>
