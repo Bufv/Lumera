@@ -8,6 +8,11 @@
 
 export const STORAGE_KEY = 'lumera.profile.v1';
 
+/** Naikkan setiap kali bentuk field LearnerProfile berubah tidak-kompatibel-
+ * mundur, dan tambahkan penanganannya di `normalizeLearnerProfile` (T034,
+ * spec 002 — mengikuti pola SISWA_SCHEMA_VERSION di progress/store.ts). */
+export const PROFILE_SCHEMA_VERSION = 1;
+
 export const LEARNING_GOALS = [
   'strengthen-foundations',
   'support-school',
@@ -41,6 +46,8 @@ export const ONBOARDING_STEPS = [
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 export interface LearnerProfile {
+  /** Versi bentuk data ini — lihat PROFILE_SCHEMA_VERSION dan contracts/progress-export-contract.md. */
+  schemaVersion: number;
   displayName: string;
   stage: 'smp';
   grade: 7;
@@ -57,6 +64,7 @@ const DEFAULT_STUDY_DAYS: StudyDay[] = [];
 
 export function createDefaultLearnerProfile(): LearnerProfile {
   return {
+    schemaVersion: PROFILE_SCHEMA_VERSION,
     displayName: '',
     stage: 'smp',
     grade: 7,
@@ -106,6 +114,11 @@ export function normalizeLearnerProfile(value: unknown): LearnerProfile {
   const isComplete = value.onboardingComplete === true || rawStep === 'complete';
 
   return {
+    // Field ini sendiri tidak butuh migrasi bertahap: fungsi ini sudah
+    // merekonstruksi seluruh bentuk dari nol setiap dipanggil (bukan spread
+    // parsial seperti progress/store.ts), jadi outputnya selalu versi saat
+    // ini apapun versi input-nya (T034, spec 002).
+    schemaVersion: PROFILE_SCHEMA_VERSION,
     displayName: typeof value.displayName === 'string' ? value.displayName : defaults.displayName,
     stage: 'smp',
     grade: 7,

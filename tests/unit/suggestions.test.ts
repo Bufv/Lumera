@@ -16,6 +16,7 @@ const MODUL: ModulRingkas[] = [
 
 function siswa(mastery: CatatanMastery[]): Siswa {
   return {
+    schemaVersion: 1,
     id: 'uji',
     lumens: 0,
     streakCount: 0,

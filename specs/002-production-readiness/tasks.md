@@ -45,8 +45,9 @@ Project Structure).
 
 **Purpose**: Siapkan dependency dan versi tooling sebelum pipeline/fitur apapun dibangun
 
-- [ ] T001 Tambahkan dependency baru ke `package.json`: `@sentry/react`, `eslint-plugin-jsx-a11y`, `vitest-axe`, `@lhci/cli` (yang terakhir hanya dipakai P2 US10, tapi diinstal sekarang agar `npm install` tidak perlu diulang saat P2 digarap)
-- [ ] T002 [P] Tambahkan `.nvmrc` berisi versi Node yang dipakai CI, agar lingkungan lokal dan `ci.yml` konsisten
+- [X] T001 Tambahkan dependency baru ke `package.json`: `@sentry/react`, `eslint-plugin-jsx-a11y`, `vitest-axe`, `@lhci/cli` (yang terakhir hanya dipakai P2 US10, tapi diinstal sekarang agar `npm install` tidak perlu diulang saat P2 digarap)
+  **DEVIASI 2026-08-09**: `@lhci/cli` **tidak** diinstal sekarang — rantai dependency-nya (Lighthouse/Puppeteer) sendirian membawa ~5 kerentanan `high` baru (nanoid, sharp, tmp, uuid), yang berarti gerbang `npm audit --audit-level=high` yang baru dibangun di T003 langsung gagal di run pertamanya untuk fitur P2 yang belum digarap. Ditunda sampai US10 (P2) benar-benar dikerjakan. `@sentry/react`, `eslint-plugin-jsx-a11y`, `vitest-axe` terpasang.
+- [X] T002 [P] Tambahkan `.nvmrc` berisi versi Node yang dipakai CI, agar lingkungan lokal dan `ci.yml` konsisten
 
 ---
 
@@ -59,9 +60,9 @@ deploy) — **MEMBLOKIR** kedua story tersebut sampai selesai
 bergantung pada `ci.yml` sebagai gerbang dan pada environment yang didefinisikan di
 `wrangler.jsonc`.
 
-- [ ] T003 Buat `.github/workflows/ci.yml`: jalankan berurutan lint (`npm run lint`), type-check (`tsc -b`), `npm test`, `npm audit --audit-level=high`, dan `npm run build` pada setiap push/PR, sesuai `contracts/ci-pipeline-contract.md` gerbang 1–5
-- [ ] T004 [P] Tambahkan environment bernama `staging` dan `production` (nama Worker berbeda) di `wrangler.jsonc` sesuai R-002 `research.md`
-- [ ] T005 Tambahkan penyematan commit SHA sebagai `VITE_APP_VERSION` saat build (`vite.config.ts` `define`), dibaca lewat `import.meta.env` — dasar untuk FR-005 (keterlacakan rilis) dan `ErrorReportContext.appVersion` di US3
+- [X] T003 Buat `.github/workflows/ci.yml`: jalankan berurutan lint (`npm run lint`), type-check (`tsc -b`), `npm test`, `npm audit --audit-level=high`, dan `npm run build` pada setiap push/PR, sesuai `contracts/ci-pipeline-contract.md` gerbang 1–5
+- [X] T004 [P] Tambahkan environment bernama `staging` dan `production` (nama Worker berbeda) di `wrangler.jsonc` sesuai R-002 `research.md`
+- [X] T005 Tambahkan penyematan commit SHA sebagai `VITE_APP_VERSION` saat build (`vite.config.ts` `define`), dibaca lewat `import.meta.env` — dasar untuk FR-005 (keterlacakan rilis) dan `ErrorReportContext.appVersion` di US3
 
 **Checkpoint**: `ci.yml` menjalankan seluruh gerbang dan environment staging/production sudah
 terdefinisi. US1 dan US2 boleh dimulai.
@@ -77,9 +78,11 @@ hitungan menit tanpa build ulang.
 lolos → tandai bermasalah → jalankan rollback → verifikasi production kembali ke versi stabil
 dalam < 10 menit.
 
-- [ ] T006 [US1] Buat job `production` di `.github/workflows/deploy.yml`: `wrangler deploy --env production`, dipicu hanya pada push ke `main` dengan `needs: ci` mengacu ke T003
-- [ ] T007 [US1] Tulis `docs/ops-runbook.md`: prosedur rollback (`wrangler rollback --env production`) dan cara membaca versi/commit yang sedang live (merujuk `VITE_APP_VERSION` dari T005), merujuk `contracts/ci-pipeline-contract.md`
+- [X] T006 [US1] Buat job `production` di `.github/workflows/deploy.yml`: `wrangler deploy --env production`, dipicu hanya pada push ke `main` dengan `needs: ci` mengacu ke T003
+  **CATATAN**: digerbang lewat `workflow_run` terhadap workflow `CI` (bukan literal `needs: ci` satu file — GitHub Actions tidak mendukung `needs` lintas workflow), efeknya sama: job production hanya jalan setelah `CI` sukses di commit yang sama.
+- [X] T007 [US1] Tulis `docs/ops-runbook.md`: prosedur rollback (`wrangler rollback --env production`) dan cara membaca versi/commit yang sedang live (merujuk `VITE_APP_VERSION` dari T005), merujuk `contracts/ci-pipeline-contract.md`
 - [ ] T008 [US1] Jalankan Quickstart V-1 (branch gagal test diblokir; rollback production < 10 menit) dan catat hasilnya di `quickstart.md`
+  **BELUM SELESAI**: butuh repo GitHub sungguhan dengan Actions aktif + kredensial Cloudflare (`CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID`) — di luar jangkauan lingkungan implementasi ini. Konfigurasi (`ci.yml`, `deploy.yml`, `wrangler.jsonc`) sudah divalidasi lewat `wrangler deploy --dry-run --env production` (sukses, `definedEnvironments` mengenali `production`) dan `npm run build` sungguhan.
 
 **Checkpoint**: US1 berfungsi penuh dan dapat didemokan sendiri — deploy production tergerbang,
 rollback terdokumentasi dan teruji.
@@ -93,9 +96,10 @@ rollback terdokumentasi dan teruji.
 **Independent Test**: Dorong perubahan ke branch non-`main` → verifikasi staging ter-deploy di
 URL/Worker terpisah, tanpa memengaruhi data/pengalaman di production.
 
-- [ ] T009 [US2] Buat job `staging` di `.github/workflows/deploy.yml`: `wrangler deploy --env staging`, dipicu pada push branch manapun selain `main` dengan `needs: ci`
-- [ ] T010 [US2] Verifikasi nama/URL Worker `staging` berbeda dari `production` dan catat di `docs/ops-runbook.md` (T007) bahwa keduanya tidak berbagi state/storage apapun
+- [X] T009 [US2] Buat job `staging` di `.github/workflows/deploy.yml`: `wrangler deploy --env staging`, dipicu pada push branch manapun selain `main` dengan `needs: ci`
+- [X] T010 [US2] Verifikasi nama/URL Worker `staging` berbeda dari `production` dan catat di `docs/ops-runbook.md` (T007) bahwa keduanya tidak berbagi state/storage apapun
 - [ ] T011 [US2] Jalankan Quickstart V-2 dan catat hasilnya di `quickstart.md`
+  **BELUM SELESAI**: sama seperti T008 — butuh deploy sungguhan. `wrangler deploy --dry-run --env staging` sukses dan mengenali environment `staging` secara terpisah dari `production`.
 
 **Checkpoint**: US1 dan US2 bersama membentuk pipeline deploy lengkap — staging untuk verifikasi,
 production tergerbang dengan rollback.
@@ -111,11 +115,14 @@ sebelum meninggalkan perangkat siswa.
 pemantauan dalam < 5 menit tanpa laporan manual, dan field yang terkirim tidak memuat PII.
 
 - [ ] T012 [US3] Buat project Sentry (tier gratis); simpan DSN sebagai GitHub Actions secret `SENTRY_DSN` dan Cloudflare Worker environment variable untuk `staging`/`production`
-- [ ] T013 [US3] Implementasikan `src/monitoring/errorReporting.ts`: inisialisasi Sentry dengan `sendDefaultPii: false` dan `beforeSend` yang **hanya** meloloskan field sesuai `data-model.md` § ErrorReportContext (`message`, `stack`, `route`, `appVersion`) — tolak field lain secara eksplisit, bukan default-allow
-- [ ] T014 [US3] Panggil inisialisasi `errorReporting` di `src/main.tsx` sebelum `createRoot(...).render(...)`. Bergantung pada T013
-- [ ] T015 [P] [US3] Unit test `beforeSend` di `tests/unit/error-reporting.test.ts`: mock event Sentry berisi `displayName` dan snapshot `localStorage`, verifikasi keduanya tersaring habis sebelum "terkirim"
+  **BELUM SELESAI**: butuh akun/dashboard Sentry sungguhan — aksi eksternal di luar jangkauan implementasi ini. `src/monitoring/errorReporting.ts` (T013) sudah menangani ketiadaan DSN secara eksplisit (`initErrorReporting()` no-op, bukan gagal diam-diam) sehingga aplikasi tetap berjalan normal sampai DSN ini diisi.
+- [X] T013 [US3] Implementasikan `src/monitoring/errorReporting.ts`: inisialisasi Sentry dengan `sendDefaultPii: false` dan `beforeSend` yang **hanya** meloloskan field sesuai `data-model.md` § ErrorReportContext (`message`, `stack`, `route`, `appVersion`) — tolak field lain secara eksplisit, bukan default-allow
+- [X] T014 [US3] Panggil inisialisasi `errorReporting` di `src/main.tsx` sebelum `createRoot(...).render(...)`. Bergantung pada T013
+- [X] T015 [P] [US3] Unit test `beforeSend` di `tests/unit/error-reporting.test.ts`: mock event Sentry berisi `displayName` dan snapshot `localStorage`, verifikasi keduanya tersaring habis sebelum "terkirim"
 - [ ] T016 [US3] Konfigurasikan alert rule ambang lonjakan error di dasbor Sentry sesuai FR-007
+  **BELUM SELESAI**: bergantung pada T012 (akun Sentry belum ada).
 - [ ] T017 [US3] Jalankan Quickstart V-3 dan catat hasilnya di `quickstart.md` — **verifikasi eksplisit tidak ada PII di event yang benar-benar terkirim**, bukan hanya di unit test mock
+  **BELUM SELESAI**: bergantung pada T012. Bagian yang bisa diverifikasi tanpa Sentry sungguhan (logika `scrubBeforeSend`) sudah teruji penuh lewat T015 (4 test, termasuk memastikan `user`/`request`/`breadcrumbs`/`extra`/`contexts` terbuang total).
 
 **Checkpoint**: Tim mendapat sinyal error produksi otomatis, tanpa membocorkan data siswa ke
 pihak ketiga (Constitution Check Prinsip VI, plan.md).
@@ -131,11 +138,13 @@ keamanan standar pada setiap request, bukan hanya fallback SPA.
 rilis ditahan. Periksa response staging/production → verifikasi header keamanan hadir pada aset
 200 maupun fallback 404.
 
-- [ ] T018 [US4] Buat `.github/dependabot.yml` (ecosystem `npm`, jadwal mingguan, alert kerentanan aktif)
-- [ ] T019 [US4] Ubah `run_worker_first` menjadi `true` di `wrangler.jsonc` (Complexity Tracking, plan.md) — prasyarat agar header dapat disisipkan pada seluruh response, bukan hanya fallback
-- [ ] T020 [US4] Implementasikan penyisipan header di `worker/index.js`: bungkus response `env.ASSETS.fetch(request)` dan tambahkan seluruh header pada `contracts/security-headers-contract.md` sebelum dikembalikan. Bergantung pada T019
-- [ ] T021 [P] [US4] Ekstrak logika pembangun header ke fungsi murni yang diuji di `tests/unit/security-headers.test.ts` (agar testable tanpa runtime Worker sungguhan)
+- [X] T018 [US4] Buat `.github/dependabot.yml` (ecosystem `npm`, jadwal mingguan, alert kerentanan aktif)
+- [X] T019 [US4] Ubah `run_worker_first` menjadi `true` di `wrangler.jsonc` (Complexity Tracking, plan.md) — prasyarat agar header dapat disisipkan pada seluruh response, bukan hanya fallback
+- [X] T020 [US4] Implementasikan penyisipan header di `worker/index.js`: bungkus response `env.ASSETS.fetch(request)` dan tambahkan seluruh header pada `contracts/security-headers-contract.md` sebelum dikembalikan. Bergantung pada T019
+  **CATATAN**: diekstrak ke `worker/security-headers.js` (bukan inline di `index.js`) supaya T021 bisa mengujinya sebagai fungsi murni. `worker/` ditambahkan ke `tsconfig.json` (`allowJs`, `include`) agar test TypeScript bisa meng-impornya.
+- [X] T021 [P] [US4] Ekstrak logika pembangun header ke fungsi murni yang diuji di `tests/unit/security-headers.test.ts` (agar testable tanpa runtime Worker sungguhan)
 - [ ] T022 [US4] Jalankan Quickstart V-4: verifikasi `npm audit --audit-level=high` (T003) menahan dependency rentan; verifikasi header hadir di kedua jenis response; verifikasi aset Rive (`koji-gameboard.riv`) dan canvas modul Fisika tidak diblokir CSP
+  **SEBAGIAN**: `npm audit --audit-level=high` sungguhan dijalankan lokal — menemukan 10 kerentanan baseline pra-eksisting (wrangler/typescript-eslint toolchain, bukan dependency aplikasi), semuanya `fixAvailable`; `npm audit fix` diblokir proses `workerd.exe` sisa yang mengunci file di lingkungan lokal ini (bukan masalah kode — runner CI bersih tidak akan mengalami ini). Header teruji via T021 (4 test). Verifikasi CSP-vs-Rive/canvas sungguhan di browser BELUM dijalankan — butuh deploy staging (T011).
 
 **Checkpoint**: Gerbang keamanan otomatis aktif di CI dan di response — US4 dapat didemokan
 independen dari US1–US3.
@@ -150,10 +159,13 @@ tidak dapat mengeksekusi skrip; build production tidak membocorkan detail intern
 **Independent Test**: Audit seluruh kunci `localStorage` → verifikasi tanpa PII tidak esensial.
 Masukkan payload skrip pada nama tampilan → verifikasi tidak tereksekusi di UI manapun.
 
-- [ ] T023 [US5] Audit seluruh kunci `localStorage` aplikasi (`lumera.progress.v1`, `lumera.profile.v1`, kunci telemetry) terhadap FR-010; dokumentasikan hasil sebagai catatan di `quickstart.md` § V-5
-- [ ] T024 [P] [US5] Tambahkan test regresi XSS di `tests/unit/xss-safety.test.tsx`: render nama tampilan berisi payload skrip (`<img src=x onerror=...>`) lewat `StudentShell`/`HomeScreen`, assert dirender sebagai teks literal, bukan dieksekusi
-- [ ] T025 [US5] Set `build.sourcemap: false` eksplisit di `vite.config.ts` untuk build production dan audit `console.log`/output debug yang bocor ke bundle production
+- [X] T023 [US5] Audit seluruh kunci `localStorage` aplikasi (`lumera.progress.v1`, `lumera.profile.v1`, kunci telemetry) terhadap FR-010; dokumentasikan hasil sebagai catatan di `quickstart.md` § V-5
+  **Hasil audit**: tiga kunci (`lumera.profile.v1`, `lumera.progress.v1`, `lumera.telemetry.events.v1`). Tidak ada email/telepon/alamat pada bentuk manapun; `siswaId`/telemetry `eventId` adalah UUID acak, bukan identitas nyata; `displayName` adalah satu-satunya teks bebas siswa. PASS terhadap FR-010 pada kode saat ini.
+- [X] T024 [P] [US5] Tambahkan test regresi XSS di `tests/unit/xss-safety.test.tsx`: render nama tampilan berisi payload skrip (`<img src=x onerror=...>`) lewat `StudentShell`/`HomeScreen`, assert dirender sebagai teks literal, bukan dieksekusi
+- [X] T025 [US5] Set `build.sourcemap: false` eksplisit di `vite.config.ts` untuk build production dan audit `console.log`/output debug yang bocor ke bundle production
+  **Hasil audit**: nol `console.log`/`console.debug`/`console.info` di `src/`; tiga `console.error` yang ada seluruhnya diagnostik pendek tanpa PII (pola "gagal diam-diam dilarang" yang sudah ada sejak spec 001). `build.sourcemap: false` diverifikasi lewat build sungguhan — nol berkas `.map` di `dist/`.
 - [ ] T026 [US5] Jalankan Quickstart V-5 dan catat hasilnya di `quickstart.md`
+  **SEBAGIAN**: audit localStorage (T023), test XSS (T024), dan verifikasi source map (T025) sudah dijalankan sungguhan. Yang tersisa (payload XSS lewat browser DevTools sungguhan, bukan jsdom) butuh sesi manual.
 
 **Checkpoint**: Permukaan data-di-klien dan input siswa terverifikasi aman — independen dari
 story lain.
@@ -168,12 +180,14 @@ dalam satu aksi.
 **Independent Test**: Buka kebijakan privasi dari aplikasi → verifikasi dapat diakses dan
 dipahami. Jalankan aksi hapus-semua-data → verifikasi seluruh data lokal benar-benar hilang.
 
-- [ ] T027 [US6] Tulis konten kebijakan privasi di `src/privacy/content.ts` (bahasa non-teknis: data yang dikumpulkan — nama tampilan, preferensi, progres — dan cara penggunaannya; tanpa PII lain per FR-014)
-- [ ] T028 [P] [US6] Implementasikan `src/privacy/PrivacyPolicy.tsx` memakai token desain `src/design/tokens.ts` (Constitution Check Prinsip V, plan.md)
-- [ ] T029 [US6] Daftarkan rute kebijakan privasi ke `src/student/routes.ts` dan tautkan dari `SettingsScreen` (`src/student/StudentScreens.tsx`)
-- [ ] T030 [US6] Implementasikan aksi "hapus semua data saya" yang memanggil `resetLearnerProfile()` (`src/profile/store.ts`), `resetProgres()` (`src/progress/store.ts`), **dan** pembersihan storage telemetry sekaligus — perluas `onRequestResetProfile`/`confirmReset` di `src/student/StudentApp.tsx` yang saat ini hanya me-reset profil, tidak progress/telemetry
-- [ ] T031 [P] [US6] Unit test aksi hapus-semua-data di `tests/unit/data-deletion.test.ts`: isi ketiga kunci storage dengan data fixture, jalankan aksi, verifikasi ketiganya kosong setelahnya
+- [X] T027 [US6] Tulis konten kebijakan privasi di `src/privacy/content.ts` (bahasa non-teknis: data yang dikumpulkan — nama tampilan, preferensi, progres — dan cara penggunaannya; tanpa PII lain per FR-014)
+- [X] T028 [P] [US6] Implementasikan `src/privacy/PrivacyPolicy.tsx` memakai token desain `src/design/tokens.ts` (Constitution Check Prinsip V, plan.md)
+- [X] T029 [US6] Daftarkan rute kebijakan privasi ke `src/student/routes.ts` dan tautkan dari `SettingsScreen` (`src/student/StudentScreens.tsx`)
+- [X] T030 [US6] Implementasikan aksi "hapus semua data saya" yang memanggil `resetLearnerProfile()` (`src/profile/store.ts`), `resetProgres()` (`src/progress/store.ts`), **dan** pembersihan storage telemetry sekaligus — perluas `onRequestResetProfile`/`confirmReset` di `src/student/StudentApp.tsx` yang saat ini hanya me-reset profil, tidak progress/telemetry
+  **CATATAN**: diimplementasikan sebagai `src/privacy/deleteAllData.ts` (`hapusSemuaDataSiswa`), aksi `ConfirmAction` BARU `'delete-all-data'` — sengaja **terpisah** dari `'reset-profile'` yang sudah ada (yang tetap hanya me-reset profil, dipakai alur "ulangi onboarding"), bukan menggantikannya, supaya kedua makna aksi tidak tercampur.
+- [X] T031 [P] [US6] Unit test aksi hapus-semua-data di `tests/unit/data-deletion.test.ts`: isi ketiga kunci storage dengan data fixture, jalankan aksi, verifikasi ketiganya kosong setelahnya
 - [ ] T032 [US6] Jalankan Quickstart V-6 dan catat hasilnya di `quickstart.md`
+  **SEBAGIAN**: alur hapus-data teruji penuh lewat unit test (T031, 2 test). Verifikasi manual "buka kebijakan privasi dari aplikasi yang benar-benar jalan" butuh sesi browser.
 
 **Checkpoint**: US6 dapat didemokan independen — kebijakan privasi dan hak hapus data berfungsi
 penuh terlepas dari status story lain.
@@ -188,14 +202,16 @@ manapun.
 **Independent Test**: Selesaikan pelajaran (⚠️ lihat T040), ekspor progres, hapus data browser,
 verifikasi hilang, impor kembali, verifikasi seluruh state pulih.
 
-- [ ] T033 [US7] Tambahkan field `schemaVersion: number` ke `Siswa` (`src/progress/store.ts`) dan fungsi migrasi dasar (v1 = bentuk field saat ini) sesuai `data-model.md` § Siswa
-- [ ] T034 [P] [US7] Tambahkan field `schemaVersion: number` ke `LearnerProfile` (`src/profile/store.ts`) dan fungsi migrasi dasar, pola sama dengan T033
-- [ ] T035 [US7] Definisikan tipe `ExportedProgressFile` di `src/backup/schema.ts` sesuai `contracts/progress-export-contract.md`. Bergantung pada T033, T034
-- [ ] T036 [US7] Implementasikan `src/backup/export.ts`: bangun `ExportedProgressFile` dari state `Siswa` + `LearnerProfile` saat ini, unduh sebagai `lumera-progres-<YYYY-MM-DD>.json` lewat `Blob` + `<a download>`. Bergantung pada T035
-- [ ] T037 [US7] Implementasikan `src/backup/import.ts`: parse JSON, validasi `schemaVersion` dikenali dan bentuk `siswa`/`learnerProfile` valid, tolak dengan pesan jelas jika tidak (kontrak aturan 2, 3, 5), peringatkan sebelum menimpa jika `exportedAt` berkas lebih lama dari data lokal (kontrak aturan 4). Bergantung pada T035
-- [ ] T038 [US7] Sambungkan kontrol ekspor/impor ke `SettingsScreen` (`src/student/StudentScreens.tsx`). Bergantung pada T036, T037
-- [ ] T039 [P] [US7] Unit test round-trip ekspor/impor dan penolakan skema tidak cocok di `tests/unit/backup.test.ts`, memakai fixture `Siswa`/`LearnerProfile` sintetis — **tidak bergantung pada lesson engine sungguhan**, dapat dikerjakan sekarang
+- [X] T033 [US7] Tambahkan field `schemaVersion: number` ke `Siswa` (`src/progress/store.ts`) dan fungsi migrasi dasar (v1 = bentuk field saat ini) sesuai `data-model.md` § Siswa
+- [X] T034 [P] [US7] Tambahkan field `schemaVersion: number` ke `LearnerProfile` (`src/profile/store.ts`) dan fungsi migrasi dasar, pola sama dengan T033
+- [X] T035 [US7] Definisikan tipe `ExportedProgressFile` di `src/backup/schema.ts` sesuai `contracts/progress-export-contract.md`. Bergantung pada T033, T034
+- [X] T036 [US7] Implementasikan `src/backup/export.ts`: bangun `ExportedProgressFile` dari state `Siswa` + `LearnerProfile` saat ini, unduh sebagai `lumera-progres-<YYYY-MM-DD>.json` lewat `Blob` + `<a download>`. Bergantung pada T035
+- [X] T037 [US7] Implementasikan `src/backup/import.ts`: parse JSON, validasi `schemaVersion` dikenali dan bentuk `siswa`/`learnerProfile` valid, tolak dengan pesan jelas jika tidak (kontrak aturan 2, 3, 5), peringatkan sebelum menimpa jika `exportedAt` berkas lebih lama dari data lokal (kontrak aturan 4). Bergantung pada T035
+- [X] T038 [US7] Sambungkan kontrol ekspor/impor ke `SettingsScreen` (`src/student/StudentScreens.tsx`). Bergantung pada T036, T037
+- [X] T039 [P] [US7] Unit test round-trip ekspor/impor dan penolakan skema tidak cocok di `tests/unit/backup.test.ts`, memakai fixture `Siswa`/`LearnerProfile` sintetis — **tidak bergantung pada lesson engine sungguhan**, dapat dikerjakan sekarang
+  **Cakupan**: 7 test — round-trip penuh, tolak `schemaVersion` masa depan, tolak JSON rusak (tanpa merusak data lokal), tolak berkas tidak lengkap, minta konfirmasi timpa saat berkas lebih lama, tidak minta konfirmasi untuk siswa baru, format nama berkas.
 - [ ] T040 [US7] **Catatan dependensi lintas-spec (bukan kode)**: validasi manual penuh Quickstart V-7 ("selesaikan satu pelajaran, catat Lumens/streak/mastery, lalu ekspor") terblokir sampai `specs/001-core-mvp-prototype/tasks.md` T086 (wire `LessonShell` agar dapat dijangkau siswa) dan T087 (sambungkan `Siswa` store nyata ke UI live) selesai — saat ini tidak ada jalur live yang menghasilkan progres nyata untuk diekspor. T033–T039 di atas tetap selesai dan teruji penuh sekarang lewat fixture sintetis; task ini hanya menahan langkah validasi manual V-7 sampai prasyaratnya ada, dan MUST dijalankan begitu T086/T087 selesai — jangan dilupakan begitu blocker hilang
+  **STATUS 2026-08-09**: T086 sudah selesai di branch terpisah `001-convergence-fixes` (belum digabung ke branch ini). T087 (sambungkan `Siswa` store nyata ke UI live/`HomeScreen`/`ProgressScreen`) **belum** — masih task terbuka di `specs/001-core-mvp-prototype/tasks.md`. Blocker ini karena itu **masih berlaku**; V-7 belum bisa divalidasi end-to-end dari branch manapun sampai T087 selesai dan kedua branch digabung.
 
 **Checkpoint**: Mekanisme ekspor/impor selesai dan teruji unit; validasi manual end-to-end
 menunggu penyelesaian T086/T087 di spec 001 (lihat T040).
@@ -289,3 +305,47 @@ penuh — menunda seluruh story tidak menambah risiko baru di atas yang sudah ad
 - US8–US12 (P2/P3: ketahanan localStorage, aksesibilitas, performa, code-splitting modul, kontrak
   skema siap-backend) **belum** ada di file ini — akan digenerate lewat `/speckit-tasks` lagi
   setelah P1 selesai/tervalidasi, sesuai instruksi eksplisit untuk fokus P1 dulu
+
+---
+
+## Status Implementasi (2026-08-09)
+
+**29 dari 40 task selesai** (branch `002-production-readiness`, commit lokal — belum di-push).
+`npx tsc -b`, `npm run lint`, dan `npx vitest run` (**220/220 test**, naik dari 198 sebelum spec
+002) seluruhnya bersih. Build production (`npm run build`) sukses, nol berkas `.map` di `dist/`.
+
+### Yang BELUM selesai dan alasannya
+
+Sama seperti spec 001: seluruhnya butuh akun/lingkungan sungguhan (GitHub Actions aktif,
+kredensial Cloudflare, akun Sentry, sesi browser manual) yang berada di luar jangkauan lingkungan
+implementasi ini — bukan pekerjaan kode yang terlewat.
+
+| Task | Kenapa belum |
+|---|---|
+| T008, T011 | Deploy sungguhan ke staging/production butuh `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` dan repo GitHub dengan Actions aktif |
+| T012, T016, T017 | Butuh akun & dashboard Sentry sungguhan |
+| T022, T026, T032 | Sebagian selesai (lihat catatan per-task) — sisanya butuh sesi verifikasi browser manual (CSP vs aset nyata, XSS lewat DevTools, kebijakan privasi di aplikasi yang benar-benar jalan) |
+| T040 | Blocker lintas-spec **masih berlaku**: T086 (spec 001) selesai di branch terpisah `001-convergence-fixes` yang belum digabung; T087 (spec 001) masih task terbuka |
+
+### Deviasi dari rencana awal
+
+- **T001**: `@lhci/cli` sengaja ditunda ke US10 (P2) — instalasinya sekarang akan langsung
+  meloloskan ~5 kerentanan `high` baru ke gerbang `npm audit --audit-level=high` yang baru
+  dibangun di task yang sama.
+- **`npm audit fix`** untuk 10 kerentanan baseline pra-eksisting (toolchain wrangler/typescript-eslint,
+  bukan dependency aplikasi) tidak bisa dijalankan di lingkungan lokal ini — file lock Windows dari
+  proses `workerd.exe` sisa. Seluruhnya `fixAvailable: true`; aman dijalankan di runner CI bersih
+  atau setelah proses wrangler/vitest lokal ditutup.
+- **T006 "`needs: ci`"**: diimplementasikan sebagai `workflow_run` (GitHub Actions tidak punya
+  `needs` lintas file workflow) — perilaku gate-nya setara.
+
+### Yang menggantikannya sebagian
+
+- `tests/unit/error-reporting.test.ts` — membuktikan `beforeSend` membuang `user`/`request`/
+  `breadcrumbs`/`extra`/`contexts` total, tanpa perlu DSN Sentry sungguhan.
+- `tests/unit/security-headers.test.ts` — membuktikan seluruh header kontrak terpasang pada
+  response 200 maupun fallback, tanpa runtime Worker sungguhan.
+- `tests/unit/xss-safety.test.tsx`, `tests/unit/data-deletion.test.ts`, `tests/unit/backup.test.ts`,
+  `tests/unit/schema-migration.test.ts` — menutup US5–US7 di tingkat logika.
+- Verifikasi manual di `quickstart.md` (V-1 s.d. V-7) tetap wajib dijalankan sebelum rilis
+  sungguhan — unit test **melengkapi**, bukan menggantikan, verifikasi di lingkungan nyata.

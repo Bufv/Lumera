@@ -1,11 +1,27 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
+  // Nama/base config dipakai saat `wrangler deploy` dijalankan tanpa --env
+  // (mis. development lokal). Rilis nyata SELALU lewat --env staging atau
+  // --env production (lihat contracts/ci-pipeline-contract.md, R-002).
   "name": "lumera-student-batch-1",
   "main": "worker/index.js",
   "compatibility_date": "2026-05-22",
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": false
+    // true (bukan default false) — header keamanan (worker/security-headers.js,
+    // FR-009) harus menempel pada SETIAP response, termasuk aset statis yang
+    // sukses (200), bukan hanya fallback SPA. Trade-off: setiap request kini
+    // melewati Worker, menambah overhead kecil yang wajar pada skala trafik
+    // prototype saat ini (lihat Complexity Tracking, plan.md).
+    "run_worker_first": true
+  },
+  "env": {
+    "staging": {
+      "name": "lumera-student-batch-1-staging"
+    },
+    "production": {
+      "name": "lumera-student-batch-1-production"
+    }
   }
 }

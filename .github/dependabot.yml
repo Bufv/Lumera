@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # FR-008 spec 002: pemindaian & pembaruan kerentanan dependency terjadwal —
+  # lapisan pemantauan berkelanjutan, melengkapi `npm audit --audit-level=high`
+  # yang berjalan tepat-waktu di setiap PR (ci.yml).
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    groups:
+      # Kelompokkan pembaruan non-breaking agar tidak membanjiri PR — pembaruan
+      # major tetap dipisah per-paket supaya ditinjau satu per satu.
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'

@@ -20,6 +20,7 @@ afterEach(cleanup);
 
 function siswa(patch: Partial<Siswa> = {}): Siswa {
   return {
+    schemaVersion: 1,
     id: 'uji',
     lumens: 0,
     streakCount: 0,

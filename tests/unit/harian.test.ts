@@ -19,6 +19,7 @@ import type { CatatanMastery, Siswa } from '../../src/progress/store';
 
 function siswa(patch: Partial<Siswa> = {}): Siswa {
   return {
+    schemaVersion: 1,
     id: 'uji',
     lumens: 0,
     streakCount: 0,

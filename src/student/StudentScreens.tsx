@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArtworkFrame } from '../design/ArtworkFrame';
 import { Icon, type IconName } from '../design/Icon';
 import { Lumo } from '../design/Lumo';
 import { Tactile } from '../design/Tactile';
 import type { LearnerProfile, LearningGoal, StudyDay } from '../profile';
+import { unduhBerkasEkspor } from '../backup/export';
+import { terapkanImpor, validasiBerkasImpor } from '../backup/import';
+import type { ExportedProgressFile } from '../backup/schema';
+import type { Siswa } from '../progress/store';
 import { MATHEMATICS_GRADE_7_PATH, STUDENT_SUBJECTS } from './catalog';
 import type { ArdiDemoFixture, DemoSavedConcept } from './demo';
 import type { RouteName } from './routes';
@@ -974,23 +978,64 @@ export function ProgressScreen({
 
 export function SettingsScreen({
   profile,
+  siswa,
   demo,
   onSave,
   onExitDemo,
   onRequestResetProfile,
   onRequestResetDemo,
+  onRequestDeleteAllData,
+  onOpenPrivacy,
+  onImportApplied,
 }: {
   profile: LearnerProfile;
+  /** US7 spec 002 (T038): dibutuhkan untuk cek "berkas lebih lama dari data lokal" saat impor. */
+  siswa: Siswa;
   demo: boolean;
   onSave: (profile: LearnerProfile) => void;
   onExitDemo: () => void;
   onRequestResetProfile: () => void;
   onRequestResetDemo: () => void;
+  /** US6 spec 002 (T030): terpisah dari onRequestResetProfile — hapus SEMUA data (FR-015). */
+  onRequestDeleteAllData: () => void;
+  /** US6 spec 002 (T029): buka halaman kebijakan privasi (FR-013). */
+  onOpenPrivacy: () => void;
+  /** US7 spec 002 (T038): beri tahu StudentApp progres/profil berubah setelah impor berhasil. */
+  onImportApplied: (hasil: { siswa: Siswa; learnerProfile: LearnerProfile }) => void;
 }) {
   const [draft, setDraft] = useState(profile);
   const [saved, setSaved] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [pendingImport, setPendingImport] = useState<ExportedProgressFile | null>(null);
+  const [importSuccess, setImportSuccess] = useState(false);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => setDraft(profile), [profile]);
+
+  const terapkanBerkas = (data: ExportedProgressFile) => {
+    terapkanImpor(data);
+    onImportApplied({ siswa: data.siswa, learnerProfile: data.learnerProfile });
+    setPendingImport(null);
+    setImportError(null);
+    setImportSuccess(true);
+  };
+
+  const handleImportFile = async (file: File) => {
+    setImportError(null);
+    setImportSuccess(false);
+    const text = await file.text();
+    const hasil = validasiBerkasImpor(text, siswa);
+
+    if (!hasil.ok) {
+      setImportError(hasil.error);
+      return;
+    }
+    if (hasil.perluKonfirmasiTimpa) {
+      setPendingImport(hasil.data);
+      return;
+    }
+    terapkanBerkas(hasil.data);
+  };
 
   const patch = (changes: Partial<LearnerProfile>) => {
     setSaved(false);
@@ -1168,6 +1213,74 @@ export function SettingsScreen({
           </div>
         </form>
 
+        {!demo && (
+          <section className="danger-zone backup-zone">
+            <div>
+              <h2>Cadangkan progresmu</h2>
+              <p>
+                Ekspor Lumens, streak, dan penguasaan modulmu ke berkas — bisa dipulihkan lagi di
+                perangkat ini atau perangkat lain kapan saja.
+              </p>
+              {importError && (
+                <p role="alert" className="backup-zone__error">
+                  {importError}
+                </p>
+              )}
+              {importSuccess && (
+                <p role="status" className="backup-zone__success">
+                  <Icon name="check" width={16} height={16} /> Progres berhasil dipulihkan.
+                </p>
+              )}
+              {pendingImport && (
+                <div className="backup-zone__confirm" role="alertdialog" aria-label="Konfirmasi impor">
+                  <p>
+                    Berkas ini lebih lama dari progresmu saat ini di perangkat ini. Menimpa akan
+                    mengganti progres yang lebih baru dengan yang lebih lama.
+                  </p>
+                  <div>
+                    <button type="button" onClick={() => setPendingImport(null)}>
+                      Batal
+                    </button>
+                    <Tactile tone="neutral" onClick={() => terapkanBerkas(pendingImport)}>
+                      Tetap timpa dengan berkas ini
+                    </Tactile>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="backup-zone__actions">
+              <button type="button" onClick={unduhBerkasEkspor}>
+                <Icon name="arrow" width={16} height={16} /> Ekspor progres
+              </button>
+              <button type="button" onClick={() => importInputRef.current?.click()}>
+                Impor progres
+              </button>
+              <input
+                ref={importInputRef}
+                type="file"
+                accept="application/json,.json"
+                className="visually-hidden"
+                aria-label="Pilih berkas ekspor progres untuk diimpor"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = '';
+                  if (file) void handleImportFile(file);
+                }}
+              />
+            </div>
+          </section>
+        )}
+
+        <section className="danger-zone">
+          <div>
+            <h2>Privasi</h2>
+            <p>Lihat data apa saja yang kami simpan dan bagaimana kami memakainya.</p>
+          </div>
+          <button type="button" onClick={onOpenPrivacy}>
+            Baca kebijakan privasi
+          </button>
+        </section>
+
         <section className="danger-zone">
           <div>
             <h2>Atur ulang data lokal</h2>
@@ -1183,6 +1296,22 @@ export function SettingsScreen({
             </button>
           )}
         </section>
+
+        {!demo && (
+          <section className="danger-zone">
+            <div>
+              <h2>Hapus semua data saya</h2>
+              <p>
+                Menghapus profil, progres (Lumens/streak/mastery), dan seluruh catatan aktivitas
+                belajar sekaligus — bukan hanya profil. Tidak dapat dipulihkan kecuali sudah
+                diekspor lebih dulu.
+              </p>
+            </div>
+            <button type="button" onClick={onRequestDeleteAllData}>
+              Hapus semua data saya
+            </button>
+          </section>
+        )}
       </div>
     </main>
   );
