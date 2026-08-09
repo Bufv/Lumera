@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArtworkFrame } from '../design/ArtworkFrame';
 import { Icon } from '../design/Icon';
+import { RiveGameboardNode } from '../design/RiveGameboardNode';
 import { INTEGER_COURSE } from './catalog';
 import type { CourseView, RouteName } from './routes';
 import { Breadcrumbs } from './StudentScreens';
@@ -115,17 +116,7 @@ function SimpulPeron({
           aria-expanded={terbuka}
           aria-label={`${simpul.judul}, ${LABEL_STATUS[simpul.status].toLowerCase()}`}
         >
-          <span className="course-node__bayang" aria-hidden="true" />
-          <span className="course-node__sisi" aria-hidden="true" />
-          <span className="course-node__muka" aria-hidden="true" />
-          <span className="course-node__cincin" aria-hidden="true" />
-          <span className="course-node__tanda" aria-hidden="true">
-            {simpul.status === 'selesai' && <Icon name="check" width={26} height={26} />}
-            {simpul.status === 'berjalan' && <Icon name="play" width={24} height={24} />}
-            {(simpul.status === 'terkunci' || simpul.status === 'rencana') && (
-              <Icon name="lock" width={24} height={24} />
-            )}
-          </span>
+          <RiveGameboardNode status={simpul.status} selected={terbuka} />
         </button>
 
         <p className="course-node__judul">{simpul.judul}</p>

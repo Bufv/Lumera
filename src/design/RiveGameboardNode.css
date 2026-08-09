@@ -1,0 +1,22 @@
+.course-node__rive {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.course-node__rive-canvas,
+.course-node__rive-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.course-node__rive-canvas {
+  display: block;
+}
+
+.course-node__rive-canvas.is-hidden,
+.course-node__rive-fallback.is-hidden {
+  display: none;
+}
