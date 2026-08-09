@@ -173,7 +173,7 @@ describe('Lumera Batch 1 student shell', () => {
 
     expect(screen.getByRole('button', { name: 'Jalur' })).toHaveAttribute('aria-pressed', 'true');
     expect(document.querySelector('[data-view="roadmap"]')).not.toBeNull();
-    expect(document.querySelectorAll('.course-module-outcomes li')).toHaveLength(6);
+    expect(document.querySelectorAll('.course-node')).toHaveLength(7);
 
     fireEvent.click(screen.getByRole('button', { name: 'Daftar' }));
     await waitFor(() =>
@@ -181,7 +181,7 @@ describe('Lumera Batch 1 student shell', () => {
     );
     expect(screen.getByRole('button', { name: 'Daftar' })).toHaveAttribute('aria-pressed', 'true');
     expect(document.querySelector('[data-view="list"]')).not.toBeNull();
-    expect(document.querySelectorAll('.course-module-outcomes li')).toHaveLength(6);
+    expect(document.querySelectorAll('.course-row')).toHaveLength(7);
 
     await setHash('#/belajar/matematika/bilangan-bulat');
     await waitFor(() =>
@@ -190,13 +190,17 @@ describe('Lumera Batch 1 student shell', () => {
   });
 
   it('shows deterministic module progress only in the illustrative demo', async () => {
-    await setHash('#/belajar/matematika/bilangan-bulat?mode=demo');
+    await setHash('#/belajar/matematika/bilangan-bulat?mode=demo&view=list');
     render(<App />);
 
-    expect(screen.getByText('90% selesai')).toBeTruthy();
-    expect(screen.getAllByText('Belum dimulai').length).toBeGreaterThan(0);
+    const rows = document.querySelectorAll('.course-row');
+    expect(rows).toHaveLength(7);
+    expect(within(rows[0] as HTMLElement).getByText('Sedang berjalan')).toBeTruthy();
+    expect(within(rows[1] as HTMLElement).getByText('Terkunci')).toBeTruthy();
+    expect(screen.getAllByText('Segera hadir').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Selesai')).toBeNull();
     expect(screen.queryByRole('button', { name: /^(Mulai|Start|Pelajaran)$/i })).toBeNull();
-    expect(screen.queryByText(/XP|kunci|latihan soal/i)).toBeNull();
+    expect(screen.queryByText(/\bXP\b|\bkunci\b|latihan soal/i)).toBeNull();
   });
 
   it('searches the student catalog without opening unavailable content', async () => {
@@ -225,8 +229,9 @@ describe('Lumera Batch 1 student shell', () => {
     render(<App />);
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Lihat ringkasan modul Bilangan di Bawah Nol' }),
+      screen.getByRole('button', { name: 'Bilangan di Bawah Nol, sedang berjalan' }),
     );
+    fireEvent.click(screen.getByRole('button', { name: 'Lanjutkan' }));
     expect(screen.getByRole('dialog', { name: /Bilangan di Bawah Nol/i })).toBeTruthy();
     expect(screen.getByText(/Pelajaran interaktif untuk modul ini hadir/)).toBeTruthy();
     expect(screen.queryByText(/Langkah 1 dari 7/i)).toBeNull();
@@ -241,8 +246,9 @@ describe('Lumera Batch 1 student shell', () => {
     render(<App />);
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Lihat ringkasan modul Bilangan di Bawah Nol' }),
+      screen.getByRole('button', { name: 'Bilangan di Bawah Nol, sedang berjalan' }),
     );
+    fireEvent.click(screen.getByRole('button', { name: 'Lanjutkan' }));
     expect(screen.getByRole('dialog', { name: /Bilangan di Bawah Nol/i })).toBeTruthy();
 
     await setHash('#/pengaturan');

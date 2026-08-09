@@ -4,10 +4,10 @@ import { Icon, type IconName } from '../design/Icon';
 import { Lumo } from '../design/Lumo';
 import { Tactile } from '../design/Tactile';
 import type { LearnerProfile, LearningGoal, StudyDay } from '../profile';
-import { INTEGER_COURSE, MATHEMATICS_GRADE_7_PATH, STUDENT_SUBJECTS } from './catalog';
+import { MATHEMATICS_GRADE_7_PATH, STUDENT_SUBJECTS } from './catalog';
 import type { ArdiDemoFixture, DemoSavedConcept } from './demo';
-import type { CourseView, RouteName } from './routes';
-import type { StudentModuleSummary, StudentSubjectId } from './types';
+import type { RouteName } from './routes';
+import type { StudentSubjectId } from './types';
 import './StudentScreens.css';
 import './LearnScreen.css';
 
@@ -59,7 +59,7 @@ const DAY_LABELS: Record<StudyDay, string> = {
   sunday: 'Min',
 };
 
-function Breadcrumbs({ items }: { items: { label: string; onClick?: () => void }[] }) {
+export function Breadcrumbs({ items }: { items: { label: string; onClick?: () => void }[] }) {
   return (
     <nav className="breadcrumbs" aria-label="Jejak halaman">
       {items.map((item, index) => (
@@ -755,205 +755,6 @@ export function MathScreen({
   progressPercent?: number;
 }) {
   return <LearnScreen onNavigate={onNavigate} progressPercent={progressPercent} />;
-}
-
-function ModuleControl({
-  module,
-  index,
-  progress,
-  variant,
-  onOpen,
-}: {
-  module: StudentModuleSummary;
-  index: number;
-  progress: number;
-  variant: CourseView;
-  onOpen: (module: StudentModuleSummary) => void;
-}) {
-  const safeProgress = Math.max(0, Math.min(100, progress));
-
-  return (
-    <Tactile
-      variant="card"
-      fullWidth
-      className={'course-module-control course-module-control--' + variant}
-      onClick={() => onOpen(module)}
-      aria-label={'Lihat ringkasan modul ' + module.title}
-    >
-      <span className="course-module-control__number">{String(index + 1).padStart(2, '0')}</span>
-      <ArtworkFrame
-        assetKey={module.artworkKey}
-        placeholderIcon={index === 0 ? 'route' : 'math'}
-        decorative
-        variant={index === 0 ? 'amber' : 'violet'}
-      />
-      <span className="course-module-control__copy">
-        <strong>{module.title}</strong>
-        <small>{module.description}</small>
-      </span>
-      <span className="course-module-control__state" data-progress={safeProgress > 0}>
-        {safeProgress > 0 ? safeProgress + '% selesai' : 'Belum dimulai'}
-        <Icon name="chevron" width={17} height={17} />
-      </span>
-    </Tactile>
-  );
-}
-
-function ModuleOutcomes({
-  outcomes,
-  ordered = false,
-}: {
-  outcomes: readonly string[];
-  ordered?: boolean;
-}) {
-  const Tag = ordered ? 'ol' : 'ul';
-  return (
-    <Tag className="course-module-outcomes">
-      {outcomes.map((outcome, index) => (
-        <li key={outcome}>
-          <span>{index + 1}</span>
-          <p>{outcome}</p>
-        </li>
-      ))}
-    </Tag>
-  );
-}
-
-export function IntegerCourseScreen({
-  percent,
-  view,
-  onChangeView,
-  moduleProgress,
-  onNavigate,
-  onOpenModule,
-}: {
-  percent: number;
-  view: CourseView;
-  onChangeView: (view: CourseView) => void;
-  moduleProgress: Readonly<Record<string, number>>;
-  onNavigate: (route: RouteName) => void;
-  onOpenModule: (module: StudentModuleSummary) => void;
-}) {
-  const safePercent = Math.max(0, Math.min(100, percent));
-
-  return (
-    <main className="student-page course-page">
-      <div className="student-container">
-        <Breadcrumbs
-          items={[
-            { label: 'Belajar', onClick: () => onNavigate('learn') },
-            { label: 'Matematika', onClick: () => onNavigate('math') },
-            { label: 'Bilangan Bulat' },
-          ]}
-        />
-
-        <section className="course-summary" aria-labelledby="course-summary-title">
-          <ArtworkFrame
-            assetKey={INTEGER_COURSE.artworkKey}
-            placeholderIcon="math"
-            alt="Ilustrasi Bilangan Bulat"
-            ratio="wide"
-            variant="violet"
-          />
-          <div className="course-summary__copy">
-            <span className="page-kicker">Kursus · SMP Kelas VII</span>
-            <h1 id="course-summary-title">{INTEGER_COURSE.title}</h1>
-            <p>{INTEGER_COURSE.description}</p>
-            <span className="course-summary__meta">
-              {INTEGER_COURSE.modules.length} modul · 6 capaian pemahaman
-            </span>
-          </div>
-          <div className="course-summary__progress">
-            {safePercent > 0 ? (
-              <>
-                <span>
-                  <strong>{safePercent}%</strong>
-                  <small>progres kursus</small>
-                </span>
-                <ProgressBar
-                  percent={safePercent}
-                  label={safePercent + '% kursus Bilangan Bulat selesai'}
-                />
-              </>
-            ) : (
-              <span className="course-summary__ready">
-                <Icon name="check" width={17} height={17} />
-                Siap dimulai
-              </span>
-            )}
-          </div>
-        </section>
-
-        <section className="course-structure" aria-labelledby="course-structure-title">
-          <header className="course-structure__heading">
-            <div>
-              <span className="page-kicker">Struktur kursus</span>
-              <h2 id="course-structure-title">Dua modul fondasi</h2>
-              <p>Pilih modul untuk membaca tujuan dan cakupannya.</p>
-            </div>
-            <div className="course-view-switch" role="group" aria-label="Pilih tampilan kursus">
-              <button
-                type="button"
-                data-active={view === 'roadmap'}
-                aria-pressed={view === 'roadmap'}
-                onClick={() => onChangeView('roadmap')}
-              >
-                <Icon name="route" width={17} height={17} />
-                Jalur
-              </button>
-              <button
-                type="button"
-                data-active={view === 'list'}
-                aria-pressed={view === 'list'}
-                onClick={() => onChangeView('list')}
-              >
-                <Icon name="list" width={17} height={17} />
-                Daftar
-              </button>
-            </div>
-          </header>
-
-          {view === 'roadmap' ? (
-            <div className="course-roadmap" data-view="roadmap">
-              {INTEGER_COURSE.modules.map((module, index) => (
-                <section className="course-roadmap__checkpoint" key={module.id}>
-                  <span className="course-roadmap__step">
-                    Modul {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <ModuleControl
-                    module={module}
-                    index={index}
-                    progress={moduleProgress[module.id] ?? 0}
-                    variant="roadmap"
-                    onOpen={onOpenModule}
-                  />
-                  <ModuleOutcomes outcomes={module.outcomes} />
-                </section>
-              ))}
-            </div>
-          ) : (
-            <div className="course-list-view" data-view="list">
-              {INTEGER_COURSE.modules.map((module, index) => (
-                <section className="course-list-view__section" key={module.id}>
-                  <ModuleControl
-                    module={module}
-                    index={index}
-                    progress={moduleProgress[module.id] ?? 0}
-                    variant="list"
-                    onOpen={onOpenModule}
-                  />
-                  <div className="course-list-view__outcomes">
-                    <strong>Yang akan dipahami</strong>
-                    <ModuleOutcomes outcomes={module.outcomes} ordered />
-                  </div>
-                </section>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-    </main>
-  );
 }
 
 export function ReviewScreen({

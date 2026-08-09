@@ -20,9 +20,9 @@ import {
   type RouteName,
   type StudentLocation,
 } from './routes';
+import { IntegerCourseScreen } from './IntegerCourseScreen';
 import {
   HomeScreen,
-  IntegerCourseScreen,
   LearnScreen,
   MathScreen,
   ProgressScreen,
