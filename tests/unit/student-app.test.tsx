@@ -266,4 +266,22 @@ describe('Lumera Batch 1 student shell', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Ya, ulangi onboarding' }));
     await waitFor(() => expect(window.location.hash).toBe('#/mulai'));
   });
+
+  /**
+   * FR-020 spec 002: peringatan sebelum penghapusan permanen MUST menyebut
+   * bahwa aksi tidak dapat dibatalkan *kecuali progres sudah diekspor* — jalan
+   * keluarnya, bukan hanya kengeriannya. Teksnya sudah benar saat test ini
+   * ditulis; assertion ini ada supaya tidak diam-diam hilang saat copy diedit.
+   */
+  it('warns that deleting all data is irreversible unless progress was exported', async () => {
+    saveLearnerProfile(completedProfile());
+    await setHash('#/pengaturan');
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hapus semua data saya' }));
+
+    const dialog = screen.getByRole('alertdialog', { name: 'Hapus semua data saya?' });
+    expect(dialog.textContent).toMatch(/tidak dapat dibatalkan/i);
+    expect(dialog.textContent).toMatch(/ekspor/i);
+  });
 });

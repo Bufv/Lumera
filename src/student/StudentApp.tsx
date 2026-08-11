@@ -406,6 +406,12 @@ function InfoDrawer({
             <span>{eyebrow}</span>
             <h2 id="drawer-title">{title}</h2>
           </div>
+          {/*
+            Fokus MUST berpindah ke dalam dialog saat dibuka — tanpa ini pengguna
+            keyboard/screen reader tetap tertinggal di belakang backdrop. Ini
+            justru pemenuhan WCAG 2.4.3, bukan pelanggaran no-autofocus.
+          */}
+          {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
           <button type="button" onClick={onClose} aria-label="Tutup" autoFocus>
             <Icon name="close" width={20} height={20} />
           </button>

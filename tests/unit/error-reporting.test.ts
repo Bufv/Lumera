@@ -67,4 +67,49 @@ describe('scrubBeforeSend (US3 spec 002 — instrumentasi tanpa membocorkan PII)
     expect(serialized).not.toContain('siswa@contoh.com');
     expect(serialized).not.toContain('rahasia');
   });
+
+  /**
+   * Test bentuk-persis: inilah yang membedakan allowlist dari denylist. Test di
+   * atas hanya membuktikan lima field berisiko yang SUDAH kita ketahui terbuang;
+   * test ini membuktikan tidak ada field lain yang lolos — termasuk field yang
+   * belum kita kenal saat test ini ditulis.
+   */
+  it('mengembalikan HANYA field pada allowlist, bukan menyalin sisa event', () => {
+    const hasil = scrubBeforeSend(eventBerisiko());
+
+    // `type` hadir bernilai undefined — penanda wajib Sentry bahwa ini event
+    // error, bukan transaction. Tidak membawa isi apa pun.
+    expect(Object.keys(hasil ?? {}).sort()).toEqual(
+      ['event_id', 'exception', 'platform', 'release', 'tags', 'timestamp', 'type'].sort(),
+    );
+    expect(hasil?.type).toBeUndefined();
+  });
+
+  it('membuang field yang tidak dikenal (simulasi field baru dari upgrade SDK Sentry)', () => {
+    const eventDenganFieldMasaDepan = {
+      ...eventBerisiko(),
+      serverName: 'laptop-siswa-ardi',
+      modules: { '@lumera/private': '1.0.0' },
+      fieldBaruYangBelumAdaSaatIni: { isi: 'apapun' },
+    } as unknown as SentryErrorEvent;
+
+    const hasil = scrubBeforeSend(eventDenganFieldMasaDepan);
+
+    expect(hasil).not.toHaveProperty('serverName');
+    expect(hasil).not.toHaveProperty('modules');
+    expect(hasil).not.toHaveProperty('fieldBaruYangBelumAdaSaatIni');
+    expect(JSON.stringify(hasil)).not.toContain('laptop-siswa-ardi');
+  });
+
+  it('membangun ulang tags dari nol — tag yang sudah ada tidak ikut lolos', () => {
+    const eventBertag = {
+      ...eventBerisiko(),
+      tags: { displayName: 'Ardi Pratama', sekolah: 'SMPN 1 Contoh' },
+    } as unknown as SentryErrorEvent;
+
+    const hasil = scrubBeforeSend(eventBertag);
+
+    expect(Object.keys(hasil?.tags ?? {})).toEqual(['route']);
+    expect(JSON.stringify(hasil?.tags)).not.toContain('Ardi Pratama');
+  });
 });

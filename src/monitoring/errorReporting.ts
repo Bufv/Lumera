@@ -31,26 +31,58 @@ export function initErrorReporting(): void {
 }
 
 /**
+ * Field yang boleh ikut terkirim. Ini keseluruhan permukaan yang diizinkan —
+ * apa pun di luar daftar ini dibuang, termasuk field yang belum ada saat baris
+ * ini ditulis (mis. field baru dari upgrade SDK Sentry).
+ *
+ * `exception` membawa message + stack; `release` membawa appVersion; `route`
+ * ditambahkan terpisah sebagai tag di bawah. Sisanya adalah metadata transport
+ * tanpa isi yang bisa dihubungkan ke siswa tertentu.
+ */
+export const FIELD_EVENT_DIIZINKAN: readonly (keyof Sentry.ErrorEvent)[] = [
+  'event_id',
+  'timestamp',
+  'platform',
+  'level',
+  'environment',
+  'release',
+  'sdk',
+  'exception',
+  'message',
+];
+
+/**
  * Menyaring event Sentry sebelum terkirim. Dibuat sebagai fungsi murni terpisah
  * (bukan inline di initErrorReporting) supaya dapat diuji tanpa DSN/network
  * sungguhan — lihat tests/unit/error-reporting.test.ts.
  *
- * Pendekatan ALLOWLIST lewat destructuring-drop: field berisiko (user, request,
- * breadcrumbs, extra, contexts) dibuang eksplisit alih-alih mencoba menebak
- * field baru yang mungkin ditambahkan Sentry SDK di masa depan.
+ * ALLOWLIST sungguhan: event dibangun ulang dari nol berisi hanya
+ * `FIELD_EVENT_DIIZINKAN`. Versi sebelumnya membuang lima field berisiko lewat
+ * destructuring lalu menyebar sisanya (`...safeEvent`) — itu default-ALLOW, dan
+ * setiap field baru yang ditambahkan Sentry SDK di kemudian hari akan lolos
+ * sendiri tanpa ada yang menyadarinya. Kontrak T013/data-model.md § ErrorReportContext
+ * menuntut kebalikannya: default-DENY.
  */
 export function scrubBeforeSend(
   event: Sentry.ErrorEvent,
 ): Sentry.ErrorEvent | null {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { user, request, breadcrumbs, extra, contexts, ...safeEvent } = event;
+  const aman: Record<string, unknown> = {};
 
-  return {
-    ...safeEvent,
-    tags: {
-      ...safeEvent.tags,
-      // Rute aplikasi saat ini (hash) — konteks navigasi, bukan identitas siswa.
-      route: typeof window !== 'undefined' ? window.location.hash || '(unknown)' : '(unknown)',
-    },
+  for (const field of FIELD_EVENT_DIIZINKAN) {
+    if (event[field] !== undefined) {
+      aman[field] = event[field];
+    }
+  }
+
+  // Tag dibangun dari nol, bukan menyebar `event.tags` — tag yang disetel di
+  // tempat lain (atau oleh integrasi Sentry) tidak otomatis ikut lolos.
+  aman.tags = {
+    // Rute aplikasi saat ini (hash) — konteks navigasi, bukan identitas siswa.
+    route: typeof window !== 'undefined' ? window.location.hash || '(unknown)' : '(unknown)',
   };
+
+  // `type: undefined` adalah penanda wajib Sentry untuk event error (bukan
+  // transaction). Disetel eksplisit karena allowlist membangun objek dari nol,
+  // jadi tidak ada field yang terbawa diam-diam dari event asal.
+  return { ...aman, type: undefined } as Sentry.ErrorEvent;
 }

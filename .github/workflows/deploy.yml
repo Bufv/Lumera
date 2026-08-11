@@ -37,10 +37,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # VITE_SENTRY_DSN disematkan saat build — `initErrorReporting()` membacanya
+      # lewat `import.meta.env`, jadi DSN yang hanya ada sebagai secret runtime
+      # tidak akan pernah sampai ke bundle (T012, US3).
       - name: Build
         run: npm run build
         env:
           VITE_APP_VERSION: ${{ github.event.workflow_run.head_sha }}
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
       - name: Deploy (wrangler --env staging)
         run: npx wrangler deploy --env staging
@@ -73,10 +77,12 @@ jobs:
 
       # FR-005: commit SHA disematkan sebagai VITE_APP_VERSION setiap rilis
       # production, agar versi yang live selalu bisa ditelusuri (T005, T007).
+      # VITE_SENTRY_DSN: lihat catatan pada job staging di atas.
       - name: Build
         run: npm run build
         env:
           VITE_APP_VERSION: ${{ github.event.workflow_run.head_sha }}
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
       - name: Deploy (wrangler --env production)
         run: npx wrangler deploy --env production

@@ -209,7 +209,14 @@ function ProfileStep({
 
       <label className="profile-field">
         <span>Nama panggilan</span>
+        {/*
+          Perilaku saat ini dipertahankan apa adanya (patch P1 tidak mengubah UX
+          onboarding). Catatan untuk US9: autofocus ke input membuat screen
+          reader melewati StepHeading di atasnya — kandidat peninjauan saat
+          lintasan keyboard/screen-reader manual V-9 dijalankan.
+        */}
         <input
+          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           value={profile.displayName}
           maxLength={24}
