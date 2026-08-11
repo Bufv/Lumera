@@ -29,7 +29,12 @@ persis seperti kontrak di bawah.
    endpoint Sentry berubah) — daftar ini MUST tetap eksplisit, tidak pernah `*`.
 4. Header ini tidak menggantikan validasi/escaping di level komponen React (FR-011) — CSP adalah
    lapisan pertahanan kedua, bukan pengganti sanitisasi input.
-5. Pada **local Vite development saja**, `Content-Security-Policy` MUST dihilangkan karena
+5. `X-Lumera-Version` MUST hadir pada setiap response ketika versi build diketahui, berisi commit
+   SHA yang sedang dilayani (FR-005, T047). Ini **bukan** header keamanan dan sengaja tidak masuk
+   tabel di atas maupun konstanta `SECURITY_HEADERS` — dua requirement berbeda tidak boleh berbagi
+   satu daftar, karena perubahan pada satu akan diam-diam mengubah makna yang lain. Bila versi
+   tidak diketahui, header ini MUST dihilangkan sepenuhnya, bukan dikirim kosong.
+6. Pada **local Vite development saja**, `Content-Security-Policy` MUST dihilangkan karena
    `@vitejs/plugin-react` menyisipkan preamble React Refresh inline dan HMR memakai WebSocket.
    Header keamanan lain MUST tetap dipasang. Pengecualian ini MUST dikendalikan oleh
    `import.meta.env.DEV`; build, preview, staging, dan production tetap memakai nilai CSP ketat pada

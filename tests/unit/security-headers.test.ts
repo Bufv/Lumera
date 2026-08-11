@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { applySecurityHeaders, SECURITY_HEADERS } from '../../worker/security-headers.js';
+import {
+  applySecurityHeaders,
+  SECURITY_HEADERS,
+  VERSION_HEADER,
+} from '../../worker/security-headers.js';
 
 /**
  * contracts/security-headers-contract.md: header ini WAJIB hadir pada setiap
@@ -58,6 +62,39 @@ describe('applySecurityHeaders (US4 spec 002)', () => {
     expect(hasil.headers.get('X-Content-Type-Options')).toBe('nosniff');
     expect(hasil.headers.get('X-Frame-Options')).toBe('DENY');
     expect(hasil.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
+  });
+
+  /**
+   * FR-005 (T047): versi yang sedang dilayani MUST terbaca dari aplikasi hidup,
+   * tanpa menunggu error terjadi (Sentry) atau membuka riwayat pipeline.
+   */
+  it('menyematkan versi build sebagai header keterlacakan rilis', () => {
+    const original = new Response('<html></html>', { status: 200 });
+
+    const hasil = applySecurityHeaders(original, { appVersion: 'abc1234' });
+
+    expect(hasil.headers.get(VERSION_HEADER)).toBe('abc1234');
+  });
+
+  it('menyematkan versi pada fallback SPA dan response error, bukan hanya aset sukses', () => {
+    for (const status of [200, 404]) {
+      const hasil = applySecurityHeaders(new Response('x', { status }), {
+        appVersion: 'abc1234',
+      });
+      expect(hasil.headers.get(VERSION_HEADER)).toBe('abc1234');
+    }
+  });
+
+  it('tidak menyematkan header versi kosong ketika versi tidak diketahui', () => {
+    const hasil = applySecurityHeaders(new Response('x', { status: 200 }));
+
+    expect(hasil.headers.get(VERSION_HEADER)).toBeNull();
+  });
+
+  it('header versi tidak tercampur ke dalam daftar header keamanan', () => {
+    // Keduanya melayani requirement berbeda (FR-005 vs FR-009); mencampurnya
+    // membuat perubahan pada satu diam-diam mengubah makna yang lain.
+    expect(Object.keys(SECURITY_HEADERS)).not.toContain(VERSION_HEADER);
   });
 
   it('CSP mengizinkan connect-src ke Sentry tapi tidak liar (bukan wildcard *)', () => {

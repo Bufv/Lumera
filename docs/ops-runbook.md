@@ -19,12 +19,24 @@ data siswa di `production` (US2, FR-003 spec 002).
 Setiap build production menyematkan commit SHA sebagai `VITE_APP_VERSION` (lihat
 `vite.config.ts`, `.github/workflows/deploy.yml`). Untuk mengetahui versi yang sedang live:
 
-1. Buka aplikasi yang di-deploy.
-2. Versi terlihat di `import.meta.env.VITE_APP_VERSION` — saat ini diekspos lewat konteks error
-   yang dikirim ke Sentry (`appVersion`, lihat `src/monitoring/errorReporting.ts`) dan dapat
-   ditambahkan ke UI (mis. footer Pengaturan) bila dibutuhkan tim non-teknis.
-3. Alternatif: lihat run `deploy.yml` terakhir yang sukses di tab **Actions** GitHub — `head_sha`
-   pada run tersebut adalah commit yang di-deploy.
+**Cara utama — baca header response (FR-005, T047).** Setiap response membawa
+`X-Lumera-Version` berisi commit SHA yang sedang dilayani:
+
+```sh
+curl -sI https://lumera-student-batch-1-production.workers.dev | grep -i x-lumera-version
+```
+
+Ini satu-satunya cara yang menjawab pertanyaan **"versi mana yang sedang dilayani?"** secara
+langsung. Pakai ini lebih dulu saat insiden.
+
+**Cara lain, beserta batasnya** — keduanya menjawab pertanyaan yang sedikit berbeda, jadi jangan
+dipakai sebagai pengganti:
+
+1. Konteks error Sentry (`appVersion`, lihat `src/monitoring/errorReporting.ts`) — menuntut sebuah
+   error terjadi lebih dulu. Tidak berguna saat kamu justru sedang memutuskan apakah perlu rollback.
+2. Run `deploy.yml` terakhir yang sukses di tab **Actions** GitHub (`head_sha`) — menunjukkan apa
+   yang terakhir **di-deploy**, bukan apa yang sedang **dilayani**. Keduanya berbeda begitu sebuah
+   rollback sudah dijalankan (lihat bagian berikutnya).
 
 ## Rollback production
 

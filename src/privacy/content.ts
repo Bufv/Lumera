@@ -13,7 +13,7 @@ export interface PrivacySection {
   paragraf: string[];
 }
 
-export const PRIVACY_LAST_UPDATED = '2026-08-09';
+export const PRIVACY_LAST_UPDATED = '2026-08-11';
 
 export const PRIVACY_SECTIONS: PrivacySection[] = [
   {
@@ -36,6 +36,11 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
     judul: 'Kapan data meninggalkan perangkatmu',
     paragraf: [
       'Ada satu pengecualian: jika terjadi error teknis saat kamu memakai aplikasi, kami menerima laporan error otomatis (lewat layanan pemantauan pihak ketiga) agar bisa memperbaikinya. Laporan ini HANYA berisi pesan error, halaman yang sedang dibuka, dan versi aplikasi — tidak pernah nama tampilanmu, progresmu, atau data lain yang tersimpan di perangkatmu.',
+      // FR-018 (keputusan cakupan ekspor 2026-08-11, T052): berkas ekspor memuat
+      // nama tampilan. Siswa/orang tua MUST tahu itu SEBELUM memutuskan
+      // membagikan berkasnya — kalimat ini dikunci oleh test agar tidak hilang
+      // dalam satu edit copy, pola yang sama dengan FR-020 di T044.
+      'Satu hal lagi yang perlu kamu tahu: kalau kamu memakai fitur "Ekspor progres" di Pengaturan, berkas yang terunduh itu memuat nama tampilanmu, preferensi belajarmu, dan seluruh progresmu. Berkas itu milikmu dan tersimpan di perangkatmu sendiri — kami tidak menerima salinannya. Tapi karena namamu ada di dalamnya, pikirkan dulu sebelum mengirimkan berkas itu ke orang lain.',
     ],
   },
   {

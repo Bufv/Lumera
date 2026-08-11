@@ -260,7 +260,11 @@ perubahan requirement (definisi selesai Tahap 2, promosi artefak, cakupan ekspor
 screen reader, titik ukur rollback, protokol pengukuran performa, yurisdiksi privasi) **sengaja
 tidak ada di sini** — semuanya masuk satu pass `/speckit-specify` sebelum US8–US12 digenerate.
 
-- [ ] T046 [US4] Hijaukan kembali gerbang `npm audit --audit-level=high`: turunkan 7 kerentanan `high` devDependency (`sharp`, `undici`, `ws`) ke nol, lalu commit `package-lock.json` hasilnya
+- [X] T046 [US4] Hijaukan kembali gerbang `npm audit --audit-level=high`: turunkan 7 kerentanan `high` devDependency ke nol, lalu commit `package-lock.json` hasilnya
+  **SELESAI 2026-08-11 — opsi 1 (`overrides`) dipilih.** `npm audit --audit-level=high` kini keluar dengan **exit code 0**. Sisa: 3 kerentanan `low` (rantai `esbuild` → `wrangler` → `@cloudflare/vite-plugin`) yang berada di bawah ambang gerbang dan sengaja tidak dikejar — menaikkannya menuntut `wrangler` ≥ 4.102 yang menyeret `miniflare` 5.x-alpha, persis yang opsi 1 dihindari.
+  **Isi override** (`package.json`, disertai komentar `//overrides` yang menjelaskan alasannya di tempat): `sharp ^0.35.2`, `undici ^7.29.0`, `ws ^8.21.0`, `js-yaml ^4.3.1`, `nanoid ^3.3.18`, plus dua override **bercakupan** untuk `brace-expansion` — `^1.1.18` di bawah `eslint-plugin-jsx-a11y` (lewat `minimatch@3`) dan `^5.0.9` di bawah `typescript-eslint` (lewat `minimatch@10`). Dua major line berbeda, jadi satu override global akan memaksa salah satunya ke versi yang tidak kompatibel.
+  **KOREKSI atribusi**: catatan sebelumnya menulis ketujuh `high` berasal dari `sharp`/`undici`/`ws`. Itu salah — ketiganya hanya sebagian; sisanya `brace-expansion` (dua instance), `js-yaml`, dan `nanoid`. Kesalahan itu muncul karena output audit pertama dibaca terpotong. Override untuk `sharp`/`undici`/`ws` saja hanya menurunkan 7 → 3.
+  **Verifikasi setelah perubahan** (seluruhnya hijau): `npm run lint`, `npx tsc -b`, `npx vitest run` (26 berkas, 231 test), `npm run build`, dan `npx wrangler deploy --dry-run --env production` — yang terakhir penting karena override menyentuh `sharp`/`undici`/`ws` yang dipakai `miniflare`/`workerd`.
   **Kenapa**: FR-008 dan SC-004 mensyaratkan nol kerentanan kritis/tinggi yang belum ditangani saat rilis, dan `ci.yml` gerbang 4 menegakkannya. Gerbang itu **merah sekarang**, jadi tidak ada satu pun commit di branch manapun yang bisa mencapai `deploy.yml` — ini memblokir T008 dan T011 sekaligus.
   **Konteks terukur (2026-08-11)**: `npm audit --omit=dev` → **0 kerentanan**. Seluruh temuan berada di jalur devDependency (`@cloudflare/vite-plugin` → `miniflare` → `sharp`/`undici`/`ws`, `wrangler` → `miniflare`, `jsdom` → `ws`); bundle yang dilayani ke siswa tidak terdampak. Ini masalah pipeline, bukan lubang keamanan pada produk — tapi tetap blocker rilis karena gerbangnya tidak boleh dilemahkan.
   **Keputusan yang MUST diambil eksplisit** (catat hasilnya di task ini, jangan diam-diam):
@@ -268,7 +272,12 @@ tidak ada di sini** — semuanya masuk satu pass `/speckit-specify` sebelum US8�
   2. `npm audit fix` apa adanya — **menyeret `miniflare` ke `5.20260804.0-alpha`** (via `wrangler@4.120.1`), plus `@cloudflare/vite-plugin` 1.37.1→1.51.2 dan `esbuild` 0.27→0.28. Prerelease di runtime deploy adalah risiko yang MUST disadari, bukan efek samping.
   3. `--omit=dev` pada gerbang audit — melemahkan gerbang; hanya boleh dengan alasan tertulis, dan tetap menyisakan kewajiban Edge Case `spec.md` soal pencatatan mitigasi (T048).
   **Selesai bila**: `npm audit --audit-level=high` keluar dengan kode 0 di runner CI bersih (bukan hanya lokal), `npm run build` + `npx vitest run` tetap hijau setelah perubahan, dan opsi yang dipilih beserta alasannya tercatat di task ini.
-- [ ] T047 [US1] Ekspos versi/commit yang sedang live agar dapat dibaca langsung dari aplikasi yang berjalan — tambahkan header response (mis. `X-Lumera-Version`) di `worker/security-headers.js` yang membaca `VITE_APP_VERSION` (T005), dan uji di `tests/unit/security-headers.test.ts`
+  **Tersisa**: konfirmasi exit 0 di runner CI bersih — lokal sudah exit 0, tetapi `npm ci` di runner memakai `package-lock.json` yang MUST ikut ter-commit agar override berlaku di sana.
+- [X] T047 [US1] Ekspos versi/commit yang sedang live agar dapat dibaca langsung dari aplikasi yang berjalan — tambahkan header response (mis. `X-Lumera-Version`) di `worker/security-headers.js` yang membaca `VITE_APP_VERSION` (T005), dan uji di `tests/unit/security-headers.test.ts`
+  **SELESAI 2026-08-11**: `VERSION_HEADER = 'X-Lumera-Version'` diekspor terpisah dari `SECURITY_HEADERS` — dua requirement berbeda (FR-005 vs FR-009) tidak berbagi satu daftar, karena perubahan pada satu akan diam-diam mengubah makna yang lain; satu test mengunci pemisahan itu. `appVersion` diterima sebagai argumen alih-alih dibaca dari `import.meta.env` di dalam fungsi, supaya fungsinya tetap murni dan dapat diuji dengan nilai eksplisit — alasan yang sama dengan ekstraksi modul ini di T020/T021. Versi kosong menghilangkan header sepenuhnya, bukan mengirim nilai kosong.
+  **Rantai penuh terverifikasi**: build dengan `VITE_APP_VERSION=abc1234def` menghasilkan `appVersion: "abc1234def"` di dalam `dist/lumera_student_batch_1/index.js`; tanpa env var, nilainya `"dev"` sesuai fallback `vite.config.ts`. Jadi SHA benar-benar sampai ke bundle worker, bukan hanya ke kode sumber. 4 test baru di `tests/unit/security-headers.test.ts` (total 9).
+  **Ikut diperbarui**: `contracts/security-headers-contract.md` aturan 5 (dan penomoran ulang aturan CSP-dev menjadi 6), serta `docs/ops-runbook.md` § Membaca versi yang sedang live — `curl -sI | grep -i x-lumera-version` kini jalur utama, dengan dua jalur lama diturunkan menjadi alternatif **beserta batasnya**: Sentry menuntut error terjadi lebih dulu, dan run Actions menunjukkan apa yang di-*deploy*, bukan apa yang sedang di-*layani* — keduanya berbeda begitu rollback berjalan.
+  **Tersisa**: verifikasi header pada response staging sungguhan, menumpang pada T011.
   **Kenapa**: FR-005 mensyaratkan versi yang live "selalu dapat ditelusuri" dan Acceptance Scenario 3 US1 menuntut "siapapun di tim memeriksa". Saat ini `grep` untuk versi di `worker/` mengembalikan nol hasil — satu-satunya cara membaca versi live adalah lewat event Sentry (yang butuh error lebih dulu) atau run Actions terakhir (yang menunjukkan apa yang **di-deploy**, bukan apa yang **sedang dilayani**). Keduanya tidak berlaku persis saat dibutuhkan: di tengah insiden, sebelum memutuskan rollback.
   **Catatan**: `docs/ops-runbook.md` (T007) MUST diperbarui begitu ini selesai — prosedurnya saat ini mendokumentasikan jalur tidak langsung tersebut sebagai satu-satunya cara.
 - [ ] T048 [US4] Tambahkan jalur notifikasi kegagalan CI/deploy yang eksplisit dan catatan mitigasi kerentanan tanpa patch: konfigurasi notifikasi kegagalan di `ci.yml`/`deploy.yml`, dan bagian "Kerentanan tanpa perbaikan resmi" di `docs/ops-runbook.md` (apa yang dicatat, siapa yang memutuskan, di mana disimpan)
@@ -295,7 +304,9 @@ bagian Tahap 2 — tetapi baru bisa ditugaskan sekarang karena requirement-nya s
 - [ ] T051 [US2] Implementasikan jejak verifikasi staging (FR-028) di `.github/workflows/deploy.yml`: job `production` MUST mencatat SHA staging yang sudah diverifikasi pada ringkasan run, dan MUST menandai eksplisit bila commit yang dirilis tidak pernah dilayani di staging; dokumentasikan cara membacanya di `docs/ops-runbook.md`
   **Kenapa**: staging dilayani dari branch, production dari `main` — begitu PR di-squash/merge, identitas commit berganti, sehingga "sudah diuji di staging" tidak dapat dibuktikan maupun dibantah setelah kejadian. Lihat `spec.md` FR-028 untuk alasan lengkap dan untuk alasan promosi artefak biner **ditolak**.
   **Selesai bila**: satu rilis production menampilkan SHA staging asalnya, dan satu hotfix simulasi yang langsung ke `main` muncul bertanda pengecualian — keduanya terbaca tanpa membuka log mentah.
-- [ ] T052 [US6] Tambahkan pernyataan di `src/privacy/content.ts` bahwa berkas ekspor progres memuat **nama tampilan**, dan kunci teksnya dengan assertion di `tests/unit/data-deletion.test.ts` atau berkas test kebijakan privasi yang setara
+- [X] T052 [US6] Tambahkan pernyataan di `src/privacy/content.ts` bahwa berkas ekspor progres memuat **nama tampilan**, dan kunci teksnya dengan assertion di `tests/unit/data-deletion.test.ts` atau berkas test kebijakan privasi yang setara
+  **SELESAI 2026-08-11**: paragraf baru pada bagian "Kapan data meninggalkan perangkatmu" — bagian yang tepat, karena berkas ekspor memang salah satu dari dua cara data meninggalkan perangkat siswa (yang lain: laporan error). Ditulis dengan bahasa yang sama seperti sekitarnya: menyebut isi berkas, menegaskan kami tidak menerima salinannya, lalu meminta siswa berpikir dulu sebelum mengirimkannya ke orang lain — memberi tahu, bukan menakut-nakuti (Prinsip V). `PRIVACY_LAST_UPDATED` dinaikkan ke `2026-08-11`.
+  **Dikunci oleh 2 test** di `tests/unit/data-deletion.test.ts`: kalimat yang menyebut ekspor MUST juga menyebut nama tampilan (bukan sekadar keduanya ada di halaman yang sama), dan peringatan sebelum membagikan MUST hadir.
   **Kenapa**: konsekuensi langsung keputusan cakupan FR-018 (2026-08-11). Berkas ekspor turun ke penyimpanan siswa dan bisa dibagikan; siswa/orang tua MUST tahu isinya memuat nama sebelum memutuskan membagikannya. Tanpa assertion, kalimat ini bisa hilang dalam satu edit copy — pola kegagalan yang sama yang T044 tutup untuk FR-020.
 - [ ] T053 [US6] Jalankan review kebijakan privasi terhadap `spec.md` § Yurisdiksi dan Dasar Hukum Privasi (UU PDP, dasar persetujuan orang tua/wali, transfer keluar wilayah), oleh peninjau kompeten yang **bukan** penulis kebijakannya; catat nama peninjau, tanggal, dan temuannya di `quickstart.md` § V-6
   **Kenapa**: `plan.md` mewajibkan review akurasi hukum tapi tidak pernah punya task, dan sampai 2026-08-11 spec bahkan tidak menyebut yurisdiksi mana yang dipenuhi — sehingga "kebijakan privasi yang akurat" tidak dapat dinilai benar atau salah oleh siapa pun. Aturan peninjau-bukan-penulis mengikuti Prinsip IV, yang sudah dipakai untuk verifikasi konten pelajaran.
@@ -575,8 +586,12 @@ mengapa task-task itu ada — bukan sebagai pekerjaan yang masih menunggu.
 
 ## Status Implementasi (diperbarui 2026-08-11)
 
-**36 dari 80 task selesai** (branch `002-production-readiness`). Tahap 1 (P1): 36 dari 50. Tahap 2
-(P2/P3, T054–T080): 0 dari 27 — belum dimulai.
+**39 dari 80 task selesai** (branch `002-production-readiness`). Tahap 1 (P1) + remediasi: 39 dari
+53. Tahap 2 (P2/P3, T054–T080): 0 dari 27 — belum dimulai.
+
+**Pembaruan 2026-08-11 (pass `/speckit-implement`)**: T046, T047, dan T052 selesai. Konsekuensi
+terbesar ada pada T046 — **gerbang `npm audit --audit-level=high` kini exit 0**, sehingga blocker
+yang menahan T008, T011, T022, T051, dan seluruh US10 sudah terangkat.
 
 Catatan koreksi: revisi sebelumnya menulis "29 dari 40" — hitungan sebenarnya saat itu **31 dari
 40** (tabel "yang belum selesai" di bawah, yang berisi 9 task, sudah benar sejak awal; hanya
@@ -588,9 +603,9 @@ dengan 44 terbuka**.
 `npx tsc -b`, `npm run lint` (kini **termasuk gerbang `jsx-a11y`**, T045), dan `npx vitest run`
 seluruhnya bersih. Build production (`npm run build`) sukses, nol berkas `.map` di `dist/`.
 
-**`npm audit --audit-level=high` TIDAK bersih** — 7 kerentanan `high` pada devDependency membuat
-gerbang 4 CI merah. Ini satu-satunya gerbang pra-push (CLAUDE.md) yang gagal, dan konsekuensinya
-melampaui dirinya sendiri: seluruh validasi lingkungan sungguhan di bawah menunggunya. Lihat T046.
+**`npm audit --audit-level=high` kini bersih** (exit 0) sejak T046 — sebelumnya 7 kerentanan `high`
+pada devDependency membuat gerbang 4 CI merah dan menahan seluruh validasi lingkungan sungguhan.
+Tersisa 3 kerentanan `low` di bawah ambang gerbang, sengaja tidak dikejar (alasan di T046).
 
 ### Yang BELUM selesai dan alasannya
 
@@ -605,9 +620,10 @@ dikerjakan sekarang juga**, dan T046 adalah prasyarat bagi seluruh baris lain di
 | T012, T016, T017 | Butuh akun & dashboard Sentry sungguhan. Jalur teknisnya kini lengkap: DSN mengalir ke build (T041) dan penyaringan PII sudah default-deny (T042) — tersisa murni aksi akun + isi secret `SENTRY_DSN`, lalu pasang kedua ambang alert dari `plan.md` § Observability Goals |
 | T022, T026, T032 | Sebagian selesai (lihat catatan per-task) — sisanya butuh sesi verifikasi browser manual (CSP vs aset nyata, XSS lewat DevTools, kebijakan privasi di aplikasi yang benar-benar jalan) |
 | T040 | Blocker lintas-spec **masih berlaku**: T086 (spec 001) selesai di branch terpisah `001-convergence-fixes` yang belum digabung; T087 (spec 001) masih task terbuka |
-| T046 | **Bisa dikerjakan sekarang** — butuh keputusan eksplisit antara tiga opsi (lihat task), bukan lingkungan eksternal. Memblokir T008, T011, T022 |
-| T047 | **Bisa dikerjakan sekarang** — perubahan kode di `worker/security-headers.js` + test; verifikasi live-nya menumpang pada T011 |
 | T048 | Konfigurasi notifikasi butuh keputusan kanal (email/Slack/lainnya) dari tim; bagian runbook bisa ditulis sekarang |
+| T051 | Butuh pipeline deploy yang hidup untuk membuktikan jejaknya terbaca; blocker audit sudah terangkat, jadi kini tertahan pada kredensial Cloudflare saja |
+| T053 | Aksi manusia berkompetensi perlindungan data, dan MUST bukan penulis kebijakannya — dijadwalkan, bukan dikerjakan di sini |
+| T054–T080 | Tahap 2 (US8–US12) belum dimulai |
 | T049 | Menunggu Quickstart P1 (T008, T011, T022, T026, T032) dijalankan — review sebelum itu hanya mereview niat |
 | T050 | Menunggu US8–US12 yang belum digenerate |
 

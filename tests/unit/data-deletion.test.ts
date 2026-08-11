@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { hapusSemuaDataSiswa } from '../../src/privacy/deleteAllData';
+import { PRIVACY_SECTIONS } from '../../src/privacy/content';
 import { saveLearnerProfile, type LearnerProfile } from '../../src/profile';
 import { bacaSiswa, simpanSiswa } from '../../src/progress/store';
 import { telemetry } from '../../src/telemetry/adapter';
@@ -64,5 +65,32 @@ describe('hapusSemuaDataSiswa', () => {
 
   it('tidak melempar error saat ketiga kunci sudah kosong dari awal', async () => {
     await expect(hapusSemuaDataSiswa()).resolves.toBeDefined();
+  });
+});
+
+/**
+ * US6 spec 002 (T052, FR-013 × FR-018): keputusan cakupan ekspor 2026-08-11
+ * menetapkan berkas ekspor memuat nama tampilan. Konsekuensinya wajib: siswa
+ * dan orang tua MUST diberi tahu SEBELUM memutuskan membagikan berkas itu.
+ *
+ * Dikunci di sini karena kalimatnya hidup di konten, bukan di logika — persis
+ * mode kegagalan yang ditutup T044 untuk peringatan hapus-data FR-020: teksnya
+ * benar hari ini dan bisa hilang besok tanpa satu pun test protes.
+ */
+describe('kebijakan privasi menyatakan isi berkas ekspor (FR-013 × FR-018)', () => {
+  const seluruhParagraf = PRIVACY_SECTIONS.flatMap((bagian) => bagian.paragraf).join(' ');
+
+  it('menyebut berkas ekspor memuat nama tampilan', () => {
+    expect(seluruhParagraf).toMatch(/ekspor/i);
+    expect(seluruhParagraf).toMatch(/nama tampilan/i);
+
+    const kalimatEkspor = PRIVACY_SECTIONS.flatMap((bagian) => bagian.paragraf).filter((p) =>
+      /ekspor/i.test(p),
+    );
+    expect(kalimatEkspor.some((p) => /nama tampilan/i.test(p))).toBe(true);
+  });
+
+  it('memperingatkan sebelum berkas dibagikan ke orang lain', () => {
+    expect(seluruhParagraf).toMatch(/sebelum mengirimkan|sebelum membagikan|ke orang lain/i);
   });
 });

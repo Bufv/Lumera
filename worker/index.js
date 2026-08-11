@@ -4,8 +4,13 @@ import { applySecurityHeaders } from './security-headers.js';
 // WebSocket untuk HMR. CSP deployment sengaja tidak diterapkan pada Vite dev;
 // header keamanan lain tetap aktif. Build/preview tidak memiliki DEV=true,
 // sehingga staging dan production selalu memakai CSP ketat dari kontrak.
+// FR-005/T047: commit SHA yang di-build disematkan sebagai header pada setiap
+// response, sehingga versi yang SEDANG DILAYANI dapat dibaca langsung dari
+// aplikasi hidup. `vite.config.ts` menjamin nilainya tidak pernah undefined
+// (fallback 'dev' saat VITE_APP_VERSION tidak diset).
 const securityHeaderOptions = Object.freeze({
   omitContentSecurityPolicy: import.meta.env?.DEV === true,
+  appVersion: import.meta.env?.VITE_APP_VERSION ?? 'dev',
 });
 
 function secure(response) {
