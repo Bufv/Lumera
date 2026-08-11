@@ -18,9 +18,10 @@ export const SECURITY_HEADERS = Object.freeze({
  * Mengembalikan Response BARU dengan header keamanan tertambah — Response
  * bawaan immutable soal header, jadi tidak bisa dimutasi in-place.
  */
-export function applySecurityHeaders(response) {
+export function applySecurityHeaders(response, { omitContentSecurityPolicy = false } = {}) {
   const headers = new globalThis.Headers(response.headers);
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    if (omitContentSecurityPolicy && name === 'Content-Security-Policy') continue;
     headers.set(name, value);
   }
   return new globalThis.Response(response.body, {

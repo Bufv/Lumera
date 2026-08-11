@@ -44,10 +44,28 @@ describe('applySecurityHeaders (US4 spec 002)', () => {
     expect(hasil.headers.get('X-Content-Type-Options')).toBe('nosniff');
   });
 
+  it('menghilangkan hanya CSP pada Vite development agar React Refresh dapat berjalan', () => {
+    const original = new Response('<html></html>', {
+      status: 200,
+      headers: { 'Content-Type': 'text/html' },
+    });
+
+    const hasil = applySecurityHeaders(original, {
+      omitContentSecurityPolicy: true,
+    });
+
+    expect(hasil.headers.get('Content-Security-Policy')).toBeNull();
+    expect(hasil.headers.get('X-Content-Type-Options')).toBe('nosniff');
+    expect(hasil.headers.get('X-Frame-Options')).toBe('DENY');
+    expect(hasil.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
+  });
+
   it('CSP mengizinkan connect-src ke Sentry tapi tidak liar (bukan wildcard *)', () => {
     const csp = SECURITY_HEADERS['Content-Security-Policy'];
     expect(csp).toContain('connect-src');
-    expect(csp).not.toContain("connect-src *");
+    expect(csp).not.toContain('connect-src *');
     expect(csp).toContain('sentry.io');
+    expect(csp).toContain("script-src 'self'");
+    expect(csp).not.toContain("script-src 'self' 'unsafe-inline'");
   });
 });

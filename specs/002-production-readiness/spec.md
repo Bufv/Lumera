@@ -35,7 +35,7 @@ mengembalikan versi sebelumnya dalam hitungan menit.
 **Acceptance Scenarios**:
 
 1. **Given** sebuah perubahan kode yang gagal lint/type-check/test, **When** perubahan didorong ke branch utama, **Then** sistem MUST mencegahnya mencapai production.
-2. **Given** sebuah versi production yang baru dirilis ternyata bermasalah, **When** tim memutuskan rollback, **Then** production MUST kembali ke versi stabil sebelumnya tanpa memerlukan build ulang dari kode.
+2. **Given** sebuah versi production yang baru dirilis ternyata bermasalah, **When** masalah tersebut terdeteksi, **Then** production MUST kembali ke versi stabil sebelumnya tanpa memerlukan build ulang dari kode, dalam batas waktu SC-002 yang dihitung **sejak deteksi** — bukan sejak keputusan rollback diambil.
 3. **Given** sebuah versi sedang live di production, **When** siapapun di tim memeriksa, **Then** commit/versi yang sedang live MUST dapat ditelusuri dengan jelas.
 
 ---
@@ -54,7 +54,8 @@ identik dengan production tanpa memengaruhi data/pengalaman siswa di production.
 **Acceptance Scenarios**:
 
 1. **Given** sebuah perubahan siap diuji, **When** perubahan di-deploy ke staging, **Then** staging MUST dapat diakses secara terpisah dari production dan tidak memengaruhi data siswa di production.
-2. **Given** perubahan telah diverifikasi di staging, **When** tim menyetujui rilis, **Then** perubahan yang sama (bukan build ulang manual) MUST yang dipromosikan ke production.
+2. **Given** perubahan telah diverifikasi di staging, **When** tim menyetujui rilis, **Then** rilis production MUST dapat ditelusuri kembali ke versi staging yang diverifikasi tersebut (FR-028) — sehingga "sudah diuji di staging" adalah fakta yang tercatat, bukan ingatan.
+3. **Given** sebuah perubahan mencapai production **tanpa** pernah dilayani di staging (mis. hotfix langsung ke `main`), **When** rilis itu terjadi, **Then** kondisi tersebut MUST ditandai eksplisit pada catatan rilis — bukan lolos tanpa jejak.
 
 ---
 
@@ -271,7 +272,9 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 - **FR-002**: Sistem MUST memblokir deploy ke production jika salah satu dari lint/type-check/test gagal.
 - **FR-003**: Sistem MUST menyediakan environment staging yang terpisah dari production (target/URL berbeda) untuk verifikasi perubahan sebelum dirilis ke siswa sungguhan.
 - **FR-004**: Tim MUST dapat mengembalikan (rollback) sebuah deploy production yang bermasalah ke versi stabil sebelumnya dalam hitungan menit, tanpa memerlukan build ulang dari kode.
-- **FR-005**: Sistem MUST mencatat versi/commit yang sedang live di production sehingga sumber sebuah rilis selalu dapat ditelusuri.
+- **FR-005**: Sistem MUST mencatat versi/commit yang sedang live di production sehingga sumber sebuah rilis selalu dapat ditelusuri, dan versi tersebut MUST dapat dibaca langsung dari aplikasi yang sedang berjalan — tanpa menunggu error terjadi atau membuka riwayat pipeline.
+- **FR-028**: Setiap rilis production MUST membawa jejak verifikasi staging-nya: versi staging mana yang sudah diverifikasi, dan apakah isi yang dirilis identik dengan isi yang diverifikasi itu. Bila sebuah perubahan mencapai production tanpa pernah melewati staging, kondisi tersebut MUST tercatat eksplisit sebagai pengecualian, bukan lolos diam-diam.
+  **Kenapa FR ini ada dan bukan sekadar prosedur**: staging dilayani dari branch, production dari `main`. Begitu sebuah PR di-squash atau di-merge, commit-nya berganti identitas — jadi commit yang diverifikasi di staging secara harfiah **tidak pernah** sama dengan yang dilayani ke production. Tanpa jejak eksplisit, kalimat "sudah diuji di staging" tidak dapat dibuktikan maupun dibantah setelah kejadian. FR ini mewajibkan jejaknya ada; ia **tidak** mewajibkan artefak biner yang identik (satu build yang dipromosikan apa adanya) — pilihan itu dipertimbangkan dan ditolak karena biaya pipeline-nya tidak sebanding untuk skala saat ini, dan ia pun tidak menyelesaikan pergantian identitas commit di atas.
 
 **Observability**
 
@@ -295,11 +298,18 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 **Performa**
 
 - **FR-016**: Sistem MUST menetapkan anggaran waktu muat halaman awal (time-to-interactive) untuk koneksi mobile umum, dan build production MUST diukur terhadap anggaran tersebut sebelum rilis. Anggaran tersebut adalah **SC-007 (< 3 detik pada simulasi 4G standar)** — dirujuk di sini agar requirement ini dapat dibaca berdiri sendiri.
-- **FR-017**: Aset visual (gambar, ikon, artwork) yang dirilis MUST dioptimasi/dikompresi sehingga tidak menjadi kontributor dominan waktu muat.
+- **FR-017**: Aset visual (gambar, ikon, artwork) yang dirilis MUST dioptimasi/dikompresi terhadap anggaran numerik berikut, bukan terhadap penilaian subjektif "sudah cukup kecil":
+  - Berkas gambar manapun yang dimuat pada **layar pertama** MUST ≤ 100 KB.
+  - Ikon UI MUST ≤ 20 KB per berkas.
+  - Aset besar bertema modul (mis. animasi papan permainan) MUST dimuat hanya saat modul yang memakainya diakses — tidak pernah pada muat awal.
+  - Anggaran total unduhan awal diukur oleh SC-013.
+
+  **Baseline terukur 2026-08-11** (alasan angka di atas bukan sekadar angka bulat): `public/assets` berisi 3,4 MB aset, di antaranya `koji-gameboard.riv` 964 KB, `math_banner.png` 548 KB, `lumera_logo.png` 477 KB, dan **empat ikon PNG berukuran 244–379 KB per berkas** — ikon yang seharusnya berada di kisaran belasan KB. Bundel JS hasil build 533 KB dan CSS 91 KB (belum terkompresi transfer). Dengan kata lain, keadaan saat ini melanggar FR ini dengan selisih besar; anggaran di atas adalah target perbaikan, bukan deskripsi keadaan sekarang.
 
 **Backup & Pemulihan Data**
 
-- **FR-018**: Sistem MUST menyediakan cara bagi siswa mengekspor progres belajarnya (Lumens, streak, mastery) ke berkas yang dapat disimpan di luar browser.
+- **FR-018**: Sistem MUST menyediakan cara bagi siswa mengekspor progres belajarnya (Lumens, streak, mastery) **berikut nama tampilan dan preferensi belajarnya** ke berkas yang dapat disimpan di luar browser.
+  **Keputusan cakupan 2026-08-11**: nama tampilan **ikut** diekspor. Implementasi memang sudah begitu, tetapi FR ini sebelumnya hanya menyebut "progres" sehingga perilakunya tidak pernah benar-benar disetujui. Dua alasan menahannya: (a) berkas turun ke penyimpanan siswa sendiri dan tidak pernah dikirim ke pihak ketiga, sehingga tidak ada perluasan permukaan paparan; (b) di bawah asumsi UU PDP, ekspor juga melayani hak memperoleh salinan data pribadi — salinan yang justru tidak lengkap bila namanya dibuang. Konsekuensi yang MUST dipenuhi: kebijakan privasi (FR-013) MUST menyatakan bahwa berkas ekspor memuat nama tampilan, sehingga siswa/orang tua tahu apa yang mereka pegang sebelum membagikannya.
 - **FR-019**: Sistem MUST menyediakan cara mengimpor kembali berkas progres yang diekspor, memulihkan state siswa pada perangkat/browser yang sama atau berbeda.
 - **FR-020**: Sistem MUST memperingatkan siswa sebelum aksi yang secara permanen menghapus seluruh progres lokal, menjelaskan bahwa aksi tersebut tidak dapat dibatalkan kecuali data telah diekspor.
 
@@ -328,15 +338,30 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 ### Measurable Outcomes
 
 - **SC-001**: 100% perubahan yang mencapai production telah lolos pemeriksaan otomatis (lint, type-check, test) sebelum live.
-- **SC-002**: Tim dapat memulihkan production ke versi stabil sebelumnya dalam waktu kurang dari 10 menit sejak masalah terdeteksi.
+- **SC-002**: Tim dapat memulihkan production ke versi stabil sebelumnya dalam waktu kurang dari 10 menit **sejak masalah terdeteksi** — titik awal pengukuran adalah deteksi, bukan keputusan rollback, sehingga waktu berunding ikut terhitung. Alasannya sederhana: siswa mengalami menit-menit itu terlepas dari apakah tim sudah selesai berdiskusi.
 - **SC-003**: Error produksi terdeteksi oleh sistem pemantauan dalam waktu kurang dari 5 menit sejak kemunculan pertama, tanpa menunggu laporan pengguna.
 - **SC-004**: Nol kerentanan dependency tingkat kritis/tinggi yang belum ditangani pada saat rilis.
 - **SC-005**: Siswa dapat menghapus seluruh data pribadinya sendiri dalam satu aksi yang jelas, tanpa bantuan teknis.
-- **SC-006**: Siswa dapat memulihkan progres belajarnya secara penuh di perangkat baru dalam waktu kurang dari 2 menit menggunakan berkas ekspor.
-- **SC-007**: Halaman utama dapat dimuat dan interaktif dalam waktu kurang dari 3 detik pada simulasi koneksi mobile 4G standar.
-- **SC-008**: Seluruh alur inti dapat diselesaikan dari awal sampai akhir hanya menggunakan keyboard, diverifikasi lewat audit manual.
-- **SC-009**: Menambahkan satu modul pelajaran baru menambah ukuran unduhan awal aplikasi kurang dari 5%.
+- **SC-006**: Siswa dapat memulihkan progres belajarnya secara penuh di perangkat baru dalam waktu kurang dari 2 menit menggunakan berkas ekspor. Kriteria ini tetap berlaku setelah akun sungguhan hadir (§ Arah Backend) — saat itu login menjadi jalur pemulihan utama, dan berkas ekspor tetap menjadi jalur portabilitas yang MUST tetap bekerja.
+- **SC-007**: Halaman utama dapat dimuat dan interaktif dalam waktu kurang dari 3 detik pada simulasi koneksi mobile 4G standar, diukur dengan **protokol tetap** berikut sehingga dua orang yang mengukur mendapat angka yang sebanding:
+  | Parameter | Nilai |
+  |---|---|
+  | Bandwidth | 1,6 Mbps unduh / 750 Kbps unggah |
+  | Latensi | 150 ms RTT |
+  | Pelambatan CPU | 4× |
+  | Cache | kosong (kunjungan pertama, tanpa service worker) |
+  | Target | URL staging yang sudah ter-deploy — **bukan** dev server |
+  | Jumlah run | 5 |
+  | Statistik | **median**, bukan run terbaik |
+  | Ambang | median < 3 detik; tidak ada satu run pun > 5 detik |
+
+  "Interaktif" berarti siswa dapat menekan kontrol pertama di layar dan mendapat respons — bukan sekadar teks pertama tampil.
+- **SC-008**: Seluruh alur inti dapat diselesaikan dari awal sampai akhir hanya menggunakan keyboard, diverifikasi lewat audit manual: setiap kontrol dapat dicapai lewat urutan Tab yang mengikuti urutan visual, fokus selalu terlihat, dan tidak ada jebakan fokus.
+- **SC-009**: Menambahkan satu modul pelajaran baru menambah ukuran unduhan awal aplikasi kurang dari 5%, diukur sebagai selisih **total byte terkompresi transfer pada kunjungan pertama** (baseline SC-013) sebelum dan sesudah modul didaftarkan.
 - **SC-010**: Audit privasi tidak menemukan data pribadi siswa yang tidak esensial (di luar nama tampilan dan preferensi belajar) tersimpan di perangkat.
+- **SC-011**: Nol pelanggaran kontras pada audit otomatis seluruh layar inti, dan spot-check manual mengonfirmasi rasio minimum WCAG 2.1 AA terpenuhi: **4,5:1** untuk teks normal, **3:1** untuk teks besar (≥ 18,66 px bold atau ≥ 24 px) serta batas komponen UI dan indikator fokus. Menutup FR-022, yang sebelumnya tidak punya kriteria terukur sama sekali.
+- **SC-012**: Seluruh alur inti dapat diselesaikan menggunakan screen reader, diverifikasi lewat audit manual pada minimal satu screen reader desktop dan satu mobile: setiap kontrol interaktif mengumumkan **nama, peran, dan status**-nya; setiap gambar bermakna punya deskripsi yang menjelaskan maknanya (bukan nama berkas atau kata generik seperti "gambar"); dan perubahan langkah pelajaran diumumkan tanpa siswa harus mencarinya sendiri. Menutup FR-023.
+- **SC-013**: Total unduhan pada kunjungan pertama (kondisi cache kosong SC-007) MUST ≤ **600 KB terkompresi transfer**. Ini kriteria biaya, bukan sekadar kecepatan: audiens inti mengakses lewat kuota data mobile, sehingga setiap ratus KB adalah rupiah yang dikeluarkan siswa untuk membuka aplikasi.
 
 ### Definisi "Siap Produksi" (bertahap)
 
@@ -347,7 +372,23 @@ production-ready:
 | Tahap | Cakupan | Definisi selesai |
 |---|---|---|
 | **Tahap 1 — Operasional & Keamanan** (US1–US7, P1) | CI/CD bergerbang, staging, rollback, pemantauan error, gerbang keamanan, privasi anak & hak hapus data, ekspor/impor progres | Seluruh task P1 selesai **dan** Quickstart V-1 s.d. V-7 dijalankan di lingkungan sungguhan. Status yang tepat sampai itu tercapai: **P1/beta**, bukan "siap produksi". |
-| **Tahap 2 — Pengalaman & Ketahanan** (US8–US12, P2/P3) | Ketahanan `localStorage`, aksesibilitas, anggaran performa, code-splitting, kontrak skema siap-backend | SC-007, SC-008, dan SC-009 terbukti terukur, bukan diasumsikan. |
+| **Tahap 2 — Pengalaman & Ketahanan** (US8–US12, P2/P3) | Ketahanan `localStorage`, aksesibilitas, anggaran performa, code-splitting, kontrak skema siap-backend | Gerbang per-FR di bawah — **seluruhnya**, bukan sebagian. |
+
+**Gerbang Tahap 2 per requirement** (revisi 2026-08-11). Versi sebelumnya hanya menyebut SC-007,
+SC-008, dan SC-009, sehingga FR-026 dan FR-027 dapat terlewat sepenuhnya sementara label "siap
+produksi" tetap tampak sah — dan aksesibilitas hanya terukur pada satu dari tiga FR-nya. Daftar
+ini menutup celah itu:
+
+| Requirement | Gerbang yang membuktikannya |
+|---|---|
+| FR-016, FR-017 (performa & aset) | SC-007 dengan protokol pengukurannya, dan SC-013 |
+| FR-021 (keyboard) | SC-008 |
+| FR-022 (kontras) | SC-011 |
+| FR-023 (screen reader) | SC-012 |
+| FR-025 (lazy loading modul) | SC-009 |
+| FR-026 (`localStorage` penuh/tidak tersedia) | Siswa melihat peringatan yang dapat dipahami pada kedua kondisi, dan tidak ada progres yang hilang tanpa pemberitahuan — diverifikasi manual, bukan diasumsikan dari kode |
+| FR-027 (kontrak skema berversi) | Skema progres dan telemetry terdokumentasi berikut versinya, dan satu latihan pemetaan ke bentuk API tertulis membuktikan bentuk data tidak perlu berubah |
+| Prinsip I–VII | Review konstitusi pasca-Tahap 2 (`tasks.md` T050) |
 
 Label "siap produksi" MUST NOT dipakai sebelum **kedua** tahap tuntas. Rasional US9 sudah
 menyatakan hal yang sama untuk aksesibilitas ("tetap wajib sebelum klaim 'siap produksi'
@@ -355,17 +396,68 @@ dianggap valid"); tabel ini menaikkannya dari catatan di satu story menjadi atur
 
 ## Out of Scope
 
-- **Membangun backend/API sungguhan** — spec ini hanya menyiapkan kontrak/skema data agar migrasi nanti tidak perlu menulis ulang, bukan membangun server-nya.
-- **Autentikasi/akun pengguna berbasis server** — tetap di luar cakupan Lumera Core saat ini, konsisten dengan batas spec 001.
+- **Membangun backend/API sungguhan** — spec ini hanya menyiapkan kontrak/skema data agar migrasi nanti tidak perlu menulis ulang, bukan membangun server-nya. **Diperbarui 2026-08-11**: tetap di luar cakupan *spec ini*, tetapi tidak lagi di luar cakupan produk — lihat § Arah Backend.
+- **Autentikasi/akun pengguna berbasis server** — di luar cakupan spec ini. **Diperbarui 2026-08-11**: dipindahkan ke spec 003 sebagai pekerjaan yang direncanakan, bukan ditolak; tabel konflik di § Arah Backend adalah daftar masuk untuk spec tersebut.
 - **Audit keamanan pihak ketiga/penetration testing formal** — gerbang otomatis (pemindaian dependency, header keamanan) adalah lapisan pencegahan pertama, bukan pengganti audit profesional independen.
 - **Infrastruktur multi-region atau load balancing server-side** — belum relevan pada skala trafik prototype saat ini.
 - **Dukungan aplikasi mobile native (iOS/Android) dan sinkronisasi lintas perangkat berbasis akun** — tetap di luar cakupan, konsisten dengan batas spec 001.
 
 ## Assumptions
 
-- Aplikasi tetap 100% frontend (tanpa server aplikasi sendiri) untuk saat ini; "kesiapan backend" berarti skema/kontrak siap dipetakan, bukan backend sudah dibangun.
+- Aplikasi tetap 100% frontend (tanpa server aplikasi sendiri) **sepanjang cakupan spec ini**; "kesiapan backend" berarti skema/kontrak siap dipetakan, bukan backend sudah dibangun. Lihat § Arah Backend di bawah — asumsi ini kini punya tanggal kedaluwarsa, bukan berlaku selamanya.
 - Target hosting tetap platform yang sudah dipakai saat ini (Cloudflare Worker via hosting privat) kecuali diputuskan lain oleh tim.
 - Trafik saat ini masih skala prototype/early-stage; kebutuhan skalabilitas server-side tingkat lanjut belum mendesak.
 - Solusi pemantauan error dan pemindaian dependency yang dipilih MUST memiliki tingkatan gratis/terjangkau yang memadai untuk skala tim dan trafik saat ini — bukan solusi enterprise berbayar.
 - Ekspor/impor progres cukup berbasis berkas lokal (unduh/unggah manual oleh siswa); sinkronisasi otomatis lintas perangkat tetap di luar cakupan spec ini.
+
+### Arah Backend (ditambahkan 2026-08-11)
+
+Tim menyatakan backend dengan akun pengguna kini **sedang dipertimbangkan sebagai arah**. Ini
+mengubah beberapa asumsi di atas dari "batas permanen" menjadi "batas sepanjang spec ini", dan
+dicatat di sini supaya keputusan berikutnya tidak dibuat di atas premis yang sudah usang.
+
+**US7 (ekspor/impor) tetap dipertahankan penuh.** Keputusan eksplisit, bukan kelalaian: selama
+backend belum berjalan, berkas ekspor adalah **satu-satunya** jalan pulih bila browser siswa
+dibersihkan. Mencabutnya sekarang berarti membiarkan siswa tanpa jaring pengaman selama seluruh
+masa transisi, demi fitur yang belum terikat jadwal. Ketika akun sungguhan hadir, peran ekspor
+bergeser dari *pemulihan* ke *portabilitas data* (hak memperoleh salinan) — bergeser, bukan
+hilang.
+
+**Yang MUST ditangani spec terpisah (spec 003), bukan di sini** — masing-masing punya konflik
+nyata dengan requirement spec ini, sehingga menempelkannya ke sini akan menghasilkan spec yang
+bertentangan dengan dirinya sendiri:
+
+| Isu | Konflik yang harus diselesaikan |
+|---|---|
+| Pengenal akun | Akun butuh pengenal, tetapi FR-010 melarang menyimpan email/telepon/alamat. Apa yang mengidentifikasi akun siswa di bawah 18 tahun belum punya jawaban di mana pun |
+| Hak hapus data | FR-015 (satu aksi, data lokal) tidak lagi menghapus segalanya begitu data ada di server |
+| Persetujuan orang tua | Naik dari kalimat di kebijakan privasi menjadi alur yang MUST terjadi sebelum pendaftaran |
+| Rollback | SC-002 (< 10 menit) mengasumsikan rollback frontend; migrasi skema server tidak dapat dibalik semudah itu |
+| Isolasi staging | US2 "tidak memengaruhi data siswa di production" berubah dari beda URL menjadi isolasi data sungguhan |
+| `localStorage` | Turun pangkat dari sumber kebenaran menjadi cache, sehingga mode gagal FR-026 berganti sifat |
+| Permukaan baru | Keamanan sesi, pemulihan akun untuk anak yang lupa kredensial, pembatasan laju — belum punya FR sama sekali |
+
+### Yurisdiksi dan Dasar Hukum Privasi (ditambahkan 2026-08-11)
+
+FR-013 dan FR-014 sebelumnya berdiri tanpa menyebut hukum mana yang mereka penuhi — sehingga
+"kebijakan privasi yang akurat" tidak dapat dinilai benar atau salah oleh siapa pun. Asumsi yang
+dipakai spec ini:
+
+- **Yurisdiksi**: Indonesia. Pengguna, konten (Kurikulum Merdeka), dan tim berada di Indonesia,
+  sehingga rezim yang berlaku diasumsikan **UU No. 27 Tahun 2022 tentang Pelindungan Data
+  Pribadi (UU PDP)**, bukan GDPR atau COPPA. Rezim asing hanya relevan bila produk dipasarkan
+  ke luar Indonesia — perubahan itu MUST memicu peninjauan ulang asumsi ini.
+- **Dasar pemrosesan**: audiens inti berusia di bawah 18 tahun, sehingga dasar hukumnya
+  diasumsikan **persetujuan orang tua/wali**, bukan persetujuan anak itu sendiri. Konsekuensinya
+  langsung ke produk: kebijakan privasi MUST dapat dibaca dan dipahami oleh orang tua, bukan
+  hanya oleh siswa.
+- **Transfer keluar wilayah**: pemantauan error mengirim data ke penyedia pihak ketiga yang
+  memproses di luar Indonesia. Pembatasan field pada FR-014 (`data-model.md` §
+  ErrorReportContext) adalah mitigasi utamanya — semakin sedikit yang keluar, semakin kecil
+  permukaan yang perlu dibenarkan secara hukum.
+- **Batas kompetensi**: paragraf ini adalah **asumsi kerja tim, bukan nasihat hukum**. Sebelum
+  rilis publik, kebijakan privasi MUST ditinjau oleh orang yang kompeten di bidang perlindungan
+  data — dan peninjau itu MUST bukan penulis kebijakannya, mengikuti pola yang sudah dipakai
+  Prinsip IV untuk verifikasi konten. Task review-nya menyusul pada pass `/speckit-tasks`
+  berikutnya.
 - Anggaran waktu muat spesifik (FR-016) dan ambang batas lonjakan error (FR-007) akan ditetapkan sebagai angka konkret pada fase perencanaan (`/speckit-plan`), berdasarkan baseline pengukuran aplikasi saat ini.

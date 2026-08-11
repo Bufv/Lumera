@@ -9,9 +9,15 @@ description: "Task list for Kesiapan Produksi — Skalabilitas, Keamanan, dan De
 
 **Prerequisites**: [plan.md](./plan.md), [spec.md](./spec.md), [research.md](./research.md), [data-model.md](./data-model.md), [contracts/](./contracts/), [quickstart.md](./quickstart.md)
 
-**Scope of this file**: **Hanya 7 user story P1** (US1–US7) sesuai permintaan eksplisit
-("tackle P1 first"). US8–US12 (P2/P3) akan digenerate pada pass `/speckit-tasks` berikutnya
-setelah P1 divalidasi, bukan diabaikan.
+**Scope of this file**: **seluruh 12 user story** — US1–US7 (P1, Tahap 1) dan US8–US12 (P2/P3,
+Tahap 2) — ditambah Phase 10–12 (remediasi temuan analisis dan requirement susulan) serta dua task
+`[Governance]` yang berasal langsung dari konstitusi.
+
+US8–US12 ditambahkan pada pass `/speckit-tasks` kedua (2026-08-11), setelah `/speckit-specify`
+memberi mereka kriteria terukur — SC-011 dan SC-012 untuk aksesibilitas, protokol pengukuran
+SC-007 dan anggaran SC-013 untuk performa, serta tabel gerbang Tahap 2 per-requirement. Sebelum
+itu US9 dan US10 tidak punya definisi selesai, jadi men-generate-nya lebih awal akan menghasilkan
+task yang harus diulang.
 
 **Dependensi lintas-spec**: T085 (Atlas reachable), T086 (LessonShell reachable), dan T087
 (sambungkan `Siswa` store nyata ke UI live) di `specs/001-core-mvp-prototype/tasks.md` **tidak**
@@ -32,8 +38,8 @@ divalidasi independen (kecuali catatan dependensi lintas-spec pada US7 di atas).
 
 ## Format: `[ID] [P?] [Story] Description`
 
-- **[P]**: Bisa berjalan paralel (berkas berbeda, tanpa dependensi)
-- **[Story]**: User story yang dilayani task ini (US1, US2, ...)
+- **[P]**: Bisa berjalan paralel — **berkas berbeda**, tidak menunggu task `[P]` lain di story yang sama. Ini **bukan** klaim "tanpa dependensi sama sekali": task test bertanda `[P]` (T015, T031, T039) tetap butuh berkas yang diujinya ada lebih dulu. Dependensi urutan sungguhan selalu ditulis eksplisit di deskripsi task ("Bergantung pada T035"), jadi `[P]` dan "Bergantung pada …" bisa muncul bersamaan tanpa saling bertentangan
+- **[Story]**: User story yang dilayani task ini (US1, US2, ...); `[Governance]` menandai task yang berasal dari konstitusi, bukan dari satu user story
 
 ## Path Conventions
 
@@ -46,8 +52,9 @@ Project Structure).
 
 **Purpose**: Siapkan dependency dan versi tooling sebelum pipeline/fitur apapun dibangun
 
-- [X] T001 Tambahkan dependency baru ke `package.json`: `@sentry/react`, `eslint-plugin-jsx-a11y`, `vitest-axe`, `@lhci/cli` (yang terakhir hanya dipakai P2 US10, tapi diinstal sekarang agar `npm install` tidak perlu diulang saat P2 digarap)
-  **DEVIASI 2026-08-09**: `@lhci/cli` **tidak** diinstal sekarang — rantai dependency-nya (Lighthouse/Puppeteer) sendirian membawa ~5 kerentanan `high` baru (nanoid, sharp, tmp, uuid), yang berarti gerbang `npm audit --audit-level=high` yang baru dibangun di T003 langsung gagal di run pertamanya untuk fitur P2 yang belum digarap. Ditunda sampai US10 (P2) benar-benar dikerjakan. `@sentry/react`, `eslint-plugin-jsx-a11y`, `vitest-axe` terpasang.
+- [X] T001 Tambahkan dependency baru ke `package.json`: `@sentry/react`, `eslint-plugin-jsx-a11y`, `vitest-axe`
+  **DEVIASI 2026-08-09**: `@lhci/cli` awalnya termasuk dalam task ini, lalu dikeluarkan — rantai dependency-nya (Lighthouse/Puppeteer) sendirian membawa ~5 kerentanan `high` baru (nanoid, sharp, tmp, uuid), yang berarti gerbang `npm audit --audit-level=high` yang baru dibangun di T003 langsung gagal di run pertamanya untuk fitur P2 yang belum digarap. Pemasangannya pindah ke US10 (P2) — lihat § Dibawa ke pass P2 butir 3. Deskripsi task ini sudah dipersempit agar tanda `[X]` menyatakan apa yang benar-benar terpasang, bukan daftar aslinya.
+  **KOREKSI 2026-08-11**: `vitest-axe` **terpasang tapi nol dipakai** — tidak ada satu pun berkas di `tests/` yang meng-impornya. Jadi dependency-nya ada, gerbangnya tidak. Aktivasinya adalah pekerjaan US9 (§ Dibawa ke pass P2 butir 2), bukan bagian task ini; dicatat di sini supaya kehadirannya di `package.json` tidak salah dibaca sebagai gerbang a11y runtime yang sudah aktif.
 - [X] T002 [P] Tambahkan `.nvmrc` berisi versi Node yang dipakai CI, agar lingkungan lokal dan `ci.yml` konsisten
 
 ---
@@ -116,9 +123,9 @@ sebelum meninggalkan perangkat siswa.
 **Independent Test**: Picu error runtime disengaja di staging → verifikasi tercatat di dasbor
 pemantauan dalam < 5 menit tanpa laporan manual, dan field yang terkirim tidak memuat PII.
 
-- [ ] T012 [US3] Buat project Sentry (tier gratis); simpan DSN sebagai GitHub Actions secret `SENTRY_DSN` dan Cloudflare Worker environment variable untuk `staging`/`production`
+- [ ] T012 [US3] Buat project Sentry (tier gratis); simpan DSN sebagai GitHub Actions secret `SENTRY_DSN` — **satu jalur konfigurasi saja**, dibaca saat build oleh `deploy.yml` (T041) untuk job `staging` maupun `production`
   **BELUM SELESAI**: butuh akun/dashboard Sentry sungguhan — aksi eksternal di luar jangkauan implementasi ini. `src/monitoring/errorReporting.ts` (T013) sudah menangani ketiadaan DSN secara eksplisit (`initErrorReporting()` no-op, bukan gagal diam-diam) sehingga aplikasi tetap berjalan normal sampai DSN ini diisi.
-  **KOREKSI 2026-08-11**: DSN adalah variabel **build-time** (`import.meta.env.VITE_SENTRY_DSN`), bukan runtime — menyimpannya sebagai environment variable Worker saja TIDAK akan pernah sampai ke bundle. Jalur build sudah diperbaiki di T041; yang tersisa untuk task ini murni pembuatan akun + pengisian secret `SENTRY_DSN` di GitHub.
+  **KOREKSI 2026-08-11**: DSN adalah variabel **build-time** (`import.meta.env.VITE_SENTRY_DSN`), bukan runtime — menyimpannya sebagai environment variable Worker saja TIDAK akan pernah sampai ke bundle. Jalur build sudah diperbaiki di T041; yang tersisa untuk task ini murni pembuatan akun + pengisian secret `SENTRY_DSN` di GitHub. Judul task di atas sudah ditulis ulang (2026-08-11) agar tidak lagi meminta Worker environment variable — dua jalur konfigurasi untuk satu nilai adalah undangan untuk mengisi yang salah.
 - [X] T013 [US3] Implementasikan `src/monitoring/errorReporting.ts`: inisialisasi Sentry dengan `sendDefaultPii: false` dan `beforeSend` yang **hanya** meloloskan field sesuai `data-model.md` § ErrorReportContext (`message`, `stack`, `route`, `appVersion`) — tolak field lain secara eksplisit, bukan default-allow
 - [X] T014 [US3] Panggil inisialisasi `errorReporting` di `src/main.tsx` sebelum `createRoot(...).render(...)`. Bergantung pada T013
 - [X] T015 [P] [US3] Unit test `beforeSend` di `tests/unit/error-reporting.test.ts`: mock event Sentry berisi `displayName` dan snapshot `localStorage`, verifikasi keduanya tersaring habis sebelum "terkirim"
@@ -147,7 +154,8 @@ rilis ditahan. Periksa response staging/production → verifikasi header keamana
   **CATATAN**: diekstrak ke `worker/security-headers.js` (bukan inline di `index.js`) supaya T021 bisa mengujinya sebagai fungsi murni. `worker/` ditambahkan ke `tsconfig.json` (`allowJs`, `include`) agar test TypeScript bisa meng-impornya.
 - [X] T021 [P] [US4] Ekstrak logika pembangun header ke fungsi murni yang diuji di `tests/unit/security-headers.test.ts` (agar testable tanpa runtime Worker sungguhan)
 - [ ] T022 [US4] Jalankan Quickstart V-4: verifikasi `npm audit --audit-level=high` (T003) menahan dependency rentan; verifikasi header hadir di kedua jenis response; verifikasi aset Rive (`koji-gameboard.riv`) dan canvas modul Fisika tidak diblokir CSP
-  **SEBAGIAN**: `npm audit --audit-level=high` sungguhan dijalankan lokal — menemukan 10 kerentanan baseline pra-eksisting (wrangler/typescript-eslint toolchain, bukan dependency aplikasi), semuanya `fixAvailable`; `npm audit fix` diblokir proses `workerd.exe` sisa yang mengunci file di lingkungan lokal ini (bukan masalah kode — runner CI bersih tidak akan mengalami ini). Header teruji via T021 (4 test). Verifikasi CSP-vs-Rive/canvas sungguhan di browser BELUM dijalankan — butuh deploy staging (T011).
+  **SEBAGIAN**: header teruji via T021 (4 test). Verifikasi CSP-vs-Rive/canvas sungguhan di browser BELUM dijalankan — butuh deploy staging (T011). Bagian `npm audit` **gagal**, lihat T046.
+  **KOREKSI 2026-08-11**: catatan sebelumnya menulis "10 kerentanan ... (wrangler/typescript-eslint toolchain)" dan menyimpulkan "runner CI bersih tidak akan mengalami ini". Keduanya salah, dan kesalahan kedua yang berbahaya: gerbang ini **sedang merah di CI sekarang**. Angka sebenarnya **7 `high`** (10 adalah total lintas semua tingkat: 1 low, 2 moderate, 7 high), berasal dari `sharp`/`undici`/`ws` lewat `@cloudflare/vite-plugin` → `miniflare`, `wrangler` → `miniflare`, dan `jsdom` → `ws` — `typescript-eslint` tidak terlibat sama sekali. `npm audit fix` juga bukan sekadar tertahan file lock: perbaikannya menyeret `miniflare` ke `5.x-alpha`. Remediasinya dipisah ke T046.
 
 **Checkpoint**: Gerbang keamanan otomatis aktif di CI dan di response — US4 dapat didemokan
 independen dari US1–US3.
@@ -244,6 +252,169 @@ blocker diam-diam US3 tertutup sebelum akun Sentry dibuat — bukan setelah gaga
 
 ---
 
+## Phase 11: Remediasi Verifikasi Silang (2026-08-11)
+
+**Purpose**: Menutup temuan yang requirement-nya **sudah ada** di spec/konstitusi tetapi belum
+punya task — jadi tidak perlu menunggu pass `/speckit-specify` berikutnya. Temuan yang menuntut
+perubahan requirement (definisi selesai Tahap 2, promosi artefak, cakupan ekspor, SC kontras/
+screen reader, titik ukur rollback, protokol pengukuran performa, yurisdiksi privasi) **sengaja
+tidak ada di sini** — semuanya masuk satu pass `/speckit-specify` sebelum US8–US12 digenerate.
+
+- [ ] T046 [US4] Hijaukan kembali gerbang `npm audit --audit-level=high`: turunkan 7 kerentanan `high` devDependency (`sharp`, `undici`, `ws`) ke nol, lalu commit `package-lock.json` hasilnya
+  **Kenapa**: FR-008 dan SC-004 mensyaratkan nol kerentanan kritis/tinggi yang belum ditangani saat rilis, dan `ci.yml` gerbang 4 menegakkannya. Gerbang itu **merah sekarang**, jadi tidak ada satu pun commit di branch manapun yang bisa mencapai `deploy.yml` — ini memblokir T008 dan T011 sekaligus.
+  **Konteks terukur (2026-08-11)**: `npm audit --omit=dev` → **0 kerentanan**. Seluruh temuan berada di jalur devDependency (`@cloudflare/vite-plugin` → `miniflare` → `sharp`/`undici`/`ws`, `wrangler` → `miniflare`, `jsdom` → `ws`); bundle yang dilayani ke siswa tidak terdampak. Ini masalah pipeline, bukan lubang keamanan pada produk — tapi tetap blocker rilis karena gerbangnya tidak boleh dilemahkan.
+  **Keputusan yang MUST diambil eksplisit** (catat hasilnya di task ini, jangan diam-diam):
+  1. `overrides` di `package.json` untuk `sharp`/`undici`/`ws` — menaikkan tiga paket bermasalah saja, toolchain tetap di versi teruji. Jalur yang paling kecil radiusnya.
+  2. `npm audit fix` apa adanya — **menyeret `miniflare` ke `5.20260804.0-alpha`** (via `wrangler@4.120.1`), plus `@cloudflare/vite-plugin` 1.37.1→1.51.2 dan `esbuild` 0.27→0.28. Prerelease di runtime deploy adalah risiko yang MUST disadari, bukan efek samping.
+  3. `--omit=dev` pada gerbang audit — melemahkan gerbang; hanya boleh dengan alasan tertulis, dan tetap menyisakan kewajiban Edge Case `spec.md` soal pencatatan mitigasi (T048).
+  **Selesai bila**: `npm audit --audit-level=high` keluar dengan kode 0 di runner CI bersih (bukan hanya lokal), `npm run build` + `npx vitest run` tetap hijau setelah perubahan, dan opsi yang dipilih beserta alasannya tercatat di task ini.
+- [ ] T047 [US1] Ekspos versi/commit yang sedang live agar dapat dibaca langsung dari aplikasi yang berjalan — tambahkan header response (mis. `X-Lumera-Version`) di `worker/security-headers.js` yang membaca `VITE_APP_VERSION` (T005), dan uji di `tests/unit/security-headers.test.ts`
+  **Kenapa**: FR-005 mensyaratkan versi yang live "selalu dapat ditelusuri" dan Acceptance Scenario 3 US1 menuntut "siapapun di tim memeriksa". Saat ini `grep` untuk versi di `worker/` mengembalikan nol hasil — satu-satunya cara membaca versi live adalah lewat event Sentry (yang butuh error lebih dulu) atau run Actions terakhir (yang menunjukkan apa yang **di-deploy**, bukan apa yang **sedang dilayani**). Keduanya tidak berlaku persis saat dibutuhkan: di tengah insiden, sebelum memutuskan rollback.
+  **Catatan**: `docs/ops-runbook.md` (T007) MUST diperbarui begitu ini selesai — prosedurnya saat ini mendokumentasikan jalur tidak langsung tersebut sebagai satu-satunya cara.
+- [ ] T048 [US4] Tambahkan jalur notifikasi kegagalan CI/deploy yang eksplisit dan catatan mitigasi kerentanan tanpa patch: konfigurasi notifikasi kegagalan di `ci.yml`/`deploy.yml`, dan bagian "Kerentanan tanpa perbaikan resmi" di `docs/ops-runbook.md` (apa yang dicatat, siapa yang memutuskan, di mana disimpan)
+  **Kenapa**: dua Edge Case di `spec.md` § Edge Cases sudah mewajibkan ini — "tim MUST diberi tahu, tidak boleh ada jalur override diam-diam" dan "keputusan mitigasi MUST didokumentasikan, bukan diabaikan begitu saja" — tetapi tidak ada satu pun task yang menutupnya. `grep` untuk notif/slack/email/alert di `.github/workflows/` mengembalikan nol hasil; yang tersisa hanya email default GitHub ke pelaku push, yang tidak sampai ke siapa pun yang tidak mendorong commit itu.
+  **Prasyarat de facto untuk T046 opsi 3**: kalau gerbang audit dilemahkan, catatan mitigasi inilah yang mencegah pelemahan itu hilang dari ingatan.
+- [ ] T049 [Governance] Jalankan review implementasi terhadap Prinsip I–VII (`.specify/memory/constitution.md`) untuk seluruh cakupan P1 (US1–US7), catat hasil per prinsip di task ini
+  **Kenapa**: `constitution.md` § Governance ("Kepatuhan") mewajibkan **setiap** review implementasi memverifikasi Prinsip I–VII, dan konstitusi mengikat seluruh spec turunan. Spec ini tidak menambah modul pelajaran, sehingga Prinsip II/III/IV/VI sebagian besar akan berupa "tidak terdampak" — tapi itu kesimpulan yang MUST ditulis, bukan diasumsikan. Prinsip I (kontrol interaktif benar-benar mengubah state) dan Prinsip V (nada visual) punya permukaan nyata di sini: kontrol ekspor/impor (T038), aksi hapus-semua-data (T030), dan halaman kebijakan privasi (T028).
+  **Waktu**: setelah T008/T011/T022/T026/T032 selesai — review sebelum Quickstart dijalankan hanya akan mereview niat, bukan implementasi.
+- [ ] T050 [Governance] Ulangi review Prinsip I–VII setelah Tahap 2 (US8–US12) selesai, sebelum label "siap produksi" dipakai
+  **Kenapa**: sumber yang sama (`constitution.md` § Governance) berlaku per review implementasi, bukan sekali per fitur. Tahap 2 menyentuh aksesibilitas dan performa — dua area yang paling mungkin menggeser Prinsip V (nada visual) dan Prinsip I (kontrol yang benar-benar berfungsi) tanpa disadari. `spec.md` § Definisi "Siap Produksi" melarang label itu sebelum kedua tahap tuntas; task ini adalah gerbang terakhirnya.
+
+**Checkpoint**: gerbang CI hijau kembali tanpa dilemahkan diam-diam, versi live dapat dibaca saat
+insiden, kegagalan pipeline sampai ke manusia, dan kepatuhan konstitusi punya task sendiri alih-alih
+mengandalkan ingatan.
+
+---
+
+## Phase 12: Requirement Susulan dari Amandemen Spec (2026-08-11)
+
+**Purpose**: Menutup dua requirement yang **baru ditambahkan** ke `spec.md` pada pass
+`/speckit-specify` 2026-08-11. Keduanya melayani story P1 yang sudah ada (US2, US6), jadi bukan
+bagian Tahap 2 — tetapi baru bisa ditugaskan sekarang karena requirement-nya sebelumnya belum ada.
+
+- [ ] T051 [US2] Implementasikan jejak verifikasi staging (FR-028) di `.github/workflows/deploy.yml`: job `production` MUST mencatat SHA staging yang sudah diverifikasi pada ringkasan run, dan MUST menandai eksplisit bila commit yang dirilis tidak pernah dilayani di staging; dokumentasikan cara membacanya di `docs/ops-runbook.md`
+  **Kenapa**: staging dilayani dari branch, production dari `main` — begitu PR di-squash/merge, identitas commit berganti, sehingga "sudah diuji di staging" tidak dapat dibuktikan maupun dibantah setelah kejadian. Lihat `spec.md` FR-028 untuk alasan lengkap dan untuk alasan promosi artefak biner **ditolak**.
+  **Selesai bila**: satu rilis production menampilkan SHA staging asalnya, dan satu hotfix simulasi yang langsung ke `main` muncul bertanda pengecualian — keduanya terbaca tanpa membuka log mentah.
+- [ ] T052 [US6] Tambahkan pernyataan di `src/privacy/content.ts` bahwa berkas ekspor progres memuat **nama tampilan**, dan kunci teksnya dengan assertion di `tests/unit/data-deletion.test.ts` atau berkas test kebijakan privasi yang setara
+  **Kenapa**: konsekuensi langsung keputusan cakupan FR-018 (2026-08-11). Berkas ekspor turun ke penyimpanan siswa dan bisa dibagikan; siswa/orang tua MUST tahu isinya memuat nama sebelum memutuskan membagikannya. Tanpa assertion, kalimat ini bisa hilang dalam satu edit copy — pola kegagalan yang sama yang T044 tutup untuk FR-020.
+- [ ] T053 [US6] Jalankan review kebijakan privasi terhadap `spec.md` § Yurisdiksi dan Dasar Hukum Privasi (UU PDP, dasar persetujuan orang tua/wali, transfer keluar wilayah), oleh peninjau kompeten yang **bukan** penulis kebijakannya; catat nama peninjau, tanggal, dan temuannya di `quickstart.md` § V-6
+  **Kenapa**: `plan.md` mewajibkan review akurasi hukum tapi tidak pernah punya task, dan sampai 2026-08-11 spec bahkan tidak menyebut yurisdiksi mana yang dipenuhi — sehingga "kebijakan privasi yang akurat" tidak dapat dinilai benar atau salah oleh siapa pun. Aturan peninjau-bukan-penulis mengikuti Prinsip IV, yang sudah dipakai untuk verifikasi konten pelajaran.
+  **Catatan**: ini aksi manusia dengan kompetensi tertentu, bukan pekerjaan kode — MUST dijadwalkan, bukan diasumsikan selesai.
+
+**Checkpoint**: kedua requirement susulan tertutup; US2 dan US6 kini utuh terhadap spec versi
+2026-08-11, bukan versi saat task-nya pertama ditulis.
+
+---
+
+## Phase 13: User Story 8 - Aplikasi Tetap Dapat Dipakai Meski Penyimpanan Bermasalah (Priority: P2)
+
+**Goal**: `localStorage` penuh atau diblokir tidak lagi membuat siswa kehilangan progres tanpa
+pemberitahuan — aplikasi tetap dapat dipakai pada sesi itu, dengan peringatan yang terlihat.
+
+**Independent Test**: Penuhi/blokir `localStorage` di browser uji, buka aplikasi, verifikasi
+aplikasi tetap dapat dipakai dengan peringatan eksplisit; selesaikan satu pelajaran dan verifikasi
+siswa diberi tahu progresnya tidak tersimpan antar sesi.
+
+- [ ] T054 [US8] Buat `src/storage/safeStorage.ts` sesuai R-012: bungkus `getItem`/`setItem` dengan deteksi kuota-penuh dan mode-diblokir, kembalikan **hasil eksplisit** (berhasil/gagal beserta sebabnya) alih-alih melempar atau mengembalikan `null` yang ambigu
+  **Kenapa hasil eksplisit**: `progress/store.ts` saat ini mengembalikan `siswaBaru()` diam-diam saat gagal parse — siswa melihat progresnya "hilang" tanpa satu pun pesan. Itu persis pelanggaran FR-026 yang story ini tutup, dan ia tidak akan tertutup oleh pembungkus yang juga diam.
+- [ ] T055 [US8] Satukan kedua tangga migrasi ke satu tempat: pindahkan `migrasiSiswa()` (`src/progress/store.ts`) dan migrasi `LearnerProfile` (`src/profile/store.ts`) ke modul migrasi bersama yang dipakai keduanya lewat `src/storage/safeStorage.ts`. Bergantung pada T054
+  **Kenapa ini bagian US8 dan bukan pembersihan opsional**: `data-model.md` awalnya menetapkan aturan migrasi didefinisikan **sekali**; T033/T034 terpaksa mengimplementasikannya terpisah karena `safeStorage.ts` adalah artefak P2 sementara migrasi dibutuhkan di P1. Dua tangga migrasi yang perlahan berbeda perilaku adalah persis kegagalan yang R-012 ingin cegah. Task ini MUST menyatukan **logika migrasinya**, bukan hanya membungkus `getItem`/`setItem` — lihat § Dibawa ke pass P2 butir 1.
+- [ ] T056 [P] [US8] Implementasikan `src/storage/StorageWarningBanner.tsx` memakai token `src/design/tokens.ts` — peringatan yang terlihat siswa saat penulisan gagal, dengan nada Prinsip V (tenang dan menjelaskan, bukan alarm merah)
+- [ ] T057 [US8] Sambungkan banner ke `src/student/StudentApp.tsx` dan pastikan penyelesaian pelajaran yang gagal disimpan memberi tahu siswa pada saat itu juga, bukan hanya saat aplikasi dibuka. Bergantung pada T054, T056
+- [ ] T058 [P] [US8] Unit test di `tests/unit/safe-storage.test.ts`: simulasikan `QuotaExceededError` dan `localStorage` yang melempar saat diakses (mode privasi), verifikasi aplikasi tetap berfungsi, hasil gagal terlaporkan eksplisit, dan tidak ada jalur yang mengembalikan state kosong tanpa sinyal
+- [ ] T059 [US8] Jalankan Quickstart V-8 (kedua kondisi di browser sungguhan) dan catat hasilnya di `quickstart.md`
+
+**Checkpoint**: FR-026 tertutup dan duplikasi migrasi dari P1 terbayar — US8 dapat didemokan
+independen.
+
+---
+
+## Phase 14: User Story 9 - Dapat Dipakai Penuh dengan Keyboard dan Screen Reader (Priority: P2)
+
+**Goal**: Alur inti dapat diselesaikan dengan keyboard saja maupun dengan screen reader, dan
+seluruh kontras memenuhi WCAG 2.1 AA.
+
+**Independent Test**: Selesaikan Atlas → pelajaran → ringkasan progres hanya dengan
+Tab/Enter/Escape; ulangi dengan screen reader desktop dan mobile; jalankan pemeriksa kontras
+otomatis pada seluruh layar utama.
+
+- [ ] T060 [US9] Aktifkan `vitest-axe` (sudah terpasang sejak T001, nol dipakai): daftarkan matcher di `tests/setup.ts` dan buat `tests/unit/a11y.test.tsx` yang menjalankan audit pada layar inti Batch 1 (`HomeScreen`, katalog, `SettingsScreen`, `PrivacyPolicy`) plus `LessonShell`
+  **Kenapa duluan**: tanpa ini, T061–T063 memperbaiki hal yang tidak ada penegaknya, dan regresi berikutnya lolos tanpa terdeteksi. R-007 menetapkan kombinasi statis (`jsx-a11y`, sudah aktif lewat T045) + otomatis (task ini) + manual (T065).
+- [ ] T061 [US9] Perbaiki seluruh pelanggaran kontras yang ditemukan T060 pada token warna `src/design/tokens.ts` dan pemakaiannya, terhadap ambang SC-011: 4,5:1 teks normal, 3:1 teks besar/batas komponen/indikator fokus. Bergantung pada T060
+  **Batas**: perubahan MUST tetap di dalam nada "Soft Academic Adventure" (Prinsip V) — menaikkan kontras bukan alasan untuk warna kontras-tinggi yang keras. Bila sebuah token tidak bisa memenuhi ambang tanpa merusak nada, catat trade-off-nya, jangan diam-diam melewatinya.
+- [ ] T062 [US9] Audit dan perbaiki label screen reader di `src/student/` dan `src/shell/` terhadap SC-012: setiap kontrol interaktif mengumumkan nama, peran, dan status; setiap gambar bermakna (`ArtworkFrame`, maskot Lumo, ilustrasi katalog) punya deskripsi yang menjelaskan **maknanya**, bukan nama berkas atau kata generik
+- [ ] T063 [US9] Umumkan perpindahan langkah pelajaran ke screen reader di `src/shell/LessonShell.tsx` (live region atau pemindahan fokus yang disengaja), sesuai klausa ketiga SC-012
+  **Kenapa ini di Shell dan bukan di modul**: transisi langkah dimiliki `LessonShell` (Prinsip II, FR-024) — menaruh pengumuman di modul akan menduplikasinya empat kali dan membuka jalan bagi modul untuk berbeda perilaku.
+- [ ] T064 [US9] Tinjau `eslint-disable no-autofocus` yang sengaja ditinggalkan di `src/student/OnboardingFlow.tsx` (T045): autofocus membuat screen reader melewati `StepHeading`. Perbaiki atau naikkan menjadi keputusan tertulis dengan alasannya
+- [ ] T065 [US9] Jalankan Quickstart V-9 dan catat hasilnya di `quickstart.md`: lintasan keyboard-only penuh (SC-008: urutan Tab mengikuti urutan visual, fokus selalu terlihat, tanpa jebakan fokus) dan lintasan screen reader pada **minimal satu screen reader desktop dan satu mobile** (SC-012)
+
+**Checkpoint**: FR-021, FR-022, FR-023 masing-masing punya gerbang yang berjalan — dua otomatis,
+satu manual. US9 dapat didemokan independen.
+
+---
+
+## Phase 15: User Story 10 - Waktu Muat Tetap Cepat Seiring Produk Bertambah Besar (Priority: P2)
+
+**Goal**: Waktu muat dan biaya data terukur terhadap anggaran tetap, bukan terhadap kesan.
+
+**Independent Test**: Ukur build production dengan protokol SC-007 pada URL staging; bandingkan
+hasilnya dengan anggaran SC-007 (< 3 detik median) dan SC-013 (≤ 600 KB unduhan awal).
+
+- [ ] T066 [US10] Pasang `@lhci/cli` di `package.json` (ditunda sejak T001) dan terapkan **keputusan kerentanan yang sama** dengan yang dipilih di T046 untuk ~5 kerentanan `high` yang dibawa rantai Lighthouse/Puppeteer — jangan melemahkan gerbang, dan jangan menciptakan kebijakan kedua
+  **Kenapa satu kebijakan**: dua cara berbeda memperlakukan kerentanan di satu `package.json` adalah cara tercepat kehilangan jejak kenapa sebuah kerentanan dibiarkan. Bergantung pada T046.
+- [ ] T067 [US10] Buat `.github/workflows/lighthouse.yml` per R-008 dengan konfigurasi yang **persis** mengikuti protokol SC-007: 1,6 Mbps unduh / 750 Kbps unggah, 150 ms RTT, pelambatan CPU 4×, cache kosong, 5 run, ambil **median**, dijalankan terhadap URL staging yang sudah ter-deploy (bukan dev server). Assertion: median < 3 detik dan tidak ada satu run pun > 5 detik. Bergantung pada T066
+  **Prasyarat**: butuh staging yang hidup — bergantung pada T011 (dan karena itu pada T046).
+- [ ] T068 [US10] Tambahkan assertion anggaran ukuran di konfigurasi Lighthouse yang sama: total unduhan kunjungan pertama ≤ 600 KB terkompresi transfer (SC-013), dan simpan angkanya sebagai baseline yang dibaca SC-009. Bergantung pada T067
+- [ ] T069 [US10] Buat langkah prebuild kompresi aset di `build/` per R-009, terhadap anggaran numerik FR-017: ikon UI ≤ 20 KB per berkas, gambar layar pertama ≤ 100 KB
+  **Baseline terukur 2026-08-11**: `public/assets` 3,4 MB, di antaranya `icon_clipboard.png` 379 KB, `icon_target.png` 339 KB, `icon_barchart.png` 275 KB, `icon_star.png` 244 KB — ikon yang seharusnya belasan KB — plus `math_banner.png` 548 KB dan `lumera_logo.png` 477 KB. Keadaan sekarang melanggar FR-017 dengan selisih besar; ini bukan optimasi mikro.
+- [ ] T070 [US10] Muat `public/assets/koji-gameboard.riv` (964 KB) secara lazy hanya pada layar yang memakainya, bukan pada muat awal (R-009, klausa ketiga FR-017)
+  **Hati-hati**: `wrangler.jsonc` `run_worker_first: true` dan CSP dari `worker/security-headers.js` berlaku pada setiap response — verifikasi aset yang dimuat belakangan tidak diblokir CSP (risiko yang sama yang T022 tandai).
+- [ ] T071 [US10] Jalankan Quickstart V-10 dan catat angkanya di `quickstart.md`: median 5 run, total unduhan awal, dan ukuran aset terbesar setelah kompresi — sebagai baseline yang dibandingkan SC-009 di US11
+
+**Checkpoint**: FR-016 dan FR-017 terukur terhadap angka, bukan kesan; SC-007 dan SC-013 punya
+gerbang di CI. US10 dapat didemokan independen.
+
+---
+
+## Phase 16: User Story 11 - Menambah Modul Pelajaran Tidak Membengkakkan atau Merusak yang Lama (Priority: P2)
+
+**Goal**: Modul dimuat hanya saat diakses, tanpa mengorbankan penolakan registry yang menjaga
+kualitas konten.
+
+**Independent Test**: Tambahkan satu modul contoh ke registry tanpa menyentuh `LessonShell` atau
+modul lain; ukur perubahan unduhan awal terhadap baseline T071.
+
+- [ ] T072 [US11] Pisahkan **metadata modul** (`conceptIds`, `verifikasi`, `prompt`, `pertanyaanRefleksi`) dari **komponen beratnya** (`VisualModel`, `UserAction`) pada tipe kontrak di `src/shell/registry.ts` dan keempat modul di `src/modules/`, sehingga metadata dapat didaftarkan seketika sementara komponen di-`import()` belakangan
+  **Kenapa task ini ada dan MUST dikerjakan lebih dulu**: R-013 meminta impor statis diganti `React.lazy()` + dynamic `import()`. Diterapkan naif, itu **merusak invarian inti**: `daftarkanSemuaModul()` berjalan di `src/main.tsx` sebelum render supaya registry menolak modul cacat dan aplikasi gagal keras saat start (CLAUDE.md, Prinsip IV). Modul yang seluruhnya lazy tidak bisa divalidasi saat start — kegagalan baru muncul saat siswa membuka modulnya, yaitu persis yang dicegah desain sekarang. Memisahkan metadata dari komponen mempertahankan penolakan-saat-start **dan** mendapat code-splitting; keduanya, bukan salah satu.
+- [ ] T073 [US11] Ubah `src/modules/index.ts` ke dynamic `import()` per modul untuk bagian komponen saja, dengan `daftarkanSemuaModul()` tetap mendaftarkan dan memvalidasi seluruh metadata secara sinkron saat start. Bergantung pada T072
+- [ ] T074 [US11] Tambahkan penanganan status memuat di `src/shell/LessonShell.tsx` untuk komponen modul yang belum ter-resolve, tanpa mengubah urutan tujuh langkah (FR-024, Prinsip II). Bergantung pada T073
+- [ ] T075 [P] [US11] Perluas test penolakan registry di `tests/unit/` agar membuktikan penolakan **tetap terjadi saat start** setelah lazy loading: modul dengan `conceptIds` kosong, slot hilang, `penjelasanKenapa` kosong untuk salah satu hasil, atau `verifikasi` tidak lengkap MUST tetap membuat `daftarkanSemuaModul()` melempar. Bergantung pada T073
+- [ ] T076 [US11] Ukur unduhan awal sebelum dan sesudah menambahkan satu modul contoh terhadap baseline T071, verifikasi selisihnya < 5% (SC-009), dan catat di `quickstart.md` § V-11. Bergantung pada T068, T073
+
+**Checkpoint**: FR-025 tertutup tanpa melemahkan FR-024 maupun penegakan Prinsip IV oleh registry.
+
+---
+
+## Phase 17: User Story 12 - Data Siap Dipetakan ke Backend Tanpa Menulis Ulang (Priority: P3)
+
+**Goal**: Bentuk data progres dan telemetry terdokumentasi sebagai kontrak berversi yang terbukti
+dapat dipetakan ke API tanpa mengubah bentuk data yang sudah tersimpan di perangkat siswa.
+
+**Independent Test**: Tinjau kontrak terhadap bentuk data aktual di kode; jalankan latihan
+pemetaan ke bentuk API dan verifikasi tidak ada bentuk data lama yang perlu berubah.
+
+- [ ] T077 [US12] Tulis `contracts/data-schema-contract.md`: bentuk persisten `Siswa`, `LearnerProfile`, dan event telemetry berikut `schemaVersion` masing-masing, plus aturan versioning eksplisit (perubahan tidak backward-compatible MUST menaikkan versi dan menyertakan langkah migrasi; bentuk lama MUST NOT diubah diam-diam) per R-011
+- [ ] T078 [US12] Jalankan latihan pemetaan tertulis dari ketiga skema di atas ke bentuk endpoint API hipotetis, dan catat hasilnya di kontrak yang sama — termasuk setiap tempat yang **tidak** memetakan bersih, bila ada. Bergantung pada T077
+  **Kenapa latihan ini yang jadi gerbangnya**: FR-027 menjanjikan skema yang "dapat dipetakan ke API backend di masa depan tanpa mengubah bentuk data yang sudah ada". Itu klaim yang hanya bisa dibuktikan dengan mencobanya; membaca ulang skema sendiri tidak membuktikan apa pun. Ini juga masukan langsung bagi spec 003 (`spec.md` § Arah Backend).
+- [ ] T079 [P] [US12] Unit test aturan versioning di `tests/unit/schema-migration.test.ts` (perluas yang sudah ada): data versi lama MUST termigrasi, data dengan versi tak dikenal MUST ditolak dengan error terlihat, dan bentuk hasil migrasi MUST sesuai kontrak T077
+- [ ] T080 [US12] Jalankan Quickstart V-12 (tinjau kontrak terhadap kode aktual) dan catat hasilnya di `quickstart.md`
+
+**Checkpoint**: FR-027 terbukti lewat latihan pemetaan, bukan diasumsikan dari niat desain.
+Seluruh Tahap 2 selesai — **T050 (review konstitusi pasca-Tahap 2) adalah gerbang terakhir sebelum
+label "siap produksi" boleh dipakai.**
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -256,6 +427,19 @@ blocker diam-diam US3 tertutup sebelum akun Sentry dibuat — bukan setelah gaga
 - **US7 khusus**: implementasi (T033–T039) independen; validasi manual (T040) bergantung pada
   `specs/001-core-mvp-prototype` T086 dan T087 — dependensi eksternal ke spec lain, bukan ke task
   manapun dalam file ini
+- **Phase 11 (T046–T050)**: T046 **MEMBLOKIR seluruh validasi lingkungan sungguhan** (T008, T011,
+  dan sisa T022) — selama gerbang audit merah, tidak ada commit yang mencapai `deploy.yml`, jadi
+  tidak ada staging untuk diverifikasi. T047 dan T048 independen satu sama lain dan dari T046.
+  T049 menunggu seluruh Quickstart P1 selesai; T050 menunggu US8–US12
+- **Phase 12 (T051–T053)**: T051 butuh pipeline deploy yang hidup (dan karena itu T046); T052
+  murni kode, bisa sekarang; T053 aksi manusia berkompetensi khusus, dijadwalkan terpisah
+- **US8, US9, US12 (Phase 13, 14, 17)**: independen satu sama lain dan dari US10/US11 — bisa
+  dikerjakan paralel tiga developer. Tidak satu pun bergantung pada lingkungan eksternal
+- **US10 (Phase 15)**: **paling terikat** — T066 bergantung pada keputusan T046, T067 butuh
+  staging hidup (T011). Ini story Tahap 2 yang paling mungkin tertahan blocker P1
+- **US11 (Phase 16)**: T072 MUST mendahului T073–T075 (pemisahan metadata sebelum lazy loading);
+  T076 juga bergantung pada T068 karena butuh baseline ukuran dari US10 — satu-satunya tempat
+  US11 menyentuh US10
 
 ### Within Each Story
 
@@ -272,6 +456,11 @@ blocker diam-diam US3 tertutup sebelum akun Sentry dibuat — bukan setelah gaga
   dikerjakan hingga lima developer paralel begitu Setup (Phase 1) selesai
 - T015 (US3), T021 (US4), T024 (US5), T031 (US6), T028+T034+T039 (US6/US7) — seluruh task
   bertanda `[P]` dalam story yang sama bisa paralel dengan task `[P]` lain di story yang sama
+- **Tahap 2**: US8 (T054–T059), US9 (T060–T065), dan US12 (T077–T080) bisa dikerjakan tiga
+  developer serentak — tidak berbagi berkas dan tidak berbagi dependensi. T056 (`StorageWarningBanner`),
+  T058 (test safeStorage), T075 (test registry), dan T079 (test versioning) bertanda `[P]`
+- **Yang TIDAK bisa paralel meski terlihat begitu**: T072 → T073 → T074 (satu rantai berkas yang
+  sama), dan T066 → T067 → T068 (konfigurasi Lighthouse yang sama)
 
 ---
 
@@ -310,7 +499,12 @@ Developer G: T009–T011  (US2 Staging)
 2. US1 + US2 → pipeline deploy aman dengan staging — semua rilis berikutnya lewat jalur ini
 3. US3, US4, US5, US6, US7 → paralel, masing-masing diverifikasi independen lewat Quickstart-nya
 4. US7 khusus: implementasi selesai, tapi tandai T040 sebagai item terbuka sampai spec 001 T086/T087 selesai
-5. Setelah seluruh P1 (US1–US7) selesai dan tervalidasi → lanjut `/speckit-tasks` untuk P2/P3 (US8–US12)
+5. **T046 sebelum apa pun yang butuh lingkungan sungguhan** — gerbang audit merah menahan seluruh
+   pipeline deploy, jadi ia mendahului sisa Tahap 1 maupun US10
+6. Tahap 2: US8, US9, US12 bisa jalan kapan saja (murni kode lokal); US10 dan US11 menunggu
+   staging hidup
+7. **T049 lalu T050** — dua review konstitusi adalah gerbang terakhir masing-masing tahap. Label
+   "siap produksi" MUST NOT dipakai sebelum T050 selesai (`spec.md` § Definisi "Siap Produksi")
 
 ### Jika waktu menyempit
 
@@ -329,13 +523,31 @@ penuh — menunda seluruh story tidak menambah risiko baru di atas yang sudah ad
 - Commit setelah tiap task atau kelompok logis
 - Berhenti di tiap checkpoint untuk memvalidasi story secara independen
 - US8–US12 (P2/P3: ketahanan localStorage, aksesibilitas, performa, code-splitting modul, kontrak
-  skema siap-backend) **belum** ada di file ini — akan digenerate lewat `/speckit-tasks` lagi
-  setelah P1 selesai/tervalidasi, sesuai instruksi eksplisit untuk fokus P1 dulu
+  skema siap-backend) **sudah ada** sejak pass `/speckit-tasks` kedua, 2026-08-11 — Phase 13–17,
+  T054–T080
+- **Pass `/speckit-specify` sudah dijalankan (2026-08-11)** — ketujuh temuan analisis yang menuntut
+  perubahan requirement sudah masuk ke `spec.md`, jadi `/speckit-tasks` untuk US8–US12 kini boleh
+  berjalan di atas kriteria yang terukur. Yang berubah dan MUST dibaca saat men-generate US8–US12:
+  - **FR-028** (baru) — jejak verifikasi staging pada setiap rilis production; butuh task sendiri
+  - **FR-005** diperkuat — versi live MUST dapat dibaca dari aplikasi yang berjalan (sudah ada T047)
+  - **FR-017** kini punya anggaran numerik (gambar layar pertama ≤ 100 KB, ikon ≤ 20 KB, aset besar
+    lazy) dan **SC-013** (unduhan awal ≤ 600 KB terkompresi) — baseline terukur menunjukkan keadaan
+    sekarang melanggarnya jauh: `public/assets` 3,4 MB, empat ikon PNG 244–379 KB, bundel JS 533 KB
+  - **SC-007** kini punya protokol pengukuran tetap (1,6 Mbps/150 ms/CPU 4×, cache kosong, 5 run,
+    median, diukur di staging) — US10 MUST memakai protokol ini, bukan menciptakan sendiri
+  - **SC-011** (kontras) dan **SC-012** (screen reader) baru — US9 kini punya definisi selesai
+  - **Tabel gerbang Tahap 2 per-requirement** menggantikan daftar tiga SC; FR-026 dan FR-027 kini
+    punya gerbang eksplisit
+  - **§ Arah Backend** dan **§ Yurisdiksi dan Dasar Hukum Privasi** baru di spec — yang kedua
+    menuntut task review kebijakan privasi oleh peninjau kompeten yang bukan penulisnya
+  - **FR-018** kini menyatakan nama tampilan ikut diekspor, dengan kewajiban turunan pada FR-013
 
-### Dibawa ke pass P2 — MUST masuk saat US8–US12 digenerate
+### Dibawa ke pass P2 — ✅ SUDAH TERSERAP (2026-08-11)
 
-Dicatat di sini supaya tidak hilang di antara dua pass `/speckit-tasks`. Ini bukan niat, ini
-daftar yang MUST dibaca saat pass berikutnya dibuat:
+Ketiga butir di bawah ditulis sebelum US8–US12 ada, supaya tidak hilang di antara dua pass
+`/speckit-tasks`. Pass kedua sudah dijalankan dan **ketiganya sudah punya task**: butir 1 → T055,
+butir 2 → T060 dan T064, butir 3 → T066. Teks aslinya dipertahankan di bawah sebagai alasan
+mengapa task-task itu ada — bukan sebagai pekerjaan yang masih menunggu.
 
 1. **Konsolidasi logika migrasi (US8, dari temuan I2)**. `data-model.md` awalnya menetapkan aturan
    migrasi didefinisikan **sekali** di `src/storage/safeStorage.ts` dan dipakai ulang kedua store.
@@ -347,29 +559,45 @@ daftar yang MUST dibaca saat pass berikutnya dibuat:
 2. **Aktivasi penuh gerbang a11y (US9)**. T045 sudah memasang `jsx-a11y` untuk `src/`, tapi
    `vitest-axe` (uji kontras/label, R-007) belum. Selain itu satu `eslint-disable` di
    `OnboardingFlow.tsx` sengaja ditinggalkan untuk ditinjau saat lintasan manual V-9.
+   **Diperkuat 2026-08-11**: `vitest-axe` bukan sekadar "belum dipakai penuh" — **nol** berkas di
+   `tests/` meng-impornya, jadi ia dependency mati di `package.json`. Sampai US9 digarap, satu-satunya
+   gerbang a11y yang benar-benar berjalan adalah lint statis `jsx-a11y`; klaim cakupan a11y apa pun
+   di luar itu tidak punya penegak. Task US9 juga MUST menunggu SC kontras/screen-reader ditambahkan
+   lewat `/speckit-specify` (lihat § Notes) — tanpa itu, "selesai" tidak terdefinisi.
 3. **`@lhci/cli` (US10)**. Masih ditunda sejak T001 karena membawa ~5 kerentanan `high` ke gerbang
    `npm audit --audit-level=high`. Saat US10 digarap, pemasangannya MUST disertai keputusan
    eksplisit soal kerentanan tersebut (pin/override/kecualikan), bukan melemahkan gerbangnya.
+   **Catatan 2026-08-11**: keputusan yang diambil di T046 untuk 7 kerentanan devDependency yang ada
+   sekarang MUST dipakai ulang di sini — dua kebijakan berbeda untuk masalah yang sama di satu
+   `package.json` adalah cara tercepat kehilangan jejak kenapa sebuah kerentanan dibiarkan.
 
 ---
 
 ## Status Implementasi (diperbarui 2026-08-11)
 
-**36 dari 45 task selesai** (branch `002-production-readiness`).
+**36 dari 80 task selesai** (branch `002-production-readiness`). Tahap 1 (P1): 36 dari 50. Tahap 2
+(P2/P3, T054–T080): 0 dari 27 — belum dimulai.
 
 Catatan koreksi: revisi sebelumnya menulis "29 dari 40" — hitungan sebenarnya saat itu **31 dari
 40** (tabel "yang belum selesai" di bawah, yang berisi 9 task, sudah benar sejak awal; hanya
-angka ringkasannya yang salah). Ditambah T041–T045 dari Phase 10, totalnya kini 45 task dengan
-9 task terbuka yang sama seperti sebelumnya.
+angka ringkasannya yang salah). Ditambah T041–T045 (Phase 10) totalnya menjadi 45, lalu T046–T050
+(Phase 11) menjadikannya 50. Pass `/speckit-tasks` kedua menambahkan T051–T053 (Phase 12,
+requirement susulan) dan T054–T080 (Phase 13–17, US8–US12), sehingga totalnya kini **80 task
+dengan 44 terbuka**.
 
 `npx tsc -b`, `npm run lint` (kini **termasuk gerbang `jsx-a11y`**, T045), dan `npx vitest run`
 seluruhnya bersih. Build production (`npm run build`) sukses, nol berkas `.map` di `dist/`.
 
+**`npm audit --audit-level=high` TIDAK bersih** — 7 kerentanan `high` pada devDependency membuat
+gerbang 4 CI merah. Ini satu-satunya gerbang pra-push (CLAUDE.md) yang gagal, dan konsekuensinya
+melampaui dirinya sendiri: seluruh validasi lingkungan sungguhan di bawah menunggunya. Lihat T046.
+
 ### Yang BELUM selesai dan alasannya
 
-Sama seperti spec 001: seluruhnya butuh akun/lingkungan sungguhan (GitHub Actions aktif,
-kredensial Cloudflare, akun Sentry, sesi browser manual) yang berada di luar jangkauan lingkungan
-implementasi ini — bukan pekerjaan kode yang terlewat.
+Sebagian besar butuh akun/lingkungan sungguhan (GitHub Actions aktif, kredensial Cloudflare, akun
+Sentry, sesi browser manual) yang berada di luar jangkauan lingkungan implementasi ini — bukan
+pekerjaan kode yang terlewat. **Pengecualian: T046 dan T047 adalah pekerjaan kode yang bisa
+dikerjakan sekarang juga**, dan T046 adalah prasyarat bagi seluruh baris lain di tabel ini.
 
 | Task | Kenapa belum |
 |---|---|
@@ -377,16 +605,26 @@ implementasi ini — bukan pekerjaan kode yang terlewat.
 | T012, T016, T017 | Butuh akun & dashboard Sentry sungguhan. Jalur teknisnya kini lengkap: DSN mengalir ke build (T041) dan penyaringan PII sudah default-deny (T042) — tersisa murni aksi akun + isi secret `SENTRY_DSN`, lalu pasang kedua ambang alert dari `plan.md` § Observability Goals |
 | T022, T026, T032 | Sebagian selesai (lihat catatan per-task) — sisanya butuh sesi verifikasi browser manual (CSP vs aset nyata, XSS lewat DevTools, kebijakan privasi di aplikasi yang benar-benar jalan) |
 | T040 | Blocker lintas-spec **masih berlaku**: T086 (spec 001) selesai di branch terpisah `001-convergence-fixes` yang belum digabung; T087 (spec 001) masih task terbuka |
+| T046 | **Bisa dikerjakan sekarang** — butuh keputusan eksplisit antara tiga opsi (lihat task), bukan lingkungan eksternal. Memblokir T008, T011, T022 |
+| T047 | **Bisa dikerjakan sekarang** — perubahan kode di `worker/security-headers.js` + test; verifikasi live-nya menumpang pada T011 |
+| T048 | Konfigurasi notifikasi butuh keputusan kanal (email/Slack/lainnya) dari tim; bagian runbook bisa ditulis sekarang |
+| T049 | Menunggu Quickstart P1 (T008, T011, T022, T026, T032) dijalankan — review sebelum itu hanya mereview niat |
+| T050 | Menunggu US8–US12 yang belum digenerate |
 
 ### Deviasi dari rencana awal
 
 - **T001**: `@lhci/cli` sengaja ditunda ke US10 (P2) — instalasinya sekarang akan langsung
   meloloskan ~5 kerentanan `high` baru ke gerbang `npm audit --audit-level=high` yang baru
   dibangun di task yang sama.
-- **`npm audit fix`** untuk 10 kerentanan baseline pra-eksisting (toolchain wrangler/typescript-eslint,
-  bukan dependency aplikasi) tidak bisa dijalankan di lingkungan lokal ini — file lock Windows dari
-  proses `workerd.exe` sisa. Seluruhnya `fixAvailable: true`; aman dijalankan di runner CI bersih
-  atau setelah proses wrangler/vitest lokal ditutup.
+- **`npm audit fix`** — ~~10 kerentanan baseline (toolchain wrangler/typescript-eslint); file lock
+  Windows; aman dijalankan di runner CI bersih~~. **Dicabut 2026-08-11**: tiga klaim, tiga salah.
+  (a) Angkanya **7 `high`** dari 10 total lintas semua tingkat. (b) Sumbernya `@cloudflare/vite-plugin`
+  → `miniflare` → `sharp`/`undici`/`ws`, `wrangler` → `miniflare`, dan `jsdom` → `ws`; `typescript-eslint`
+  tidak terlibat. (c) "Aman di runner CI bersih" menyesatkan dua kali: `npm audit fix` bukan sekadar
+  tertahan file lock — ia menaikkan `miniflare` ke `5.x-alpha` — **dan** menjalankannya di runner tidak
+  menolong sama sekali, karena gerbang audit berjalan setelah `npm ci`, jadi perbaikan hanya berlaku
+  bila `package-lock.json`-nya di-commit. Verifikasi ulang: `npm audit --omit=dev` → 0 kerentanan
+  (produksi bersih), gerbang CI tetap merah. Remediasi: **T046**.
 - **T006 "`needs: ci`"**: diimplementasikan sebagai `workflow_run` (GitHub Actions tidak punya
   `needs` lintas file workflow) — perilaku gate-nya setara.
 

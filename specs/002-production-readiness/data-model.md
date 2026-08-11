@@ -68,6 +68,13 @@ luar daftar ini MUST disaring oleh `beforeSend` sebelum terkirim (lihat R-004).
 | Isi `localStorage` apapun | — | **Tidak pernah**. |
 | IP address, user agent penuh | — | **Tidak pernah** disimpan melebihi default minimal Sentry — dinonaktifkan lewat konfigurasi `sendDefaultPii: false`. |
 
+**Soal "waktu kejadian"** (klarifikasi 2026-08-11): entity *Laporan Error Produksi* di `spec.md`
+§ Key Entities menyebut waktu kejadian sebagai bagian dari laporan, tetapi field itu **sengaja
+tidak ada** di tabel ini dan ketiadaannya bukan celah. Timestamp dibubuhkan Sentry di sisi
+penerima, bukan dikirim oleh klien — tabel ini hanya mengatur field yang **keluar dari perangkat
+siswa**. Menambahkan timestamp buatan klien justru memperluas permukaan tanpa manfaat: ia
+mengikuti jam lokal perangkat, yang bisa dipakai sebagai sinyal sidik jari lemah.
+
 ## Rilis/Deployment (konseptual — metadata CI/CD, bukan data aplikasi)
 
 Tidak disimpan di `localStorage` atau database manapun — hidup sebagai metadata GitHub
