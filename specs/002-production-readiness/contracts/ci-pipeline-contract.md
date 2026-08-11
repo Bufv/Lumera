@@ -8,16 +8,26 @@ termasuk kontributor masa depan yang belum tahu daftar ini ada.
 
 | # | Gerbang | Alat | Gagal → |
 |---|---|---|---|
-| 1 | Lint (termasuk aturan `jsx-a11y`) | `npm run lint` | Blokir merge |
+| 1 | Lint (termasuk aturan `jsx-a11y` pada `src/**/*.tsx`) | `npm run lint` | Blokir merge |
 | 2 | Type-check | `tsc -b` (bagian dari `npm run build`, dijalankan terpisah lebih awal untuk sinyal lebih cepat) | Blokir merge |
 | 3 | Unit test | `npm test` (`vitest run`) | Blokir merge |
 | 4 | Audit kerentanan dependency | `npm audit --audit-level=high` | Blokir merge jika ada temuan kritis/tinggi pada dependency yang berubah di PR ini |
 | 5 | Build production | `npm run build` | Blokir merge (build harus sukses sebelum deploy manapun dianggap mungkin) |
 
-`lighthouse.yml` (R-008) berjalan **terpisah** dari `ci.yml` — dijalankan terhadap build hasil
-langkah 5 di atas, tapi kegagalan anggaran performa MUST menghasilkan peringatan yang terlihat,
-bukan otomatis memblokir merge di iterasi pertama (anggaran konkret baru punya baseline nyata
-setelah beberapa run pertama — lihat Assumptions `spec.md`).
+Catatan cakupan gerbang 1: `jsx-a11y` sengaja dibatasi ke `src/` — hanya itu kode yang dikirim ke
+siswa. `docs/sample/` dan `Beranda.tsx` di root adalah artefak referensi yang tidak pernah
+dirender (lihat CLAUDE.md); memerahkan CI karenanya menambah kebisingan tanpa siswa yang
+diuntungkan. Uji aksesibilitas otomatis yang lebih dalam (`vitest-axe`, R-007) **belum** menjadi
+gerbang — menyusul di US9.
+
+`lighthouse.yml` (R-008) direncanakan berjalan **terpisah** dari `ci.yml` — dijalankan terhadap
+build hasil langkah 5 di atas, tapi kegagalan anggaran performa MUST menghasilkan peringatan yang
+terlihat, bukan otomatis memblokir merge di iterasi pertama (anggaran konkret baru punya baseline
+nyata setelah beberapa run pertama — lihat Assumptions `spec.md`).
+
+> **Status 2026-08-11**: `lighthouse.yml` **belum ada** — bagian dari US10 (P2), bersama
+> pemasangan `@lhci/cli` yang masih ditunda sejak T001. Dicatat eksplisit di sini karena Aturan 2
+> di bawah menuntut dokumen ini mencerminkan yang benar-benar berjalan, bukan aspirasi.
 
 ## Alur Deploy (`deploy.yml`)
 

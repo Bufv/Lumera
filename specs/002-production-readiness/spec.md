@@ -289,12 +289,12 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 **Kepatuhan Privasi Anak & Hukum**
 
 - **FR-013**: Aplikasi MUST menyediakan kebijakan privasi yang dapat diakses siswa/orang tua, menjelaskan data yang dikumpulkan dan cara penggunaannya dalam bahasa non-teknis.
-- **FR-014**: Karena audiens inti berusia di bawah 18 tahun, pengumpulan data MUST dibatasi pada prinsip minimal-perlu dan MUST NOT mengumpulkan data yang tidak berkaitan langsung dengan pengalaman belajar.
+- **FR-014**: Karena audiens inti berusia di bawah 18 tahun, setiap data yang **dikumpulkan atau dikirim keluar dari perangkat siswa** — termasuk ke layanan pihak ketiga seperti pemantauan error — MUST dibatasi pada prinsip minimal-perlu dan MUST NOT memuat data yang tidak berkaitan langsung dengan pengalaman belajar. (Berbeda dari FR-010, yang mengatur apa yang boleh *disimpan* di perangkat; FR-014 mengatur apa yang boleh *keluar* darinya — kontraknya di `data-model.md` § ErrorReportContext.)
 - **FR-015**: Sistem MUST menyediakan mekanisme bagi siswa untuk menghapus seluruh data lokal miliknya dalam satu aksi yang jelas.
 
 **Performa**
 
-- **FR-016**: Sistem MUST menetapkan anggaran waktu muat halaman awal (time-to-interactive) untuk koneksi mobile umum, dan build production MUST diukur terhadap anggaran tersebut sebelum rilis.
+- **FR-016**: Sistem MUST menetapkan anggaran waktu muat halaman awal (time-to-interactive) untuk koneksi mobile umum, dan build production MUST diukur terhadap anggaran tersebut sebelum rilis. Anggaran tersebut adalah **SC-007 (< 3 detik pada simulasi 4G standar)** — dirujuk di sini agar requirement ini dapat dibaca berdiri sendiri.
 - **FR-017**: Aset visual (gambar, ikon, artwork) yang dirilis MUST dioptimasi/dikompresi sehingga tidak menjadi kontributor dominan waktu muat.
 
 **Backup & Pemulihan Data**
@@ -311,7 +311,7 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 
 **Skalabilitas Arsitektur**
 
-- **FR-024**: Setiap modul pelajaran baru MUST dapat didaftarkan ke registry tanpa mengubah kode `LessonShell` atau modul lain yang sudah ada.
+- **FR-024**: Setiap modul pelajaran baru MUST dapat didaftarkan ke registry tanpa mengubah kode `LessonShell` atau modul lain yang sudah ada. (Sudah dipenuhi oleh registry spec 001 dan ditegakkan oleh test penolakan registry di sana; spec ini tidak menambah task baru untuknya — verifikasinya menumpang pada Quickstart V-11.)
 - **FR-025**: Modul pelajaran MUST dimuat secara lazy (hanya diunduh saat diakses siswa), sehingga penambahan modul baru MUST NOT memperbesar ukuran unduhan awal aplikasi secara signifikan.
 - **FR-026**: Sistem MUST menangani kondisi `localStorage` penuh atau tidak tersedia dengan pesan yang terlihat oleh siswa, dan MUST NOT gagal diam-diam atau kehilangan progres tanpa peringatan.
 - **FR-027**: Skema data progres dan telemetry MUST didokumentasikan sebagai kontrak versi (schema version) yang dirancang agar dapat dipetakan ke API backend di masa depan tanpa mengubah bentuk data yang sudah ada.
@@ -337,6 +337,21 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 - **SC-008**: Seluruh alur inti dapat diselesaikan dari awal sampai akhir hanya menggunakan keyboard, diverifikasi lewat audit manual.
 - **SC-009**: Menambahkan satu modul pelajaran baru menambah ukuran unduhan awal aplikasi kurang dari 5%.
 - **SC-010**: Audit privasi tidak menemukan data pribadi siswa yang tidak esensial (di luar nama tampilan dan preferensi belajar) tersimpan di perangkat.
+
+### Definisi "Siap Produksi" (bertahap)
+
+Frasa "siap produksi" pada spec ini MUST dibaca sebagai dua tahap, bukan satu saklar. Ini
+mencegah kesimpulan keliru bahwa selesainya P1 berarti produk sudah boleh dilabeli
+production-ready:
+
+| Tahap | Cakupan | Definisi selesai |
+|---|---|---|
+| **Tahap 1 — Operasional & Keamanan** (US1–US7, P1) | CI/CD bergerbang, staging, rollback, pemantauan error, gerbang keamanan, privasi anak & hak hapus data, ekspor/impor progres | Seluruh task P1 selesai **dan** Quickstart V-1 s.d. V-7 dijalankan di lingkungan sungguhan. Status yang tepat sampai itu tercapai: **P1/beta**, bukan "siap produksi". |
+| **Tahap 2 — Pengalaman & Ketahanan** (US8–US12, P2/P3) | Ketahanan `localStorage`, aksesibilitas, anggaran performa, code-splitting, kontrak skema siap-backend | SC-007, SC-008, dan SC-009 terbukti terukur, bukan diasumsikan. |
+
+Label "siap produksi" MUST NOT dipakai sebelum **kedua** tahap tuntas. Rasional US9 sudah
+menyatakan hal yang sama untuk aksesibilitas ("tetap wajib sebelum klaim 'siap produksi'
+dianggap valid"); tabel ini menaikkannya dari catatan di satu story menjadi aturan seluruh spec.
 
 ## Out of Scope
 

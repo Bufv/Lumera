@@ -52,6 +52,21 @@ middleware header di Worker yang sudah ada). Tidak menjadi proyek backend baru.
 (SC-007, diukur Lighthouse CI). Penambahan satu modul pelajaran menambah bundle awal < 5%
 (SC-009, diukur lewat laporan ukuran build Vite di CI).
 
+**Observability Goals (ambang lonjakan error, FR-007)**: memakai **hitungan absolut**, bukan rate
+berbasis persentase — pada skala trafik prototype, satu-dua siswa sudah cukup menggerakkan
+persentase sehingga alert berbasis rate akan berisik tanpa memberi sinyal. Dua aturan alert di
+Sentry (T016):
+
+| Aturan | Ambang | Alasan |
+|---|---|---|
+| A — regresi akut | ≥ 5 event dengan fingerprint sama, dari ≥ 3 sesi berbeda, dalam rolling window **5 menit**, pada satu release production | Window 5 menit dipilih agar SC-003 ("terdeteksi < 5 menit sejak kemunculan pertama") dapat dipenuhi secara struktural, bukan kebetulan. Syarat ≥ 3 sesi berbeda mencegah satu siswa dalam loop reload memicu alert. |
+| B — jaring pengaman volume | ≥ 20 event total dalam **1 jam** pada satu release production | Menangkap kegagalan yang tersebar di banyak fingerprint berbeda (mis. CSP salah konfigurasi) yang tidak terlihat oleh aturan A. |
+
+Kedua angka ini adalah **titik awal yang MUST ditinjau ulang** setelah 2–4 minggu data produksi
+nyata — Assumptions `spec.md` menuntut angka konkret sejak fase perencanaan, bukan angka final
+selamanya. Peninjauan tersebut MUST memperbarui tabel ini, bukan hanya mengubah aturan di dasbor
+Sentry (dasbor bukan sumber kebenaran yang bisa di-review lewat PR).
+
 **Constraints**: Tanpa layanan berbayar tingkat enterprise (Assumptions spec.md) — seluruh
 layanan pihak ketiga yang dipilih (Sentry) MUST tetap dalam tingkatan gratisnya pada skala tim
 dan trafik saat ini. Header keamanan MUST tidak memblokir aset yang sah (Rive/canvas) — diverifikasi
@@ -113,6 +128,7 @@ specs/002-production-readiness/
 ├── contracts/           # Phase 1 output
 │   ├── progress-export-contract.md
 │   ├── security-headers-contract.md
+│   ├── user-input-safety-contract.md   # klausa kedua FR-011 (ditambahkan 2026-08-11)
 │   └── ci-pipeline-contract.md
 └── tasks.md             # Phase 2 output (/speckit-tasks — NOT created by /speckit-plan)
 ```
@@ -155,9 +171,16 @@ wrangler.jsonc                      # DIUBAH — environment bernama `staging` d
 tests/
 └── unit/
     ├── backup.test.ts              # round-trip ekspor/impor, penolakan skema tidak cocok
-    ├── safe-storage.test.ts        # simulasi localStorage penuh/diblokir
-    └── a11y.test.tsx               # axe check pada Atlas, Lesson, ringkasan progres, home Batch 1
+    ├── error-reporting.test.ts     # allowlist scrubBeforeSend — bentuk output persis (US3)
+    ├── security-headers.test.ts    # header kontrak pada response 200 & fallback (US4)
+    ├── xss-safety.test.tsx         # payload skrip pada nama tampilan dirender literal (US5)
+    ├── data-deletion.test.ts       # ketiga kunci storage kosong setelah hapus-semua (US6)
+    ├── schema-migration.test.ts    # tangga migrasi Siswa/LearnerProfile (US7)
+    ├── safe-storage.test.ts        # P2 (US8) — simulasi localStorage penuh/diblokir
+    └── a11y.test.tsx               # P2 (US9) — axe check pada Atlas, Lesson, ringkasan progres
 ```
+
+Berkas P1 di atas sudah ada; dua terakhir menyusul saat US8/US9 digarap.
 
 **Structure Decision**: Single-project frontend, tidak berubah dari spec 001. Ditambah lapisan
 tipis ops (`.github/`) dan lima direktori fitur kecil (`privacy/`, `backup/`, `monitoring/`,

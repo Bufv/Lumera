@@ -13,13 +13,14 @@ description: "Task list for Kesiapan Produksi — Skalabilitas, Keamanan, dan De
 ("tackle P1 first"). US8–US12 (P2/P3) akan digenerate pada pass `/speckit-tasks` berikutnya
 setelah P1 divalidasi, bukan diabaikan.
 
-**Dependensi lintas-spec**: T085 (Atlas reachable) dan T086 (LessonShell reachable) di
-`specs/001-core-mvp-prototype/tasks.md` **tidak** memblokir US1–US6 di bawah — keduanya
-infrastruktur/operasional yang independen dari apakah alur pelajaran sudah tersambung ke live
-app. **US7 (ekspor/impor progres) adalah pengecualian**: implementasinya (T033–T039) bisa selesai
-sekarang dengan data sintetis, tapi validasi manual end-to-end (T040 / Quickstart V-7) terblokir
-sampai T086 dan T087 (spec 001) selesai, karena saat ini tidak ada jalur live yang menghasilkan
-progres nyata untuk diekspor. Lihat T040 untuk detail.
+**Dependensi lintas-spec**: T085 (Atlas reachable), T086 (LessonShell reachable), dan T087
+(sambungkan `Siswa` store nyata ke UI live) di `specs/001-core-mvp-prototype/tasks.md` **tidak**
+memblokir US1–US6 di bawah — seluruhnya infrastruktur/operasional yang independen dari apakah alur
+pelajaran sudah tersambung ke live app. **US7 (ekspor/impor progres) adalah pengecualian**:
+implementasinya (T033–T039) bisa selesai sekarang dengan data sintetis, tapi validasi manual
+end-to-end (T040 / Quickstart V-7) terblokir sampai **T086 dan T087** (spec 001) selesai, karena
+saat ini tidak ada jalur live yang menghasilkan progres nyata untuk diekspor. Lihat T040 untuk
+detail — T087 disebut di sini juga supaya blocker tidak dikira hilang begitu T086 di-merge.
 
 **Tests**: Unit test ditulis untuk logika murni (scrubbing PII, header keamanan, ekspor/impor,
 hapus data) mengikuti pola R-007 spec 001. Verifikasi environment/deploy/CI sungguhan dilakukan
@@ -97,6 +98,7 @@ rollback terdokumentasi dan teruji.
 URL/Worker terpisah, tanpa memengaruhi data/pengalaman di production.
 
 - [X] T009 [US2] Buat job `staging` di `.github/workflows/deploy.yml`: `wrangler deploy --env staging`, dipicu pada push branch manapun selain `main` dengan `needs: ci`
+  **CATATAN**: sama seperti T006 — digerbang lewat `workflow_run` terhadap workflow `CI`, bukan literal `needs: ci` (GitHub Actions tidak mendukung `needs` lintas workflow). Efek gate-nya setara.
 - [X] T010 [US2] Verifikasi nama/URL Worker `staging` berbeda dari `production` dan catat di `docs/ops-runbook.md` (T007) bahwa keduanya tidak berbagi state/storage apapun
 - [ ] T011 [US2] Jalankan Quickstart V-2 dan catat hasilnya di `quickstart.md`
   **BELUM SELESAI**: sama seperti T008 — butuh deploy sungguhan. `wrangler deploy --dry-run --env staging` sukses dan mengenali environment `staging` secara terpisah dari `production`.
@@ -116,11 +118,12 @@ pemantauan dalam < 5 menit tanpa laporan manual, dan field yang terkirim tidak m
 
 - [ ] T012 [US3] Buat project Sentry (tier gratis); simpan DSN sebagai GitHub Actions secret `SENTRY_DSN` dan Cloudflare Worker environment variable untuk `staging`/`production`
   **BELUM SELESAI**: butuh akun/dashboard Sentry sungguhan — aksi eksternal di luar jangkauan implementasi ini. `src/monitoring/errorReporting.ts` (T013) sudah menangani ketiadaan DSN secara eksplisit (`initErrorReporting()` no-op, bukan gagal diam-diam) sehingga aplikasi tetap berjalan normal sampai DSN ini diisi.
+  **KOREKSI 2026-08-11**: DSN adalah variabel **build-time** (`import.meta.env.VITE_SENTRY_DSN`), bukan runtime — menyimpannya sebagai environment variable Worker saja TIDAK akan pernah sampai ke bundle. Jalur build sudah diperbaiki di T041; yang tersisa untuk task ini murni pembuatan akun + pengisian secret `SENTRY_DSN` di GitHub.
 - [X] T013 [US3] Implementasikan `src/monitoring/errorReporting.ts`: inisialisasi Sentry dengan `sendDefaultPii: false` dan `beforeSend` yang **hanya** meloloskan field sesuai `data-model.md` § ErrorReportContext (`message`, `stack`, `route`, `appVersion`) — tolak field lain secara eksplisit, bukan default-allow
 - [X] T014 [US3] Panggil inisialisasi `errorReporting` di `src/main.tsx` sebelum `createRoot(...).render(...)`. Bergantung pada T013
 - [X] T015 [P] [US3] Unit test `beforeSend` di `tests/unit/error-reporting.test.ts`: mock event Sentry berisi `displayName` dan snapshot `localStorage`, verifikasi keduanya tersaring habis sebelum "terkirim"
-- [ ] T016 [US3] Konfigurasikan alert rule ambang lonjakan error di dasbor Sentry sesuai FR-007
-  **BELUM SELESAI**: bergantung pada T012 (akun Sentry belum ada).
+- [ ] T016 [US3] Konfigurasikan alert rule ambang lonjakan error di dasbor Sentry sesuai FR-007, memakai **kedua** ambang konkret di `plan.md` § Observability Goals: (A) ≥ 5 event fingerprint sama dari ≥ 3 sesi berbeda dalam rolling window 5 menit pada satu release production; (B) ≥ 20 event total dalam 1 jam pada satu release production
+  **BELUM SELESAI**: bergantung pada T012 (akun Sentry belum ada). Angkanya sendiri sudah tidak lagi terbuka — sebelumnya task ini hanya berbunyi "sesuai FR-007" yang tidak punya kriteria lolos.
 - [ ] T017 [US3] Jalankan Quickstart V-3 dan catat hasilnya di `quickstart.md` — **verifikasi eksplisit tidak ada PII di event yang benar-benar terkirim**, bukan hanya di unit test mock
   **BELUM SELESAI**: bergantung pada T012. Bagian yang bisa diverifikasi tanpa Sentry sungguhan (logika `scrubBeforeSend`) sudah teruji penuh lewat T015 (4 test, termasuk memastikan `user`/`request`/`breadcrumbs`/`extra`/`contexts` terbuang total).
 
@@ -218,6 +221,29 @@ menunggu penyelesaian T086/T087 di spec 001 (lihat T040).
 
 ---
 
+## Phase 10: Remediasi Temuan `/speckit-analyze` (2026-08-11)
+
+**Purpose**: Menutup temuan yang mengubah perilaku produk atau membuat requirement P1 tidak dapat
+diverifikasi. Temuan yang murni drift dokumentasi diperbaiki langsung di berkas terkait tanpa
+task sendiri.
+
+- [X] T041 [US3] Alirkan `VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}` pada step Build job `staging` **dan** `production` di `.github/workflows/deploy.yml`
+  **Kenapa**: `initErrorReporting()` membaca DSN lewat `import.meta.env` (build-time). Tanpa ini, T012 bisa diselesaikan sepenuhnya — akun dibuat, secret diisi — dan pemantauan error **tetap** tidak akan pernah aktif di production, tanpa gejala apa pun. Ini blocker diam-diam untuk US3/FR-006, bukan sekadar konfigurasi yang kurang rapi.
+- [X] T042 [US3] Ubah `scrubBeforeSend` (`src/monitoring/errorReporting.ts`) menjadi allowlist sungguhan: bangun event baru berisi hanya `FIELD_EVENT_DIIZINKAN`, dan bangun `tags` dari nol alih-alih menyebar `event.tags`
+  **Kenapa**: implementasi sebelumnya membuang lima field berisiko lewat destructuring lalu menyebar sisanya (`...safeEvent`) — itu default-ALLOW, kebalikan dari yang diminta T013 ("tolak field lain secara eksplisit, bukan default-allow") dan `data-model.md` § ErrorReportContext. Setiap field baru dari upgrade SDK Sentry akan lolos sendiri. Ditambah 3 test bentuk-persis di `tests/unit/error-reporting.test.ts` (total 7).
+- [X] T043 [US5] Tulis `contracts/user-input-safety-contract.md` — sumber input tidak tepercaya, larangan `dangerouslySetInnerHTML`/`innerHTML`/`eval`, aturan "simpan mentah, escape saat render", dan cara tiap aturan ditegakkan
+  **Kenapa**: menutup klausa kedua FR-011 yang sebelumnya nol cakupan (T024 hanya menutup klausa pertama lewat test).
+- [X] T044 [US6] Tambahkan assertion regresi FR-020 di `tests/unit/student-app.test.tsx`: dialog "Hapus semua data saya?" MUST memuat "tidak dapat dibatalkan" **dan** "ekspor"
+  **Kenapa**: teksnya sudah benar di `StudentApp.tsx` § CONFIRM_COPY, tapi tidak ada satu pun test yang menahannya — jalan keluar bagi siswa bisa hilang dalam satu edit copy tanpa CI protes.
+- [X] T045 [US9-prasyarat] Aktifkan `eslint-plugin-jsx-a11y` di `eslint.config.js`, dibatasi ke `src/**/*.tsx`
+  **Kenapa**: gerbang 1 `contracts/ci-pipeline-contract.md` sudah mengklaim lint mencakup `jsx-a11y`, plugin sudah ada di `package.json`, tapi tidak pernah didaftarkan ke config — dan ternyata belum terpasang di `node_modules` lokal sama sekali. Kontrak menjanjikan gerbang yang tidak ada.
+  **Hasil pengukuran**: 20 pelanggaran total, 16 di antaranya di `docs/sample/` (artefak referensi, tidak pernah dirender — lihat CLAUDE.md), sehingga cakupan dibatasi ke `src/`. Empat pelanggaran nyata di `src/`: dua false positive konfigurasi (`no-noninteractive-tabindex` pada scroller `role="region"` yang justru MUST fokusable per WCAG 2.1.1; `label-has-associated-control` pada label yang teksnya di kedalaman 3) diselesaikan lewat opsi rule, dua `no-autofocus` diberi disable beralasan — satu permanen (fokus MUST masuk ke dialog, WCAG 2.4.3), satu ditandai untuk ditinjau di V-9 (autofocus onboarding membuat screen reader melewati StepHeading). **Tidak ada UX yang diubah dalam patch P1 ini.**
+
+**Checkpoint**: gerbang CI kini benar-benar menjalankan apa yang dijanjikan kontraknya, dan dua
+blocker diam-diam US3 tertutup sebelum akun Sentry dibuat — bukan setelah gagal di produksi.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -306,13 +332,38 @@ penuh — menunda seluruh story tidak menambah risiko baru di atas yang sudah ad
   skema siap-backend) **belum** ada di file ini — akan digenerate lewat `/speckit-tasks` lagi
   setelah P1 selesai/tervalidasi, sesuai instruksi eksplisit untuk fokus P1 dulu
 
+### Dibawa ke pass P2 — MUST masuk saat US8–US12 digenerate
+
+Dicatat di sini supaya tidak hilang di antara dua pass `/speckit-tasks`. Ini bukan niat, ini
+daftar yang MUST dibaca saat pass berikutnya dibuat:
+
+1. **Konsolidasi logika migrasi (US8, dari temuan I2)**. `data-model.md` awalnya menetapkan aturan
+   migrasi didefinisikan **sekali** di `src/storage/safeStorage.ts` dan dipakai ulang kedua store.
+   Karena `safeStorage.ts` adalah artefak US8 (P2) sementara migrasi dibutuhkan di P1, T033/T034
+   mengimplementasikannya terpisah di `progress/store.ts` dan `profile/store.ts`. Ini duplikasi
+   nyata dengan risiko **divergen** — dua tangga migrasi yang perlahan berbeda perilaku adalah
+   persis kegagalan yang R-012 ingin cegah. Task US8 MUST menyatukan keduanya, bukan hanya
+   membungkus `getItem`/`setItem`.
+2. **Aktivasi penuh gerbang a11y (US9)**. T045 sudah memasang `jsx-a11y` untuk `src/`, tapi
+   `vitest-axe` (uji kontras/label, R-007) belum. Selain itu satu `eslint-disable` di
+   `OnboardingFlow.tsx` sengaja ditinggalkan untuk ditinjau saat lintasan manual V-9.
+3. **`@lhci/cli` (US10)**. Masih ditunda sejak T001 karena membawa ~5 kerentanan `high` ke gerbang
+   `npm audit --audit-level=high`. Saat US10 digarap, pemasangannya MUST disertai keputusan
+   eksplisit soal kerentanan tersebut (pin/override/kecualikan), bukan melemahkan gerbangnya.
+
 ---
 
-## Status Implementasi (2026-08-09)
+## Status Implementasi (diperbarui 2026-08-11)
 
-**29 dari 40 task selesai** (branch `002-production-readiness`, commit lokal — belum di-push).
-`npx tsc -b`, `npm run lint`, dan `npx vitest run` (**220/220 test**, naik dari 198 sebelum spec
-002) seluruhnya bersih. Build production (`npm run build`) sukses, nol berkas `.map` di `dist/`.
+**36 dari 45 task selesai** (branch `002-production-readiness`).
+
+Catatan koreksi: revisi sebelumnya menulis "29 dari 40" — hitungan sebenarnya saat itu **31 dari
+40** (tabel "yang belum selesai" di bawah, yang berisi 9 task, sudah benar sejak awal; hanya
+angka ringkasannya yang salah). Ditambah T041–T045 dari Phase 10, totalnya kini 45 task dengan
+9 task terbuka yang sama seperti sebelumnya.
+
+`npx tsc -b`, `npm run lint` (kini **termasuk gerbang `jsx-a11y`**, T045), dan `npx vitest run`
+seluruhnya bersih. Build production (`npm run build`) sukses, nol berkas `.map` di `dist/`.
 
 ### Yang BELUM selesai dan alasannya
 
@@ -323,7 +374,7 @@ implementasi ini — bukan pekerjaan kode yang terlewat.
 | Task | Kenapa belum |
 |---|---|
 | T008, T011 | Deploy sungguhan ke staging/production butuh `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` dan repo GitHub dengan Actions aktif |
-| T012, T016, T017 | Butuh akun & dashboard Sentry sungguhan |
+| T012, T016, T017 | Butuh akun & dashboard Sentry sungguhan. Jalur teknisnya kini lengkap: DSN mengalir ke build (T041) dan penyaringan PII sudah default-deny (T042) — tersisa murni aksi akun + isi secret `SENTRY_DSN`, lalu pasang kedua ambang alert dari `plan.md` § Observability Goals |
 | T022, T026, T032 | Sebagian selesai (lihat catatan per-task) — sisanya butuh sesi verifikasi browser manual (CSP vs aset nyata, XSS lewat DevTools, kebijakan privasi di aplikasi yang benar-benar jalan) |
 | T040 | Blocker lintas-spec **masih berlaku**: T086 (spec 001) selesai di branch terpisah `001-convergence-fixes` yang belum digabung; T087 (spec 001) masih task terbuka |
 

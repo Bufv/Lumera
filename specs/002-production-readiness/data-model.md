@@ -25,8 +25,15 @@ Bentuk dasar didefinisikan di `src/profile/store.ts`. Perubahan spec ini:
 |---|---|---|
 | `schemaVersion` | `number` | **BARU**. Sama semantiknya dengan `Siswa.schemaVersion` di atas. |
 
-Aturan migrasi sama dengan `Siswa` — didefinisikan sekali di `src/storage/safeStorage.ts` (R-012)
-dan dipakai ulang oleh kedua store, bukan diimplementasikan dua kali secara terpisah.
+Aturan migrasi sama dengan `Siswa`.
+
+**Status implementasi (2026-08-11)**: rencana awal menempatkan aturan ini **sekali** di
+`src/storage/safeStorage.ts` (R-012) untuk dipakai ulang kedua store. `safeStorage.ts` adalah
+artefak US8 (P2) sedangkan `schemaVersion` dibutuhkan sudah di P1, sehingga migrasi saat ini
+diimplementasikan terpisah di `src/progress/store.ts` (`migrasiSiswa()`) dan `src/profile/store.ts`.
+Dokumen ini mencatat kenyataan itu alih-alih menyiratkan konsolidasi yang belum terjadi.
+Penyatuannya adalah item wajib pada pass P2 — lihat `tasks.md` § "Dibawa ke pass P2", butir 1.
+Sampai itu terjadi, **perubahan pada satu tangga migrasi MUST diterapkan pada keduanya**.
 
 ## ExportedProgressFile (BARU)
 
