@@ -3,12 +3,10 @@ import { CausalChainVisualModel } from './VisualModel';
 import { CausalChainUserAction } from './UserAction';
 import { nilaiUrutan, type CausalChainState } from './scoring';
 import * as konten from '../../content/history-causal-chain';
+import { historyCausalChainMeta } from './meta';
 
 export const historyCausalChainModule: LessonModule<CausalChainState, string[]> = {
-  id: 'history-causal-chain',
-  subjectWorldId: 'sejarah',
-  judul: 'Rantai Sebab-Akibat',
-  conceptIds: konten.conceptIds,
+  ...historyCausalChainMeta,
 
   prompt: konten.prompt,
   pertanyaanRefleksi: konten.pertanyaanRefleksi,

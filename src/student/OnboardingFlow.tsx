@@ -210,6 +210,11 @@ function ProfileStep({
       <label className="profile-field">
         <span>Nama panggilan</span>
         <input
+          // US9 spec 002 (T051, FR-021): satu-satunya input di langkah onboarding
+          // ini — mengarahkan fokus langsung ke sini saat langkah tampil
+          // menghemat satu Tab bagi pengguna keyboard, bukan popup mengejutkan
+          // di tengah konten lain.
+          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           value={profile.displayName}
           maxLength={24}

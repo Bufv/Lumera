@@ -20,6 +20,15 @@ yang sudah menjadi entry point aplikasi — atau (b) layanan SaaS dengan tingkat
 memadai untuk skala prototype saat ini. Ini menjaga filosofi "tanpa backend" dari spec 001 tetap
 utuh sambil menutup celah operasional yang nyata.
 
+**Catatan (Klarifikasi 2026-08-09)**: keputusan "tanpa backend" di atas berlaku **untuk cakupan
+spec ini**, tapi sedang ditinjau ulang oleh tim di luar spec ini — tidak lagi dianggap batas
+jangka panjang yang final (lihat `spec.md` § Assumptions, § Out of Scope). Jika/ketika backend
+sungguhan diputuskan, itu MUST digarap sebagai spec/plan terpisah, bukan perluasan retroaktif
+plan ini. Terpisah dari itu, spec.md juga sekarang menyatakan eksplisit bahwa **kesiapan
+operasional pada plan ini adalah precondition yang perlu tapi tidak cukup** untuk "siap dipakai
+siswa sungguhan" — status itu tetap menunggu fitur inti spec 001 (tab homepage, alur pelajaran)
+selesai tersambung, di luar cakupan implementasi plan ini (lihat `spec.md` § Edge Cases).
+
 ## Technical Context
 
 **Language/Version**: TypeScript 5.x, React 19 (tidak berubah dari spec 001). Workflow CI ditulis
@@ -51,6 +60,10 @@ middleware header di Worker yang sudah ada). Tidak menjadi proyek backend baru.
 **Performance Goals**: Time-to-interactive halaman utama < 3 detik pada simulasi 4G standar
 (SC-007, diukur Lighthouse CI). Penambahan satu modul pelajaran menambah bundle awal < 5%
 (SC-009, diukur lewat laporan ukuran build Vite di CI).
+
+**Observability Threshold**: Notifikasi lonjakan error (FR-007) dipicu pada **10 error dalam
+jendela 5 menit** (ditetapkan lewat sesi klarifikasi 2026-08-09, lihat `spec.md` § Clarifications
+dan R-014 `research.md`) — dikonfigurasi sebagai alert rule di dasbor Sentry (T016 `tasks.md`).
 
 **Constraints**: Tanpa layanan berbayar tingkat enterprise (Assumptions spec.md) — seluruh
 layanan pihak ketiga yang dipilih (Sentry) MUST tetap dalam tingkatan gratisnya pada skala tim
@@ -100,6 +113,14 @@ menegaskan Gate VI lewat `contracts/security-headers-contract.md` (mendokumentas
 yang boleh/tidak boleh keluar) dan Gate III lewat urutan story P1→P2→P3 yang eksplisit di
 `spec.md` dan Complexity Tracking di bawah.
 
+**Re-evaluasi pasca-klarifikasi (2026-08-09):** PASS — tidak ada gate yang berubah status.
+Klarifikasi menambah dua catatan baru ke `spec.md` (status "tanpa backend" sedang ditinjau ulang;
+precondition eksplisit bahwa kesiapan operasional plan ini bukan pengganti kesiapan fitur inti
+spec 001) — keduanya scoping/dokumentasi, tidak mengubah desain teknis Phase 1 di plan ini.
+Gate II ("Struktur 7 Langkah Lesson") tetap N/A untuk plan ini karena tidak ada modul pelajaran
+baru dibangun di sini; kesiapan fitur inti (termasuk kepatuhan Gate II) tetap tanggung jawab
+spec 001, bukan diduplikasi di plan ini.
+
 ## Project Structure
 
 ### Documentation (this feature)
@@ -113,7 +134,9 @@ specs/002-production-readiness/
 ├── contracts/           # Phase 1 output
 │   ├── progress-export-contract.md
 │   ├── security-headers-contract.md
-│   └── ci-pipeline-contract.md
+│   ├── input-escaping-contract.md    # FR-011 — ditambahkan 2026-08-11 lewat /speckit-analyze
+│   ├── ci-pipeline-contract.md
+│   └── data-schema-contract.md       # US12/FR-027 — ditambahkan T066, terlewat dari daftar semula
 └── tasks.md             # Phase 2 output (/speckit-tasks — NOT created by /speckit-plan)
 ```
 
@@ -177,6 +200,8 @@ pemotongan dicatat di muka sesuai Prinsip III:
 | Keputusan | Alasan |
 |---|---|
 | `run_worker_first: true` di `wrangler.jsonc` (bukan default `false`) | Header keamanan (FR-009) harus menempel pada **setiap** response termasuk aset statis yang sukses (200) — bukan hanya fallback SPA (404). Konsekuensinya setiap request melewati Worker, menambah overhead kecil yang dapat diterima pada skala trafik prototype saat ini (Assumptions spec.md). |
+| Status "tanpa backend" diubah dari final menjadi "sedang ditinjau ulang" (Klarifikasi 2026-08-09), tanpa menambah scope backend ke plan ini | Menjaga plan ini tetap fokus pada kesiapan operasional frontend yang sudah didesain di Phase 0/1 — evaluasi backend sungguhan (jika terjadi) MUST jadi plan/spec baru dengan Constitution Check dan research-nya sendiri, bukan disisipkan retroaktif di sini. |
+| Precondition eksplisit "kesiapan operasional ≠ kesiapan produk" ditambahkan ke `spec.md`, tidak ditambahkan sebagai FR/task baru di plan ini | Ini pernyataan scoping (mencegah klaim "siap produksi" disalahpahami), bukan pekerjaan implementasi baru — pekerjaan menyambungkan fitur inti tetap milik `specs/001-core-mvp-prototype` (lihat T040 di `tasks.md` spec ini, yang sudah melacak dependensi ke T086/T087 di `specs/001-core-mvp-prototype/tasks.md`). |
 
 **Jika waktu menyempit (Prinsip III)**: potong story berdasarkan prioritas yang sudah ditetapkan
 di `spec.md`, urutan pemotongan dari yang paling dulu dipotong:

@@ -258,6 +258,7 @@ export function HomeScreen({
                       <small>{item.status}</small>
                       <span
                         className={'mastery-dots mastery-dots--' + item.tone}
+                        role="img"
                         aria-label={item.strength + ' dari 5 tingkat penguasaan'}
                       >
                         {[1, 2, 3, 4, 5].map((dot) => (
@@ -592,6 +593,12 @@ export function LearnScreen({
                   className="learn-path__scroller"
                   role="region"
                   aria-label={`Urutan kursus ${path.title}`}
+                  // US9 spec 002 (T051, FR-021): region ini bisa digulir horizontal dan
+                  // tidak punya kontrol fokusabel lain sebagai jalan masuk keyboard —
+                  // tabIndex={0} di sini adalah pola WCAG yang disengaja (scrollable
+                  // region harus fokusabel agar tombol panah/PageDown bisa menggulirnya),
+                  // bukan pelanggaran `no-noninteractive-tabindex`.
+                  // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                   tabIndex={0}
                 >
                   <ol className="learn-course-sequence">
@@ -1184,12 +1191,17 @@ export function SettingsScreen({
                 <p>Kurangi gerakan tanpa menghilangkan kejelasan status.</p>
               </div>
             </header>
-            <label className="toggle-row">
+            <label
+              className="toggle-row"
+              htmlFor="pengaturan-kurangi-animasi"
+              aria-label="Kurangi animasi"
+            >
               <span>
                 <strong>Kurangi animasi</strong>
                 <small>Menonaktifkan gerakan hover dan tekan.</small>
               </span>
               <input
+                id="pengaturan-kurangi-animasi"
                 type="checkbox"
                 disabled={demo}
                 checked={draft.reduceMotion}

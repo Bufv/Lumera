@@ -3,12 +3,10 @@ import { SupplyDemandVisualModel } from './VisualModel';
 import { NumericAnswer } from '../shared/NumericAnswer';
 import { nilaiHargaEkuilibrium, type SupplyDemandState } from './scoring';
 import * as konten from '../../content/econ-supply-demand';
+import { econSupplyDemandMeta } from './meta';
 
 export const econSupplyDemandModule: LessonModule<SupplyDemandState, number> = {
-  id: 'econ-supply-demand',
-  subjectWorldId: 'ekonomi',
-  judul: 'Supply & Demand Simulator',
-  conceptIds: konten.conceptIds,
+  ...econSupplyDemandMeta,
 
   prompt: konten.prompt,
   pertanyaanRefleksi: konten.pertanyaanRefleksi,

@@ -39,9 +39,14 @@ jobs:
       - name: Unit test
         run: npm test
 
-      # Gerbang 4 — hanya kerentanan kritis/tinggi yang menahan merge (FR-008)
+      # Gerbang 4 — hanya kerentanan kritis/tinggi pada dependency yang benar-benar
+      # dikirim ke browser yang menahan merge (FR-008). --omit=dev mengecualikan
+      # toolchain build/deploy (wrangler, @cloudflare/vite-plugin, dst.) yang tidak
+      # pernah masuk bundle produksi — lihat contracts/ci-pipeline-contract.md § Gerbang 4.
+      # Kerentanan pada devDependencies tetap dilacak lewat dependabot.yml (T018), bukan
+      # tidak diawasi sama sekali.
       - name: Audit kerentanan dependency
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=high --omit=dev
 
       # Gerbang 5 — commit SHA disematkan sebagai APP_VERSION (FR-005, T005)
       - name: Build production

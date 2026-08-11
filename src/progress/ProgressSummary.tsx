@@ -1,6 +1,6 @@
 import { Icon } from '../design/Icon';
 import { CincinProgres } from '../courses/Progres';
-import { semuaModul } from '../shell/registry';
+import { MODULE_META } from '../modules';
 import { TITIK_KEKUATAN, tingkatKekuatan } from '../beranda/harian';
 import type { Siswa } from './store';
 import './ProgressSummary.css';
@@ -10,7 +10,8 @@ import './ProgressSummary.css';
  * meledak-ledak, jadi angka disajikan apa adanya tanpa konfeti.
  */
 export function ProgressSummary({ siswa }: { siswa: Siswa }) {
-  const modul = semuaModul();
+  // US11 spec 002 (T061): metadata ringan (bukan modul penuh) — lihat catatan di Atlas.tsx.
+  const modul = MODULE_META;
   const dinilai = modul
     .map((m) => ({
       id: m.id,
@@ -72,6 +73,7 @@ export function ProgressSummary({ siswa }: { siswa: Siswa }) {
                 </div>
                 <span
                   className="titik"
+                  role="img"
                   aria-label={`${kekuatan.terisi} dari ${TITIK_KEKUATAN} tingkat kekuatan`}
                 >
                   {Array.from({ length: TITIK_KEKUATAN }, (_, i) => (

@@ -59,7 +59,8 @@
 
   --text-primary: #15172a;
   --text-secondary: #667085;
-  --text-tertiary: #7a8193;
+  /* US9 spec 002 (T053, FR-022): lihat catatan di src/design/tokens.ts — was #7a8193 (3.70:1). */
+  --text-tertiary: #697086;
   --text-disabled: #a4a8b5;
   --text-on-color: #ffffff;
 

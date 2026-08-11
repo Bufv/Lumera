@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Icon } from '../design/Icon';
-import { semuaModul } from '../shell/registry';
+import { MODULE_META } from '../modules';
 import { CincinProgres } from './Progres';
 import {
   MAPEL_MENYUSUL,
@@ -24,7 +24,8 @@ export function Belajar({
   const [kueri, setKueri] = useState('');
   const [jenjang, setJenjang] = useState<Jenjang>('semua');
 
-  const terdaftar = useMemo(() => new Set(semuaModul().map((m) => m.id)), []);
+  // US11 spec 002 (T061): metadata ringan (bukan modul penuh) — lihat catatan di Atlas.tsx.
+  const terdaftar = useMemo(() => new Set(MODULE_META.map((m) => m.id)), []);
   const katalog = useMemo(() => susunKatalog(siswa, terdaftar), [siswa, terdaftar]);
 
   const q = kueri.trim().toLocaleLowerCase('id-ID');

@@ -3,12 +3,10 @@ import { MotionVisualModel } from './VisualModel';
 import { NumericAnswer } from '../shared/NumericAnswer';
 import { nilaiJarak, type MotionState } from './scoring';
 import * as konten from '../../content/physics-motion';
+import { physicsMotionMeta } from './meta';
 
 export const physicsMotionModule: LessonModule<MotionState, number> = {
-  id: 'physics-motion',
-  subjectWorldId: 'sains',
-  judul: 'Simulasi Gerak Lurus',
-  conceptIds: konten.conceptIds,
+  ...physicsMotionMeta,
 
   prompt: konten.prompt,
   pertanyaanRefleksi: konten.pertanyaanRefleksi,

@@ -190,3 +190,19 @@ konfigurasi tambahan — mekanisme paling sederhana yang tersedia dan konsisten 
 
 **Alternatives considered**: Route-based code splitting granular per-langkah Shell — di luar
 cakupan; unit modul (bukan langkah) sudah cukup granular mengikuti struktur `modules/` yang ada.
+
+## R-014: Ambang Notifikasi Lonjakan Error (FR-007)
+
+**Decision**: 10 error dalam jendela 5 menit memicu alert rule di dasbor Sentry, ditetapkan lewat
+sesi `/speckit-clarify` 2026-08-09 (bukan lagi "ambang batas wajar" tanpa angka).
+
+**Rationale**: Skala trafik saat ini masih prototype/early-stage (Assumptions spec.md) dengan
+sedikit pengguna aktif bersamaan — 10 error/5 menit cukup sensitif untuk menangkap lonjakan nyata
+tanpa noise dari 1-2 error sporadis yang wajar terjadi pada aplikasi web apapun. Selaras dengan
+SC-003 (deteksi < 5 menit): jendela alert yang sama dengan target waktu deteksi menjaga kedua
+metrik tetap konsisten satu sama lain.
+
+**Alternatives considered**: Ambang relatif (mis. lonjakan >3x rata-rata harian) — lebih tahan
+terhadap perubahan skala trafik, tapi butuh baseline historis yang belum ada saat ini; ditolak
+sampai ada data trafik produksi nyata untuk dijadikan baseline. Bisa dikalibrasi ulang nanti tanpa
+mengubah mekanisme (Sentry alert rule tetap sama, hanya angkanya berubah).

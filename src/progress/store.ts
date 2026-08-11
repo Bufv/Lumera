@@ -2,7 +2,13 @@
  * Persistensi progres siswa (FR-010). Satu perangkat = satu siswa (asumsi spec).
  * Bentuk data mengikuti specs/001-core-mvp-prototype/data-model.md, diperluas
  * dengan `schemaVersion` per specs/002-production-readiness/data-model.md (R-011).
+ *
+ * Baca/tulis storage lewat `safeStorage` (US8 spec 002, R-012) — bukan
+ * `localStorage` langsung — supaya kegagalan kuota-penuh/diblokir dilaporkan
+ * lewat `StorageWarningBanner`, bukan tertelan diam-diam seperti sebelumnya.
  */
+
+import { safeGetItem, safeRemoveItem, safeSetItem } from '../storage/safeStorage';
 
 const STORAGE_KEY = 'lumera.progress.v1';
 
@@ -80,31 +86,35 @@ export function migrasiSiswa(data: Partial<Siswa>): Siswa {
 }
 
 export function bacaSiswa(): Siswa {
+  const raw = safeGetItem(STORAGE_KEY);
+  if (!raw) {
+    // `raw` kosong berarti key belum pernah ditulis ATAU storage sedang
+    // diblokir — pada kedua kasus siswa baru adalah default yang aman;
+    // `safeGetItem` sudah melaporkan status gagal ke StorageWarningBanner
+    // jika penyebabnya storage diblokir (bukan lagi tertelan diam-diam).
+    const baru = siswaBaru();
+    safeSetItem(STORAGE_KEY, JSON.stringify(baru));
+    return baru;
+  }
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      const baru = siswaBaru();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(baru));
-      return baru;
-    }
     const parsed = JSON.parse(raw) as Partial<Siswa>;
     const bermigrasi = migrasiSiswa(parsed);
     // Tulis kembali hasil migrasi supaya pembacaan berikutnya tidak perlu
     // bermigrasi ulang dari bentuk lama.
     if (bermigrasi.schemaVersion !== parsed.schemaVersion) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(bermigrasi));
+      safeSetItem(STORAGE_KEY, JSON.stringify(bermigrasi));
     }
     return bermigrasi;
   } catch {
-    console.error('[lumera/progress] gagal membaca progres; memulai dari kosong');
+    console.error('[lumera/progress] gagal membaca progres (data rusak); memulai dari kosong');
     return siswaBaru();
   }
 }
 
 export function simpanSiswa(siswa: Siswa): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(siswa));
+  safeSetItem(STORAGE_KEY, JSON.stringify(siswa));
 }
 
 export function resetProgres(): void {
-  localStorage.removeItem(STORAGE_KEY);
+  safeRemoveItem(STORAGE_KEY);
 }

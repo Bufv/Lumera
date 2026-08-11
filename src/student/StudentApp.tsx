@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../design/Icon';
 import { Tactile } from '../design/Tactile';
 import {
@@ -12,6 +12,7 @@ import {
 import { PrivacyPolicy } from '../privacy/PrivacyPolicy';
 import { hapusSemuaDataSiswa } from '../privacy/deleteAllData';
 import { bacaSiswa, type Siswa } from '../progress/store';
+import { StorageWarningBanner } from '../storage/StorageWarningBanner';
 import { findStudentModule } from './catalog';
 import { ARDI_DEMO_FIXTURE, type DemoSavedConcept } from './demo';
 import { OnboardingFlow } from './OnboardingFlow';
@@ -24,7 +25,6 @@ import {
   type RouteName,
   type StudentLocation,
 } from './routes';
-import { IntegerCourseScreen } from './IntegerCourseScreen';
 import {
   HomeScreen,
   LearnScreen,
@@ -37,6 +37,14 @@ import {
 import { StudentShell } from './StudentShell';
 import type { StudentModuleSummary, StudentSearchRecord } from './types';
 import './StudentOverlays.css';
+
+// US10 spec 002 (T059, R-009, FR-017): satu-satunya layar yang memakai
+// `RiveGameboardNode` (runtime + wasm @rive-app/canvas-lite) — dimuat lazy
+// agar runtime Rive tidak lagi bagian dari bundle awal, hanya diunduh saat
+// siswa benar-benar membuka kursus Bilangan Bulat.
+const IntegerCourseScreen = lazy(() =>
+  import('./IntegerCourseScreen').then((m) => ({ default: m.IntegerCourseScreen })),
+);
 
 // US6 spec 002 (T030): 'reset-profile' tetap ada untuk alur onboarding-ulang
 // yang sudah ada (hanya reset LearnerProfile); 'delete-all-data' adalah aksi
@@ -258,14 +266,16 @@ export function StudentApp() {
         );
       case 'integers':
         return (
-          <IntegerCourseScreen
-            percent={demoData?.courseProgress.percent ?? 0}
-            moduleProgress={moduleProgress}
-            view={location.courseView}
-            onChangeView={changeCourseView}
-            onNavigate={navigate}
-            onOpenModule={setSelectedModule}
-          />
+          <Suspense fallback={null}>
+            <IntegerCourseScreen
+              percent={demoData?.courseProgress.percent ?? 0}
+              moduleProgress={moduleProgress}
+              view={location.courseView}
+              onChangeView={changeCourseView}
+              onNavigate={navigate}
+              onOpenModule={setSelectedModule}
+            />
+          </Suspense>
         );
       case 'review':
         return <ReviewScreen demoData={demoData} onNavigate={navigate} />;
@@ -315,6 +325,7 @@ export function StudentApp() {
       onExitDemo={exitDemo}
       onSearchSelect={handleSearchSelect}
     >
+      <StorageWarningBanner />
       {content}
 
       {selectedModule && (
@@ -406,6 +417,10 @@ function InfoDrawer({
             <span>{eyebrow}</span>
             <h2 id="drawer-title">{title}</h2>
           </div>
+          {/* US9 spec 002 (T051, FR-021): pola dialog modal WAI-ARIA standar —
+              fokus MUST berpindah ke dalam dialog saat terbuka, tombol tutup
+              adalah target yang aman/dapat diprediksi. */}
+          {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
           <button type="button" onClick={onClose} aria-label="Tutup" autoFocus>
             <Icon name="close" width={20} height={20} />
           </button>

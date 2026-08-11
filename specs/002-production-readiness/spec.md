@@ -8,6 +8,15 @@
 
 **Input**: User description: "pastikan project saat ini menyiapkan skalabilitas, keamanan, dan juga persiapan deployment. sarankan juga point penting yang seharusnya dipersiapkan (jika disetujui baru di masukkan)" — kategori awal (skalabilitas, keamanan, deployment) beserta 12 poin turunannya, ditambah 4 kategori susulan (aksesibilitas, kepatuhan privasi anak & hukum, performa, backup & pemulihan data) telah disetujui pengguna secara eksplisit sebelum spec ini ditulis.
 
+## Clarifications
+
+### Session 2026-08-09
+
+- Q: Beberapa task verifikasi P1 terhambat kredensial/akun eksternal yang belum ada; feedback pengguna memperluas isu ini — bagaimana keputusan arsitektur "tanpa backend/database sungguhan" seharusnya tercermin di spec ini? → A: Ditandai sebagai keputusan yang sedang ditinjau ulang oleh tim (bukan lagi final/jangka panjang); kesiapan backend/database sungguhan akan digarap sebagai spec terpisah, bukan diperluas langsung di spec ini.
+- Q: Apakah klaim "siap produksi" pada spec ini berlaku sebelum fitur inti dari spec 001 (tab homepage, alur pelajaran) selesai dan bisa diakses siswa sungguhan (bukan berlabel "segera hadir"/"dalam pengembangan")? → A: Tidak — spec ini MUST menyatakan eksplisit bahwa kesiapan operasional (CI/CD, keamanan, privasi, backup, dst. di spec ini) adalah precondition yang perlu tapi tidak cukup; "siap dipakai siswa sungguhan" tetap bergantung pada fitur inti spec 001 selesai.
+- Q: Berapa ambang lonjakan error produksi (FR-007) yang memicu notifikasi tim, mengingat Assumptions sebelumnya menjanjikan angka ini ditetapkan di `/speckit-plan` namun `plan.md` tidak pernah mengisinya? → A: 10 error dalam jendela 5 menit.
+- Q: Apakah US11 (registry modul + lazy-load, kemudahan menambah modul pembelajaran) perlu dinaikkan prioritas dari P2 mengingat ini salah satu fokus kesiapan produksi? → A: Tidak — tetap P2, digarap lewat `/speckit-tasks` berikutnya setelah seluruh P1 (US1-7) selesai dan tervalidasi, konsisten dengan urutan yang sudah ada di Complexity Tracking `plan.md`.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -260,6 +269,7 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 - Bagaimana jika pemindaian dependency menemukan kerentanan kritis yang belum punya perbaikan resmi? Rilis MUST ditahan dan keputusan mitigasi (workaround atau penggantian dependency) MUST didokumentasikan, bukan diabaikan begitu saja.
 - Apa yang terjadi pada siswa yang menonaktifkan `localStorage` sepenuhnya? Aplikasi MUST tetap dapat dipakai pada sesi tersebut dengan peringatan eksplisit bahwa progres tidak akan tersimpan — bukan halaman gagal total.
 - Apa yang terjadi jika header Content-Security-Policy yang baru ternyata memblokir aset yang sah (mis. canvas/Rive)? Perubahan header MUST diverifikasi di staging (US2) sebelum production, sehingga insiden semacam ini tertangkap sebelum siswa terdampak.
+- Apa yang terjadi jika seluruh gerbang operasional pada spec ini (CI/CD, keamanan, privasi, backup, dst.) sudah lolos, tapi fitur inti dari spec 001 (tab homepage, alur pelajaran) belum tersambung penuh ke siswa nyata — masih berlabel "segera hadir"/"dalam pengembangan"? Status "siap produksi" MUST NOT diklaim tercapai hanya berdasarkan penyelesaian spec ini — kesiapan operasional di sini adalah precondition yang perlu tapi tidak cukup; "siap dipakai siswa sungguhan" tetap menunggu fitur inti spec 001 selesai tanpa placeholder pada fitur yang diklaim ada (lihat Clarifications, Session 2026-08-09).
 
 ## Requirements *(mandatory)*
 
@@ -276,7 +286,7 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 **Observability**
 
 - **FR-006**: Sistem MUST menangkap dan melaporkan error runtime sisi klien pada aplikasi yang live secara otomatis, tanpa bergantung pada laporan manual siswa.
-- **FR-007**: Sistem MUST memberi tahu tim ketika jumlah error produksi melonjak melewati ambang batas wajar.
+- **FR-007**: Sistem MUST memberi tahu tim ketika jumlah error produksi melonjak melewati ambang batas wajar — ditetapkan sebagai **10 error dalam jendela 5 menit** (lihat Clarifications, Session 2026-08-09).
 
 **Keamanan**
 
@@ -340,7 +350,7 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 
 ## Out of Scope
 
-- **Membangun backend/API sungguhan** — spec ini hanya menyiapkan kontrak/skema data agar migrasi nanti tidak perlu menulis ulang, bukan membangun server-nya.
+- **Membangun backend/API sungguhan** — spec ini hanya menyiapkan kontrak/skema data agar migrasi nanti tidak perlu menulis ulang, bukan membangun server-nya. **Catatan (2026-08-09)**: keputusan "tanpa backend" ini sedang ditinjau ulang oleh tim (lihat Assumptions dan Clarifications) — bukan lagi dianggap batas jangka panjang yang final. Jika/ketika backend sungguhan diputuskan, itu MUST digarap sebagai spec terpisah, bukan perluasan retroaktif pada spec ini.
 - **Autentikasi/akun pengguna berbasis server** — tetap di luar cakupan Lumera Core saat ini, konsisten dengan batas spec 001.
 - **Audit keamanan pihak ketiga/penetration testing formal** — gerbang otomatis (pemindaian dependency, header keamanan) adalah lapisan pencegahan pertama, bukan pengganti audit profesional independen.
 - **Infrastruktur multi-region atau load balancing server-side** — belum relevan pada skala trafik prototype saat ini.
@@ -348,9 +358,10 @@ aktual; verifikasi setiap perubahan bentuk data mengikuti aturan versioning yang
 
 ## Assumptions
 
-- Aplikasi tetap 100% frontend (tanpa server aplikasi sendiri) untuk saat ini; "kesiapan backend" berarti skema/kontrak siap dipetakan, bukan backend sudah dibangun.
+- **Kesiapan operasional (spec ini) ≠ kesiapan produk untuk siswa sungguhan.** Spec ini hanya mencakup lapisan operasional (CI/CD, keamanan, observability, privasi, backup, aksesibilitas, performa). "Siap dipakai siswa sungguhan" tetap bergantung pada fitur inti spec 001 (tab homepage, alur pelajaran) selesai dan tersambung penuh, tanpa placeholder "segera hadir"/"dalam pengembangan" pada fitur yang diklaim ada — lihat Edge Cases dan Clarifications Session 2026-08-09.
+- Aplikasi tetap 100% frontend (tanpa server aplikasi sendiri) **untuk cakupan spec ini**; "kesiapan backend" di sini berarti skema/kontrak siap dipetakan (US12), bukan backend sudah dibangun. **Catatan (2026-08-09)**: keputusan "tanpa backend" ini sedang ditinjau ulang oleh tim di luar spec ini — bukan lagi dianggap batas jangka panjang yang final. Jika/ketika backend sungguhan diputuskan, itu MUST digarap sebagai spec terpisah, bukan perluasan diam-diam pada spec ini.
 - Target hosting tetap platform yang sudah dipakai saat ini (Cloudflare Worker via hosting privat) kecuali diputuskan lain oleh tim.
 - Trafik saat ini masih skala prototype/early-stage; kebutuhan skalabilitas server-side tingkat lanjut belum mendesak.
 - Solusi pemantauan error dan pemindaian dependency yang dipilih MUST memiliki tingkatan gratis/terjangkau yang memadai untuk skala tim dan trafik saat ini — bukan solusi enterprise berbayar.
 - Ekspor/impor progres cukup berbasis berkas lokal (unduh/unggah manual oleh siswa); sinkronisasi otomatis lintas perangkat tetap di luar cakupan spec ini.
-- Anggaran waktu muat spesifik (FR-016) dan ambang batas lonjakan error (FR-007) akan ditetapkan sebagai angka konkret pada fase perencanaan (`/speckit-plan`), berdasarkan baseline pengukuran aplikasi saat ini.
+- Anggaran waktu muat halaman awal (FR-016) telah ditetapkan di `plan.md`: < 3 detik time-to-interactive pada simulasi 4G standar (lihat SC-007). Ambang lonjakan error (FR-007) ditetapkan lewat sesi klarifikasi 2026-08-09: 10 error dalam jendela 5 menit.

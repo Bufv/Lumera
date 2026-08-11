@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { daftarkanSemuaModul } from '../../src/modules';
+import { daftarkanSemuaModul } from '../../src/modules/eager';
 import { kosongkanRegistry, periksaKontrak, semuaModul } from '../../src/shell/registry';
 import { SUBJECT_WORLDS } from '../../src/atlas/subject-worlds';
 import type { AnyLessonModule } from '../../src/shell/types';

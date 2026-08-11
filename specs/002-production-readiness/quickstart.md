@@ -31,7 +31,8 @@ gratis) sudah dibuat dan DSN tersedia sebagai secret CI.
    **Expected**: error muncul di dasbor Sentry dalam < 5 menit (SC-003), field yang terkirim
    sesuai `data-model.md` § ErrorReportContext — **verifikasi eksplisit tidak ada `displayName`
    atau isi `localStorage` yang ikut terkirim**.
-2. Picu beberapa error berturut-turut untuk melewati ambang lonjakan yang dikonfigurasi.
+2. Picu ≥10 error berturut-turut dalam jendela 5 menit (ambang FR-007, lihat R-014
+   `research.md`).
    **Expected**: tim menerima notifikasi tanpa membuka dasbor secara manual.
 
 ## V-4 — Gerbang Keamanan Otomatis (US4)
@@ -122,3 +123,10 @@ gratis) sudah dibuat dan DSN tersedia sebagai secret CI.
 2. Ubah salah satu bentuk field secara sengaja di lingkungan uji dan verifikasi jalur migrasi
    (R-011) dipanggil, bukan spread tambal-sulam seperti pola lama.
    **Expected**: data lama tetap terbaca benar setelah migrasi, tanpa kehilangan field.
+   **STATUS (2026-08-10, T068)**: divalidasi otomatis lewat `tests/unit/schema-migration.test.ts`
+   (3 test) — mensimulasikan data v0 (bentuk spec 001, sebelum `schemaVersion` ada sama sekali)
+   untuk `Siswa` dan `LearnerProfile`, memverifikasi `migrasiSiswa()`/`normalizeLearnerProfile()`
+   benar-benar dipanggil dan seluruh field lama (termasuk `mastery`, `modulSelesai`) tetap utuh
+   setelah migrasi — bukan spread tambal-sulam. Lihat juga temuan audit di
+   `contracts/data-schema-contract.md` § Temuan Audit soal `LearningEvent` (telemetry) yang belum
+   punya jalur migrasi karena belum pernah ada kenaikan versi sungguhan untuk dimigrasi.

@@ -25,4 +25,5 @@ sekadar detail implementasi.
 3. `connect-src` MUST diperbarui jika layanan pihak ketiga baru ditambahkan di masa depan (mis.
    endpoint Sentry berubah) — daftar ini MUST tetap eksplisit, tidak pernah `*`.
 4. Header ini tidak menggantikan validasi/escaping di level komponen React (FR-011) — CSP adalah
-   lapisan pertahanan kedua, bukan pengganti sanitisasi input.
+   lapisan pertahanan kedua, bukan pengganti sanitisasi input. Aturan escaping level komponen
+   didokumentasikan lengkap di `input-escaping-contract.md`.
