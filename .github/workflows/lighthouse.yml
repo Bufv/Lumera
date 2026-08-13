@@ -1,0 +1,57 @@
+name: Lighthouse
+
+# US10 spec 002 (T056, R-008): anggaran performa (SC-007 TTI < 3s, SC-009
+# pertumbuhan bundle) terhadap build production. Berjalan TERPISAH dari
+# ci.yml dan MUST NOT memblokir merge pada iterasi pertama — assertion di
+# lighthouserc.json memakai level "warn" (bukan "error"), sesuai
+# contracts/ci-pipeline-contract.md: "anggaran konkret baru punya baseline
+# nyata setelah beberapa run pertama".
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    name: Lighthouse CI + laporan ukuran bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production
+        run: npm run build
+        env:
+          VITE_APP_VERSION: ${{ github.sha }}
+
+      # SC-007: time-to-interactive < 3 detik pada simulasi mobile.
+      # `lhci autorun` dengan lighthouserc.json (assertion level "warn") —
+      # skrip ini TIDAK exit non-zero pada pelanggaran ambang, hanya
+      # mencetak peringatan (lihat komentar di atas & di lighthouserc.json).
+      - name: Lighthouse CI
+        run: npx lhci autorun || true
+
+      - name: Upload laporan Lighthouse
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci
+          retention-days: 30
+
+      # SC-009: laporan diff ukuran bundle awal terhadap baseline —
+      # non-blocking dengan sengaja (build/bundle-size-report.js selalu exit 0).
+      - name: Laporan ukuran bundle
+        run: npm run bundle-size-report

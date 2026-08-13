@@ -1,0 +1,430 @@
+/* Layar Belajar — arsitektur "Learning Paths" dari docs/sample/brilliant/. */
+
+.wadah {
+  width: 100%;
+  max-width: var(--konten);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.belajar {
+  padding-bottom: 80px;
+  background: var(--bg-primary);
+}
+
+.belajar__kepala {
+  padding: 40px 0 32px;
+  border-bottom: 1px solid var(--border-solid);
+}
+
+.belajar__kepala h1 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.belajar__sub {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+}
+
+.belajar__cari {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cari-kolom {
+  min-width: 0;
+  flex: 1 1 20rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border: 2px solid var(--border-solid);
+  border-radius: var(--r-xl);
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  cursor: text;
+  transition: border-color 200ms ease;
+}
+
+.cari-kolom:focus-within {
+  border-color: var(--border-hover);
+}
+
+.cari-kolom input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.cari-kolom input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.segmen {
+  display: flex;
+  gap: 4px;
+  flex: none;
+  padding: 4px;
+  border-radius: var(--r-lg);
+  background: var(--bg-secondary);
+}
+
+.segmen button {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.segmen button:hover {
+  color: var(--text-primary);
+}
+
+.segmen button.is-active {
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-subtle);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ seksi */
+
+.belajar__isi {
+  padding-top: 40px;
+}
+
+.seksi + .seksi {
+  margin-top: 56px;
+}
+
+.seksi > h2 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.seksi__catatan {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+}
+
+.seksi__isi {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* ------------------------------------------------------------ baris jalur */
+
+.jalur__kepala {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ubin-ikon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: var(--r-lg);
+  background: var(--hue-tint);
+  color: var(--hue-text);
+}
+
+.ubin-ikon--besar {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--r-2xl);
+}
+
+.jalur__teks {
+  min-width: 0;
+  flex: 1;
+  max-width: 580px;
+}
+
+.jalur__teks h3 {
+  margin: 6px 0 0;
+  color: var(--text-primary);
+}
+
+.jalur__teks p {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+}
+
+/**
+ * Rel kursus. Pita abu-abu memanjang penuh lebar layar seperti pada acuan,
+ * sementara isinya tetap sejajar dengan kontainer 1216px.
+ */
+.rel {
+  margin-top: 20px;
+  padding: 24px 0 28px;
+  overflow-x: auto;
+  background: var(--bg-secondary);
+  border-radius: var(--r-2xl);
+  scrollbar-width: thin;
+}
+
+.rel__isi {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  width: max-content;
+  min-width: 100%;
+  padding-inline: 24px;
+}
+
+.ubin {
+  position: relative;
+  width: 152px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/** Rantai antarubin: garis 2px setinggi tengah kartu, di belakangnya. */
+.ubin--berantai::after {
+  content: '';
+  position: absolute;
+  top: 72px;
+  left: calc(100% + 2px);
+  width: 20px;
+  height: 2px;
+  background: var(--border-solid);
+  pointer-events: none;
+}
+
+.ubin__kartu {
+  position: relative;
+  width: 152px;
+  height: 152px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--bg-primary);
+  cursor: pointer;
+}
+
+.ubin__ikon {
+  color: var(--hue-text);
+}
+
+.ubin__kartu:not(.card3d--hue) .ubin__ikon {
+  color: var(--text-disabled);
+}
+
+.ubin__kelas {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.ubin__tanda {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-full);
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+}
+
+.ubin__tanda--selesai {
+  background: var(--green-500);
+  color: var(--text-on-color);
+}
+
+.ubin__bar {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--r-full);
+  background: var(--bg-tertiary);
+}
+
+.ubin__bar i {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: var(--hue-fill);
+  transition: width 320ms ease-out;
+}
+
+.ubin__label {
+  color: var(--text-primary);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* -------------------------------------------------------- mapel menyusul */
+
+.menyusul {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 16px;
+}
+
+.menyusul__kartu {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--border-solid);
+  border-radius: var(--r-xl);
+  background: var(--bg-primary);
+}
+
+.menyusul__kartu b {
+  display: block;
+  color: var(--text-primary);
+}
+
+.menyusul__kartu p {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+}
+
+.menyusul__kartu .badge {
+  margin-top: 12px;
+}
+
+/* ------------------------------------------------------------- primitif */
+
+.bar-progres {
+  height: 6px;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--r-full);
+  background: var(--bg-tertiary);
+}
+
+.bar-progres i {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: var(--hue-fill);
+  transition: width 320ms ease-out;
+}
+
+.kosong {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  border: 1px dashed var(--border-solid);
+  border-radius: var(--r-xl);
+  color: var(--text-tertiary);
+}
+
+.kosong b {
+  display: block;
+  color: var(--text-primary);
+}
+
+.kosong p {
+  margin: 4px 0 0;
+}
+
+/* ---------------------------------------------------------- layar kecil */
+
+@media (max-width: 768px) {
+  .wadah {
+    padding-inline: 16px;
+  }
+
+  .belajar__kepala {
+    padding: 24px 0;
+  }
+
+  .belajar__kepala h1 {
+    font-size: 30px;
+    letter-spacing: 0;
+  }
+
+  .belajar__sub {
+    font-size: 16px;
+  }
+
+  .belajar__cari {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .segmen button {
+    flex: 1;
+  }
+
+  .seksi + .seksi {
+    margin-top: 40px;
+  }
+
+  .jalur__kepala {
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .ubin-ikon--besar {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--r-xl);
+  }
+
+  .jalur__kepala .pil-progres,
+  .jalur__kepala > .badge {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .rel {
+    margin-inline: -16px;
+    border-radius: 0;
+  }
+
+  .rel__isi {
+    padding-inline: 16px;
+  }
+
+  .ubin,
+  .ubin__kartu {
+    width: 128px;
+  }
+
+  .ubin__kartu {
+    height: 128px;
+  }
+
+  .ubin--berantai::after {
+    top: 60px;
+  }
+}

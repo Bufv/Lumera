@@ -1,0 +1,287 @@
+/* Header — mekanika navigasi dari docs/sample/brilliant/. */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-solid);
+}
+
+.header__baris {
+  width: 100%;
+  max-width: var(--konten);
+  height: 76px;
+  margin-inline: auto;
+  padding-inline: 24px;
+  display: flex;
+  align-items: stretch;
+  gap: 32px;
+}
+
+.merek {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.nav {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+}
+
+/**
+ * Underline navigasi: batang 2px NETRAL yang bergeser naik 2px saat tab aktif
+ * atau disorot. Yang beranimasi posisinya, bukan kemunculannya — karena itu
+ * batang redup tetap ada di tab yang tidak aktif.
+ */
+.nav__tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.nav__tab::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--text-disabled);
+  transition: transform 100ms linear;
+}
+
+.nav__tab:hover {
+  color: var(--text-primary);
+}
+
+.nav__tab:hover::after {
+  transform: translateY(-2px);
+}
+
+.nav__tab[data-selected='true'] {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.nav__tab[data-selected='true']::after {
+  background: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.nav__tab[data-tersedia='false'] {
+  color: var(--text-disabled);
+  cursor: default;
+}
+
+.nav__tab[data-tersedia='false']:hover {
+  color: var(--text-disabled);
+}
+
+.nav__tab[data-tersedia='false']:hover::after {
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ aksi */
+
+.header__aksi {
+  min-width: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cari {
+  position: relative;
+}
+
+.cari__kolom {
+  width: clamp(11rem, 18vw, 15rem);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border-solid);
+  border-radius: var(--r-lg);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  cursor: text;
+  transition: border-color 200ms ease;
+}
+
+.cari__kolom:focus-within {
+  border-color: var(--border-hover);
+}
+
+.cari__kolom input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.cari__kolom input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.cari__kolom kbd {
+  flex: none;
+  border: 0;
+  color: var(--text-disabled);
+  font-family: inherit;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.cari__hasil {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  min-width: 16rem;
+  overflow: hidden;
+  border: 1px solid var(--border-solid);
+  border-radius: var(--r-lg);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.cari__hasil p {
+  margin: 0;
+  padding: 16px;
+  color: var(--text-secondary);
+}
+
+.cari__hasil button {
+  width: 100%;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 0;
+  border-bottom: 1px solid var(--border-solid);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.cari__hasil button:last-child {
+  border-bottom: 0;
+}
+
+.cari__hasil button:hover {
+  background: var(--bg-hover);
+}
+
+.streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 8px 14px;
+  border-radius: var(--r-full);
+  background: var(--amber-100);
+  color: var(--amber-700);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--violet-500);
+  color: var(--text-on-color);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.avatar:hover {
+  background: var(--violet-600);
+}
+
+/* ------------------------------------------------------------ layar kecil */
+
+@media (max-width: 1080px) {
+  .header__baris {
+    gap: 16px;
+  }
+
+  .nav__tab span {
+    display: none;
+  }
+
+  .nav__tab {
+    padding-inline: 10px;
+  }
+
+  .cari__kolom kbd {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .header__baris {
+    height: 64px;
+    padding-inline: 16px;
+    gap: 8px;
+  }
+
+  .merek span {
+    display: none;
+  }
+
+  .cari__kolom {
+    width: 8.5rem;
+  }
+
+  .cari__hasil {
+    right: 0;
+    left: auto;
+  }
+
+  .streak {
+    padding-inline: 10px;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+  }
+}
