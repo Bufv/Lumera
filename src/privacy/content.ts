@@ -13,7 +13,7 @@ export interface PrivacySection {
   paragraf: string[];
 }
 
-export const PRIVACY_LAST_UPDATED = '2026-08-09';
+export const PRIVACY_LAST_UPDATED = '2026-08-13';
 
 export const PRIVACY_SECTIONS: PrivacySection[] = [
   {
@@ -47,7 +47,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
   {
     judul: 'Untuk siapa Lumera dibuat',
     paragraf: [
-      'Lumera Core ditujukan untuk pelajar SMP, SMA, dan persiapan UTBK/SNBT — banyak di antaranya berusia di bawah 18 tahun. Karena itu kami sengaja membatasi data yang dikumpulkan pada yang benar-benar perlu untuk belajar, dan tidak pernah meminta data yang tidak berkaitan langsung dengan itu.',
+      'Lumera Core ditujukan untuk pelajar SMP dan SMA — banyak di antaranya berusia di bawah 18 tahun. Karena itu kami sengaja membatasi data yang dikumpulkan pada yang benar-benar perlu untuk belajar, dan tidak pernah meminta data yang tidak berkaitan langsung dengan itu.',
     ],
   },
 ];

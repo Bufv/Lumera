@@ -10,6 +10,11 @@
 s.d. FR-020 (Prinsip III, IV, V, VI, VII), entitas Catatan Aktivitas Belajar, SC-006 s.d. SC-009,
 dan bagian Out of Scope eksplisit.
 
+**Last Amended**: 2026-08-13 — diselaraskan dengan Lumera Constitution v2.0.0 (cakupan Lumera Core
+dipersempit ke SMP–SMA saja). User Story 7, bagian UTBK pada FR-003, entity Subject World, dan
+baris target audiens ditandai **superseded** oleh `specs/003-drop-utbk-snbt/spec.md` — lihat
+anotasi masing-masing di bawah. Teks asli dipertahankan untuk traceability historis.
+
 **Input**: User description: "berdasarkan semua file di dalam folder @docs\" — scoped by user selection to the "MVP prototype fungsional" slice of the Lumera PRD (docs/concept.md, docs/leancanvas.md): Lumera Atlas (minimal), the 7-step interactive lesson flow across the six candidate subject modules (at least 4 must be fully functional), and basic gamification (streak, Lumens, progress/mastery %).
 
 ## User Scenarios & Testing *(mandatory)*
@@ -22,7 +27,7 @@ dan bagian Out of Scope eksplisit.
 
 ### User Story 1 - Navigasi Lumera Atlas (Priority: P1)
 
-Seorang siswa membuka Lumera dan disambut oleh Lumera Atlas — peta pengetahuan visual berisi node-node subject world (Matematika, Sains, Ekonomi & Bisnis, Sejarah & Sosial, Bahasa & Komunikasi, UTBK/SNBT) yang saling terhubung. Siswa memilih salah satu node untuk masuk ke modul pelajaran interaktif di dalamnya.
+Seorang siswa membuka Lumera dan disambut oleh Lumera Atlas — peta pengetahuan visual berisi node-node subject world (Matematika, Sains, Ekonomi & Bisnis, Sejarah & Sosial, Bahasa & Komunikasi — tanpa UTBK/SNBT, di-drop oleh `specs/003-drop-utbk-snbt/spec.md`) yang saling terhubung. Siswa memilih salah satu node untuk masuk ke modul pelajaran interaktif di dalamnya.
 
 **Why this priority**: Atlas adalah entry point wajib — tanpa ini siswa tidak punya cara untuk mencapai pelajaran manapun. Tidak ada story lain yang bisa didemokan tanpa ini.
 
@@ -114,6 +119,11 @@ Siswa membaca sebuah teks argumentatif, mengidentifikasi kelemahan logika/argume
 
 ---
 
+> **⚠️ SUPERSEDED (2026-08-13)**: Story ini berada di luar cakupan Lumera Core sejak Constitution
+> v2.0.0 (SMP–SMA saja, UTBK/SNBT & kuliah awal di-drop). Lihat
+> `specs/003-drop-utbk-snbt/spec.md`. Teks di bawah dipertahankan untuk traceability historis —
+> MUST NOT dihitung sebagai deliverable aktif atau kandidat modul (lihat FR-003).
+
 ### User Story 7 - Penalaran Kuantitatif (UTBK) (Priority: P2)
 
 Siswa mengerjakan soal penalaran kuantitatif bergaya UTBK/SNBT dengan bantuan model visual, bukan sekadar soal pilihan ganda berteks.
@@ -158,7 +168,7 @@ Setelah menyelesaikan satu atau lebih pelajaran, siswa dapat melihat streak hari
 
 - **FR-001**: Sistem MUST menampilkan Lumera Atlas sebagai homepage berisi node subject world yang saling terhubung secara visual (bukan grid tombol statis).
 - **FR-002**: Sistem MUST memungkinkan siswa memilih sebuah node di Atlas dan masuk ke modul pelajaran interaktif yang sesuai.
-- **FR-003**: Sistem MUST mengimplementasikan minimal 4 dari 6 modul pelajaran interaktif berikut secara penuh fungsional: Membaca Kemiringan Grafik (Matematika), Simulasi Gerak Lurus (Fisika), Supply & Demand Simulator (Ekonomi), Rantai Sebab-Akibat (Sejarah), Perbaiki Argumen (Bahasa), Penalaran Kuantitatif (UTBK).
+- **FR-003**: Sistem MUST mengimplementasikan minimal 4 dari 5 modul pelajaran interaktif berikut secara penuh fungsional: Membaca Kemiringan Grafik (Matematika), Simulasi Gerak Lurus (Fisika), Supply & Demand Simulator (Ekonomi), Rantai Sebab-Akibat (Sejarah), Perbaiki Argumen (Bahasa). (Disesuaikan oleh spec 003 — "Penalaran Kuantitatif (UTBK)" di-drop dari daftar kandidat karena di luar cakupan Constitution v2.0.0; lihat `specs/003-drop-utbk-snbt/spec.md` FR-002.)
 - **FR-004**: Setiap modul yang dibangun MUST mengikuti alur 7 langkah: Prompt → Model visual → Aksi pengguna → Umpan balik instan → Penjelasan "Kenapa?" → Refleksi → Lanjutkan.
 - **FR-005**: Sistem MUST memberikan umpan balik instan (benar/salah) setiap kali siswa melakukan aksi pada langkah interaksi/simulasi.
 - **FR-006**: Sistem MUST menampilkan penjelasan konsep ("Kenapa?") setelah setiap jawaban, baik benar maupun salah.
@@ -180,7 +190,7 @@ Setelah menyelesaikan satu atau lebih pelajaran, siswa dapat melihat streak hari
 ### Key Entities
 
 - **Siswa (User)**: pengguna individu prototype ini; memiliki identitas, saldo Lumens, streak harian, dan riwayat mastery per modul.
-- **Subject World**: kategori mata pelajaran yang ditampilkan sebagai node di Atlas (mis. Matematika, Fisika/Sains, Ekonomi & Bisnis, Sejarah & Sosial, Bahasa & Komunikasi, UTBK/SNBT).
+- **Subject World**: kategori mata pelajaran yang ditampilkan sebagai node di Atlas (Matematika, Fisika/Sains, Ekonomi & Bisnis, Sejarah & Sosial, Bahasa & Komunikasi — tanpa UTBK/SNBT). Definisi lengkap superseded oleh `specs/003-drop-utbk-snbt/data-model.md`.
 - **Modul Pelajaran**: satu unit pelajaran interaktif di dalam sebuah subject world, terdiri dari satu instance alur 7 langkah.
 - **Percobaan Interaksi/Simulasi**: satu kali aksi siswa pada langkah "Aksi pengguna" beserta hasil benar/salah dan penjelasannya.
 - **Streak**: hitungan hari berturut-turut siswa menyelesaikan minimal satu pelajaran.
@@ -192,7 +202,7 @@ Setelah menyelesaikan satu atau lebih pelajaran, siswa dapat melihat streak hari
 
 ### Measurable Outcomes
 
-- **SC-001**: Minimal 4 dari 6 modul pelajaran yang dispesifikasikan dapat diselesaikan end-to-end oleh pengguna uji tanpa error atau jalan buntu.
+- **SC-001**: Minimal 4 dari 5 modul pelajaran yang dispesifikasikan dapat diselesaikan end-to-end oleh pengguna uji tanpa error atau jalan buntu. (Disesuaikan oleh spec 003 — lihat FR-003.)
 - **SC-002**: Siswa baru dapat berpindah dari membuka Atlas hingga menyelesaikan satu pelajaran penuh dalam waktu kurang dari 5 menit tanpa bantuan eksternal.
 - **SC-003**: 90% atau lebih dari percobaan interaksi pada langkah "Aksi pengguna" menghasilkan umpan balik instan yang terlihat (tidak ada interaksi yang macet/tidak merespons).
 - **SC-004**: 100% pelajaran yang diselesaikan menghasilkan pembaruan Lumens, streak, dan progress yang terlihat oleh siswa.
@@ -217,9 +227,9 @@ Dinyatakan eksplisit agar batas antar spec tetap jelas. Hal-hal berikut TIDAK di
 
 ## Assumptions
 
-- Prototype ini hanya mencakup akun individu; target audiens adalah SMP–SMA–UTBK/kuliah awal (Lumera Core).
+- Prototype ini hanya mencakup akun individu; target audiens adalah SMP–SMA (Lumera Core). (Disesuaikan oleh spec 003 — UTBK/SNBT dan kuliah awal di-drop dari cakupan sesuai Lumera Constitution v2.0.0.)
 - Bahasa antarmuka adalah Bahasa Indonesia.
 - Koneksi internet stabil diasumsikan tersedia selama sesi belajar.
 - Pelajaran dapat diselesaikan tanpa menghasilkan kartu Knowledge Bank yang terlihat oleh siswa — namun data mentahnya tetap wajib direkam (FR-015) agar Knowledge Bank dan Refresh Harian tidak perlu instrumentasi ulang dari nol saat dibangun nanti.
-- Modul mana saja (4 dari 6) yang dipilih untuk dibangun lebih dulu adalah keputusan implementasi/sequencing, bukan ambiguitas spesifikasi — seluruh 6 modul dispesifikasikan agar tim dapat memilih, dengan syarat kelayakan pada FR-020 terpenuhi.
+- Modul mana saja (4 dari 5) yang dipilih untuk dibangun lebih dulu adalah keputusan implementasi/sequencing, bukan ambiguitas spesifikasi — seluruh 5 modul dispesifikasikan agar tim dapat memilih, dengan syarat kelayakan pada FR-020 terpenuhi. (Disesuaikan oleh spec 003 — lihat FR-003.)
 - Verifikasi konten (FR-016) dilakukan oleh reviewer selain penulis modul, sesuai gate pada konstitusi; mekanisme review-nya sendiri berada di luar spec ini.

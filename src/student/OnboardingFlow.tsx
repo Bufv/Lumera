@@ -231,7 +231,7 @@ function ProfileStep({
             <span><strong>SMP Kelas VII</strong><small>Tersedia sekarang</small></span>
             <Icon name="check" width={20} height={20} />
           </div>
-          {['SMP Kelas VIII–IX', 'SMA', 'UTBK / SNBT'].map((label) => (
+          {['SMP Kelas VIII–IX', 'SMA'].map((label) => (
             <div className="grade-card grade-card--disabled" key={label}>
               <span><strong>{label}</strong><small>Segera hadir</small></span>
               <Icon name="lock" width={17} height={17} />
