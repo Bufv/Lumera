@@ -212,5 +212,14 @@ di `spec.md`, urutan pemotongan dari yang paling dulu dipotong:
 4. US9 (aksesibilitas otomatis, P2) — audit manual sebagai jaring pengaman sementara.
 5. US8 (ketahanan localStorage, P2) — kondisi tepi yang jarang terjadi.
 
-Story P1 (US1–US7) MUST tidak dipotong sebagian — mengikuti gate FR-020 spec 001: sebuah
+Story P1 (US1–US7) MUST tidak dipotong sebagian — mengikuti prinsip "modul setengah jadi MUST NOT
+dihitung sebagai deliverable" yang sama dengan **FR-020 di `specs/001-core-mvp-prototype/spec.md`**
+(bukan FR-020 spec ini, yang isinya berbeda — lihat peringatan penamaan di bawah): sebuah
 kapabilitas P1 yang setengah jadi (mis. CI ada tapi rollback tidak ada) MUST NOT dihitung selesai.
+
+> **Catatan penamaan (2026-08-12, ditemukan lewat `/speckit-analyze`)**: `FR-020` adalah ID yang
+> dipakai ulang secara independen oleh dua spec — `spec.md` § FR-020 di feature ini (soal
+> peringatan sebelum menghapus progres) dan `specs/001-core-mvp-prototype/spec.md` § FR-020
+> (soal syarat kelayakan "modul selesai") tidak berkaitan sama sekali. Referensi `FR-020` MANAPUN
+> di seluruh repo ini MUST selalu diberi qualifier spec (`FR-020 (001)` / `FR-020 (002)`) agar
+> tidak salah dibaca lintas dokumen.

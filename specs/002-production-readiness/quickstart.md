@@ -67,6 +67,16 @@ gratis) sudah dibuat dan DSN tersedia sebagai secret CI.
 2. Jalankan aksi "hapus semua data saya" dari Pengaturan.
    **Expected**: `localStorage.getItem('lumera.progress.v1')`,
    `localStorage.getItem('lumera.profile.v1')`, dan data telemetry seluruhnya kosong setelahnya.
+3. **Review akurasi hukum** (Constitution Check Gate IV, `plan.md`): konten `src/privacy/content.ts`
+   MUST ditinjau oleh seseorang selain penulis kontennya sebelum rilis production pertama,
+   memeriksa bahwa klaim yang dibuat (data apa yang dikumpulkan, ke mana data pihak ketiga
+   — Sentry — mengalir, hak hapus data) akurat terhadap implementasi sungguhan saat ini (bukan
+   sekadar terdengar meyakinkan). Ini bukan pengganti nasihat hukum profesional formal (lihat
+   `spec.md` § Out of Scope) — tujuannya menangkap ketidaksesuaian nyata antara klaim dan kode
+   sebelum siswa/orang tua membacanya.
+   **STATUS**: belum dijalankan — ditambahkan 2026-08-12 lewat `/speckit-analyze` (`plan.md`
+   sudah lama menjanjikan gate ini ada di sini, tapi sebelumnya tidak tertulis). MUST dijalankan
+   sebelum rilis production pertama yang menyertakan `src/privacy/content.ts`.
 
 ## V-7 — Progres Tidak Hilang Permanen (US7)
 

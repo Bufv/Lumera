@@ -17,6 +17,10 @@
 - Q: Berapa ambang lonjakan error produksi (FR-007) yang memicu notifikasi tim, mengingat Assumptions sebelumnya menjanjikan angka ini ditetapkan di `/speckit-plan` namun `plan.md` tidak pernah mengisinya? → A: 10 error dalam jendela 5 menit.
 - Q: Apakah US11 (registry modul + lazy-load, kemudahan menambah modul pembelajaran) perlu dinaikkan prioritas dari P2 mengingat ini salah satu fokus kesiapan produksi? → A: Tidak — tetap P2, digarap lewat `/speckit-tasks` berikutnya setelah seluruh P1 (US1-7) selesai dan tervalidasi, konsisten dengan urutan yang sudah ada di Complexity Tracking `plan.md`.
 
+### Session 2026-08-12
+
+- Q: Sesi klarifikasi 2026-08-09 (di atas) dan `tasks.md` § Dependencies & Execution Order menyatakan P2/P3 (US8–US12) MUST tidak dimulai sebelum seluruh P1 (US1–US7) **selesai dan tervalidasi**. Pada praktiknya, pekerjaan KODE seluruh P1 selesai 100% sejak 2026-08-09, tapi sejumlah task **verifikasi** P1 (T008, T011, T012, T016, T017) tetap terblokir murni oleh kredensial/akun eksternal yang tidak tersedia di lingkungan implementasi (bukan pekerjaan kode yang belum ditulis) — dan P2/P3 tetap dimulai sebelum blocker itu hilang. Apakah ini pelanggaran aturan yang MUST diperbaiki (mis. membatalkan pekerjaan P2/P3), atau aturannya yang perlu diperjelas? → A: Aturannya diperjelas, bukan pekerjaan P2/P3 yang dibatalkan. P2/P3 boleh dimulai sebelum seluruh P1 **tervalidasi** hanya jika: (1) pekerjaan **kode** seluruh US1–US7 sudah 100% selesai (bukan sebagian), dan (2) sisa item P1 yang belum tervalidasi terblokir semata-mata oleh kredensial/akun/lingkungan eksternal yang di luar kendali tim implementasi (bukan oleh pekerjaan kode yang belum ditulis atau bug yang belum diperbaiki). Pengecualian ini MUST dicatat eksplisit di `tasks.md` dengan daftar item P1 yang masih terblokir dan alasannya — tidak boleh diam-diam. Rilis production MUST tetap menunggu seluruh blocker P1 eksternal hilang dan tervalidasi sebelum P1 **maupun** P2/P3 manapun dianggap "siap rilis" — pengecualian ini hanya mengizinkan pekerjaan **implementasi** paralel, bukan klaim kesiapan rilis paralel.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -164,7 +168,7 @@ streak, mastery) pulih sepenuhnya.
 
 1. **Given** siswa memiliki progres belajar, **When** siswa memilih ekspor progres, **Then** sistem MUST menghasilkan berkas yang dapat disimpan di luar browser.
 2. **Given** siswa memiliki berkas ekspor yang valid, **When** siswa mengimpornya di perangkat/browser manapun, **Then** seluruh progres (Lumens, streak, mastery) MUST pulih sepenuhnya.
-3. **Given** siswa akan melakukan aksi yang menghapus seluruh progres lokal (mis. reset profil), **When** aksi tersebut diminta, **Then** sistem MUST memperingatkan bahwa aksi tidak dapat dibatalkan kecuali progres telah diekspor.
+3. **Given** siswa akan melakukan aksi yang menghapus seluruh progres lokal (mis. "hapus semua data saya" pada US6 — **bukan** "ulangi onboarding", yang sengaja hanya mereset profil dan mempertahankan progres, lihat FR-015 dan catatan implementasi US6), **When** aksi tersebut diminta, **Then** sistem MUST memperingatkan bahwa aksi tidak dapat dibatalkan kecuali progres telah diekspor.
 
 ---
 

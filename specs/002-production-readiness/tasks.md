@@ -200,10 +200,14 @@ dipahami. Jalankan aksi hapus-semua-data → verifikasi seluruh data lokal benar
 - [X] T028 [P] [US6] Implementasikan `src/privacy/PrivacyPolicy.tsx` memakai token desain `src/design/tokens.ts` (Constitution Check Prinsip V, plan.md)
 - [X] T029 [US6] Daftarkan rute kebijakan privasi ke `src/student/routes.ts` dan tautkan dari `SettingsScreen` (`src/student/StudentScreens.tsx`)
 - [X] T030 [US6] Implementasikan aksi "hapus semua data saya" yang memanggil `resetLearnerProfile()` (`src/profile/store.ts`), `resetProgres()` (`src/progress/store.ts`), **dan** pembersihan storage telemetry sekaligus — perluas `onRequestResetProfile`/`confirmReset` di `src/student/StudentApp.tsx` yang saat ini hanya me-reset profil, tidak progress/telemetry
-  **CATATAN**: diimplementasikan sebagai `src/privacy/deleteAllData.ts` (`hapusSemuaDataSiswa`), aksi `ConfirmAction` BARU `'delete-all-data'` — sengaja **terpisah** dari `'reset-profile'` yang sudah ada (yang tetap hanya me-reset profil, dipakai alur "ulangi onboarding"), bukan menggantikannya, supaya kedua makna aksi tidak tercampur.
+  **CATATAN**: diimplementasikan sebagai `src/privacy/deleteAllData.ts` (`hapusSemuaDataSiswa`), aksi `ConfirmAction` BARU `'delete-all-data'` — sengaja **terpisah** dari `'reset-profile'` yang sudah ada (yang tetap hanya me-reset profil, dipakai alur "ulangi onboarding"), bukan menggantikannya, supaya kedua makna aksi tidak tercampur. Dialog konfirmasi aksi ini (`CONFIRM_COPY['delete-all-data']` di `StudentApp.tsx`) juga MUST memenuhi **FR-020 (spec ini)**: menjelaskan aksi tidak dapat dibatalkan kecuali progres sudah diekspor — sudah terpenuhi lewat baris "Tindakan ini TIDAK dapat dibatalkan kecuali kamu sudah mengekspor progresmu." **KOREKSI (2026-08-12, `/speckit-analyze`)**: FR-020 sebelumnya tidak dikutip eksplisit di task manapun, dan contoh ilustratif "mis. reset profil" pada AC3 US7 sudah ketinggalan zaman terhadap keputusan di atas (`reset-profile` sengaja TIDAK menghapus progres) — diperbaiki di `spec.md`.
 - [X] T031 [P] [US6] Unit test aksi hapus-semua-data di `tests/unit/data-deletion.test.ts`: isi ketiga kunci storage dengan data fixture, jalankan aksi, verifikasi ketiganya kosong setelahnya
 - [ ] T032 [US6] Jalankan Quickstart V-6 dan catat hasilnya di `quickstart.md`
   **SEBAGIAN**: alur hapus-data teruji penuh lewat unit test (T031, 2 test). Verifikasi manual "buka kebijakan privasi dari aplikasi yang benar-benar jalan" butuh sesi browser.
+  **KOREKSI (2026-08-12, `/speckit-analyze`)**: V-6 langkah 3 (review akurasi hukum konten
+  `src/privacy/content.ts`, dijanjikan `plan.md` § Constitution Check Gate IV) sebelumnya tidak
+  tertulis di `quickstart.md` sama sekali — ditambahkan. T032 belum dianggap selesai sampai
+  langkah 3 ini juga dijalankan, bukan hanya langkah 1–2.
 
 **Checkpoint**: US6 dapat didemokan independen — kebijakan privasi dan hak hapus data berfungsi
 penuh terlepas dari status story lain.
@@ -373,7 +377,11 @@ ulang" per Clarifications `spec.md`).
 - **US8, US9, US10, US11 (Phase 10–13)**: hanya bergantung pada Setup (Phase 1) — independen dari
   Foundational, US1–US2, dan satu sama lain. **MUST tidak dimulai sebelum seluruh P1 (US1–US7)
   selesai dan tervalidasi**, sesuai Complexity Tracking `plan.md` (P1 tidak boleh dipotong
-  sebagian; P2 adalah yang dipotong lebih dulu jika waktu menyempit)
+  sebagian; P2 adalah yang dipotong lebih dulu jika waktu menyempit) — **kecuali** pengecualian
+  sempit di Klarifikasi Session 2026-08-12 `spec.md`: boleh dimulai lebih awal hanya jika kode
+  seluruh P1 100% selesai dan sisa item P1 yang belum tervalidasi terblokir semata-mata oleh
+  kredensial/lingkungan eksternal (bukan kode). Lihat § Status Implementasi di bawah untuk daftar
+  item P1 yang jadi dasar pengecualian ini saat dipakai (2026-08-10).
 - **US12 (Phase 14)**: bergantung pada T033/T034 (US7) sudah selesai (`schemaVersion` di
   `Siswa`/`LearnerProfile`) — keduanya sudah selesai di P1, jadi US12 secara teknis bisa dimulai
   begitu P1 selesai, mengikuti urutan prioritas P2 sebelum P3
@@ -489,12 +497,17 @@ eksplisit "jalankan sesuai saran langkah berikutnya". `npx tsc -b`, `npm run lin
 `npx vitest run` (**241/241 test**, naik dari 224) seluruhnya bersih. Build production
 (`npm run build`) sukses.
 
-**Catatan menyimpang dari Implementation Strategy**: P2/P3 dikerjakan SEBELUM seluruh blocker
-eksternal P1 (T008, T011, T012, T016, T017 — kredensial Cloudflare/GitHub Actions/Sentry) selesai,
-karena blocker-blocker itu butuh akun sungguhan yang tidak tersedia di lingkungan implementasi ini
-— menunggu tidak akan membuatnya tersedia. Pekerjaan KODE P1 sendiri sudah 100% selesai sejak
-2026-08-09; yang tersisa murni verifikasi lingkungan nyata (lihat tabel di bawah), jadi menunda P2/P3
-sampai itu selesai tidak menambah manfaat, hanya menunda nilai yang sudah bisa dikirim sekarang.
+**Pengecualian terhadap Implementation Strategy** (diformalkan lewat Klarifikasi Session 2026-08-12
+`spec.md`, ditemukan awalnya lewat `/speckit-analyze` sebagai kontradiksi terhadap aturan MUST di
+atas): P2/P3 dikerjakan sebelum seluruh blocker eksternal P1 (T008, T011, T012, T016, T017 —
+kredensial Cloudflare/GitHub Actions/Sentry) selesai, karena blocker-blocker itu butuh akun
+sungguhan yang tidak tersedia di lingkungan implementasi ini — menunggu tidak akan membuatnya
+tersedia. Pekerjaan KODE P1 sendiri sudah 100% selesai sejak 2026-08-09 (syarat 1 pengecualian);
+kelima item di atas terblokir semata-mata oleh kredensial/lingkungan eksternal, bukan kode yang
+belum ditulis (syarat 2 pengecualian) — jadi menunda P2/P3 sampai itu selesai tidak menambah
+manfaat, hanya menunda nilai yang sudah bisa dikirim sekarang. **Ini tidak mengubah status rilis**:
+production MUST tetap menunggu kelima item ini tervalidasi sebelum P1 atau P2/P3 manapun dianggap
+"siap rilis" (lihat Klarifikasi 2026-08-12).
 
 **Hasil terukur P2/P3** (lihat catatan per-task untuk detail):
 - Chunk JS awal turun **547 KB → 273 KB (-50%)**, gzip **166.6 KB → 82.5 KB (-50%)** — gabungan
