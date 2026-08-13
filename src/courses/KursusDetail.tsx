@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Icon } from '../design/Icon';
-import { semuaModul } from '../shell/registry';
+import { MODULE_META } from '../modules';
 import { CincinProgres } from './Progres';
 import { jalurSimpul } from './simpul';
 import {
@@ -33,7 +33,8 @@ export function KursusDetail({
   onMulaiPelajaran: (moduleId: string) => void;
   onKembali: () => void;
 }) {
-  const terdaftar = useMemo(() => new Set(semuaModul().map((m) => m.id)), []);
+  // US11 spec 002 (T061): metadata ringan (bukan modul penuh) — lihat catatan di Atlas.tsx.
+  const terdaftar = useMemo(() => new Set(MODULE_META.map((m) => m.id)), []);
   const data = useMemo(() => susunKursus(kursus, siswa, terdaftar), [kursus, siswa, terdaftar]);
 
   return (

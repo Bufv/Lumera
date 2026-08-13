@@ -1,11 +1,53 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
+  // Nama/base config dipakai saat `wrangler deploy` dijalankan tanpa --env
+  // (mis. development lokal). Rilis nyata SELALU lewat --env staging atau
+  // --env production DENGAN --name eksplisit (lihat catatan di bawah dan
+  // .github/workflows/deploy.yml) — bukan hanya --env sendirian.
   "name": "lumera-student-batch-1",
   "main": "worker/index.js",
   "compatibility_date": "2026-05-22",
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": false
+    // true (bukan default false) — header keamanan (worker/security-headers.js,
+    // FR-009) harus menempel pada SETIAP response, termasuk aset statis yang
+    // sukses (200), bukan hanya fallback SPA. Trade-off: setiap request kini
+    // melewati Worker, menambah overhead kecil yang wajar pada skala trafik
+    // prototype saat ini (lihat Complexity Tracking, plan.md).
+    "run_worker_first": true
+  },
+  // CATATAN PENTING 2026-08-09: `env.staging`/`env.production` di bawah TIDAK
+  // BOLEH diandalkan sendirian untuk memisahkan nama Worker atau `vars` saat
+  // deploy sungguhan. Terverifikasi lewat `wrangler deploy --dry-run` lokal:
+  // config redirect yang dibuat @cloudflare/vite-plugin saat `vite build`
+  // (persis alur deploy.yml: build dulu, baru `wrangler deploy --env <x>`)
+  // MERATAKAN config ke top-level SEBELUM wrangler membaca --env — override
+  // `name`/`vars` di bawah ini terbukti tidak sampai ke deploy sungguhan.
+  // Blok `env` ini dipertahankan hanya supaya wrangler tahu "staging" dan
+  // "production" adalah nama environment yang sah (mencegah typo di --env),
+  // BUKAN sebagai sumber kebenaran nama Worker/vars — itu sekarang eksplisit
+  // lewat flag CLI --name/--var di deploy.yml, yang terverifikasi bertahan
+  // lewat redirect yang sama (dry-run lokal mengonfirmasi ini).
+  //
+  // Keputusan CSP ketat/longgar TIDAK bergantung pada `vars.ENVIRONMENT` di
+  // bawah — itu pakai `import.meta.env.DEV` (konstanta build-time Vite,
+  // independen dari isu redirect ini). Lihat worker/security-headers.js.
+  "vars": {
+    "ENVIRONMENT": "development"
+  },
+  "env": {
+    "staging": {
+      "name": "lumera-student-batch-1-staging",
+      "vars": {
+        "ENVIRONMENT": "staging"
+      }
+    },
+    "production": {
+      "name": "lumera-student-batch-1-production",
+      "vars": {
+        "ENVIRONMENT": "production"
+      }
+    }
   }
 }

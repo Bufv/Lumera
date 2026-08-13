@@ -3,12 +3,10 @@ import { SlopeVisualModel } from './VisualModel';
 import { SlopeUserAction } from './UserAction';
 import { nilaiKemiringan, type SlopeState } from './scoring';
 import * as konten from '../../content/math-slope';
+import { mathSlopeMeta } from './meta';
 
 export const mathSlopeModule: LessonModule<SlopeState, number> = {
-  id: 'math-slope',
-  subjectWorldId: 'matematika',
-  judul: 'Membaca Kemiringan Grafik',
-  conceptIds: konten.conceptIds,
+  ...mathSlopeMeta,
 
   prompt: konten.prompt,
   pertanyaanRefleksi: konten.pertanyaanRefleksi,

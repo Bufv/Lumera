@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Icon } from '../design/Icon';
 import { Lumo } from '../design/Lumo';
-import { semuaModul } from '../shell/registry';
+import { MODULE_META } from '../modules';
 import { pilihUsulan } from '../progress/suggestions';
 import { CincinProgres } from '../courses/Progres';
 import { labelMenit, susunKatalog, type KursusTampil } from '../courses/katalog';
@@ -33,7 +33,8 @@ export function Beranda({
   onBukaPetaIlmu: () => void;
   onBukaBelajar: () => void;
 }) {
-  const modulLengkap = useMemo(() => semuaModul(), []);
+  // US11 spec 002 (T061): metadata ringan (bukan modul penuh) — lihat catatan di Atlas.tsx.
+  const modulLengkap = MODULE_META;
   const terdaftar = useMemo(() => new Set(modulLengkap.map((m) => m.id)), [modulLengkap]);
   const katalog = useMemo(() => susunKatalog(siswa, terdaftar), [siswa, terdaftar]);
 
@@ -134,6 +135,7 @@ export function Beranda({
                       <small className="t-body-xs">{kekuatan.label}</small>
                       <span
                         className="titik"
+                        role="img"
                         aria-label={`${kekuatan.terisi} dari ${TITIK_KEKUATAN}`}
                       >
                         {Array.from({ length: TITIK_KEKUATAN }, (_, i) => (

@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { Belajar } from '../../src/courses/Belajar';
 import { KursusDetail } from '../../src/courses/KursusDetail';
 import { ambilKursus, jalurUntukKursus } from '../../src/courses/katalog';
-import { daftarkanSemuaModul } from '../../src/modules';
+import { daftarkanSemuaModul } from '../../src/modules/eager';
 import type { CatatanMastery, Siswa } from '../../src/progress/store';
 
 /**
@@ -20,6 +20,7 @@ afterEach(cleanup);
 
 function siswa(patch: Partial<Siswa> = {}): Siswa {
   return {
+    schemaVersion: 1,
     id: 'uji',
     lumens: 0,
     streakCount: 0,

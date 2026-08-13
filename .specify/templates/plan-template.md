@@ -40,9 +40,11 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Derived from `.specify/memory/constitution.md` v1.0.0. Mark each gate PASS / FAIL / N/A with a
+Derived from `.specify/memory/constitution.md` v2.0.0. Mark each gate PASS / FAIL / N/A with a
 one-line justification. Any FAIL must be recorded in Complexity Tracking below.
 
+- [ ] **Mukadimah**: This plan serves the social mission (Indonesian student literacy/engagement),
+      not revenue maximization; no monetization/premium feature is being designed or implemented.
 - [ ] **I. Interaksi Nyata**: No planned UI control is decorative — every interactive element
       changes real state and produces feedback.
 - [ ] **II. Struktur 7 Langkah**: Every lesson module in this plan implements all 7 steps
@@ -53,10 +55,13 @@ one-line justification. Any FAIL must be recorded in Complexity Tracking below.
 - [ ] **IV. Kebenaran Konten**: Content verification against Kurikulum Merdeka is planned before
       release, with a reviewer other than the module author.
 - [ ] **V. Dewasa Secara Visual**: Visual/copy direction follows "Soft Academic Adventure"; no
-      childish tone, no leaderboard or heavy social features.
+      childish tone, no leaderboard or heavy social features; target segment is SMP-SMA.
 - [ ] **VI. Instrumentasi Sejak Awal**: Minimal per-lesson data capture (concept, error type,
       time-on-task) is included in this plan, even if consuming features are out of scope.
 - [ ] **VII. Aset Orisinal**: All illustrations/animations/icons are original or properly licensed.
+- [ ] **VIII. Privasi dan Keamanan Data Siswa**: Any student data stored/processed is minimized,
+      self-deletable by the student, never sold/shared with third parties, and has passed a
+      privacy review before release.
 
 ## Project Structure
 

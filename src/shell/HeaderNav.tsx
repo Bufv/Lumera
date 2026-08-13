@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon, type IconName } from '../design/Icon';
 import { Lumo } from '../design/Lumo';
-import { semuaModul } from './registry';
+import { MODULE_META } from '../modules';
 import type { Siswa } from '../progress/store';
 import './HeaderNav.css';
 
@@ -31,7 +31,8 @@ export function HeaderNav({
 }) {
   const [kueri, setKueri] = useState('');
   const inputCariRef = useRef<HTMLInputElement>(null);
-  const modul = useMemo(() => semuaModul().map((m) => ({ id: m.id, judul: m.judul })), []);
+  // US11 spec 002 (T061): metadata ringan (bukan modul penuh) — lihat catatan di Atlas.tsx.
+  const modul = useMemo(() => MODULE_META.map((m) => ({ id: m.id, judul: m.judul })), []);
   const hasilCari = useMemo(() => {
     const q = kueri.trim().toLocaleLowerCase('id-ID');
     return q ? modul.filter((m) => m.judul.toLocaleLowerCase('id-ID').includes(q)).slice(0, 5) : [];

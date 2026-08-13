@@ -9,6 +9,11 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
+    // worker/*.js sengaja tetap JS biasa (dijalankan langsung oleh Cloudflare
+    // Workers, bukan lewat langkah build TS) — allowJs hanya agar tsc bisa
+    // meresolusi impornya dari test (T021), bukan untuk type-check ketat JS itu
+    // sendiri (checkJs sengaja TIDAK diaktifkan).
+    "allowJs": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
@@ -26,5 +31,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "tests", "vite.config.ts"]
+  "include": ["src", "tests", "worker", "vite.config.ts"]
 }

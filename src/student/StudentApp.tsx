@@ -1,13 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../design/Icon';
 import { Tactile } from '../design/Tactile';
 import {
   loadLearnerProfile,
   resetLearnerProfile,
   saveLearnerProfile,
+  PROFILE_SCHEMA_VERSION,
   type LearnerProfile,
   type StudyDay,
 } from '../profile';
+import { PrivacyPolicy } from '../privacy/PrivacyPolicy';
+import { hapusSemuaDataSiswa } from '../privacy/deleteAllData';
+import { bacaSiswa, type Siswa } from '../progress/store';
+import { StorageWarningBanner } from '../storage/StorageWarningBanner';
 import { findStudentModule } from './catalog';
 import { ARDI_DEMO_FIXTURE, type DemoSavedConcept } from './demo';
 import { OnboardingFlow } from './OnboardingFlow';
@@ -20,7 +25,6 @@ import {
   type RouteName,
   type StudentLocation,
 } from './routes';
-import { IntegerCourseScreen } from './IntegerCourseScreen';
 import {
   HomeScreen,
   LearnScreen,
@@ -34,7 +38,41 @@ import { StudentShell } from './StudentShell';
 import type { StudentModuleSummary, StudentSearchRecord } from './types';
 import './StudentOverlays.css';
 
-type ConfirmAction = 'reset-profile' | 'reset-demo' | null;
+// US10 spec 002 (T059, R-009, FR-017): satu-satunya layar yang memakai
+// `RiveGameboardNode` (runtime + wasm @rive-app/canvas-lite) — dimuat lazy
+// agar runtime Rive tidak lagi bagian dari bundle awal, hanya diunduh saat
+// siswa benar-benar membuka kursus Bilangan Bulat.
+const IntegerCourseScreen = lazy(() =>
+  import('./IntegerCourseScreen').then((m) => ({ default: m.IntegerCourseScreen })),
+);
+
+// US6 spec 002 (T030): 'reset-profile' tetap ada untuk alur onboarding-ulang
+// yang sudah ada (hanya reset LearnerProfile); 'delete-all-data' adalah aksi
+// BARU dan terpisah — menghapus profil + progres + telemetry sekaligus (FR-015).
+type ConfirmAction = 'reset-profile' | 'reset-demo' | 'delete-all-data' | null;
+
+const CONFIRM_COPY: Record<
+  Exclude<ConfirmAction, null>,
+  { title: string; description: string; confirmLabel: string }
+> = {
+  'reset-profile': {
+    title: 'Ulangi onboarding?',
+    description:
+      'Nama, tujuan, dan ritme belajar lokal akan dihapus. Progres lesson engine tetap dipertahankan.',
+    confirmLabel: 'Ya, ulangi onboarding',
+  },
+  'reset-demo': {
+    title: 'Reset data demo?',
+    description: 'Mode demo akan kembali ke data ilustratif awal milik Ardi.',
+    confirmLabel: 'Reset data demo',
+  },
+  'delete-all-data': {
+    title: 'Hapus semua data saya?',
+    description:
+      'Profil, progres (Lumens/streak/mastery), dan seluruh catatan aktivitas belajar akan dihapus permanen dari perangkat ini. Tindakan ini TIDAK dapat dibatalkan kecuali kamu sudah mengekspor progresmu.',
+    confirmLabel: 'Ya, hapus semua data saya',
+  },
+};
 
 const DEMO_DAYS: StudyDay[] = [
   'monday',
@@ -48,6 +86,7 @@ const DEMO_DAYS: StudyDay[] = [
 
 function demoProfile(): LearnerProfile {
   return {
+    schemaVersion: PROFILE_SCHEMA_VERSION,
     displayName: ARDI_DEMO_FIXTURE.profile.displayName,
     stage: 'smp',
     grade: 7,
@@ -69,6 +108,10 @@ export function StudentApp() {
   const [selectedModule, setSelectedModule] = useState<StudentModuleSummary | null>(null);
   const [selectedConcept, setSelectedConcept] = useState<DemoSavedConcept | null>(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
+  // US7 spec 002 (T038): progres nyata, dibutuhkan SettingsScreen untuk cek
+  // staleness saat impor (contracts/progress-export-contract.md aturan 4) dan
+  // diperbarui setelah impor/hapus-semua-data berhasil.
+  const [siswa, setSiswa] = useState<Siswa>(() => bacaSiswa());
   const demoData = location.demo ? ARDI_DEMO_FIXTURE : null;
   const visibleProfile = useMemo(
     () => (location.demo ? demoProfile() : profile),
@@ -178,6 +221,17 @@ export function StudentApp() {
       setSelectedConcept(null);
       setSelectedModule(null);
       navigate('home', true);
+      return;
+    }
+    if (confirmAction === 'delete-all-data') {
+      // US6 spec 002 (T030, FR-015): berbeda dari 'reset-profile' — ini juga
+      // menghapus progres (Siswa) dan telemetry, bukan hanya LearnerProfile.
+      void hapusSemuaDataSiswa().then((fresh) => {
+        setProfile(fresh);
+        setSiswa(bacaSiswa());
+        setConfirmAction(null);
+        navigate('welcome', false);
+      });
     }
   };
 
@@ -212,14 +266,16 @@ export function StudentApp() {
         );
       case 'integers':
         return (
-          <IntegerCourseScreen
-            percent={demoData?.courseProgress.percent ?? 0}
-            moduleProgress={moduleProgress}
-            view={location.courseView}
-            onChangeView={changeCourseView}
-            onNavigate={navigate}
-            onOpenModule={setSelectedModule}
-          />
+          <Suspense fallback={null}>
+            <IntegerCourseScreen
+              percent={demoData?.courseProgress.percent ?? 0}
+              moduleProgress={moduleProgress}
+              view={location.courseView}
+              onChangeView={changeCourseView}
+              onNavigate={navigate}
+              onOpenModule={setSelectedModule}
+            />
+          </Suspense>
         );
       case 'review':
         return <ReviewScreen demoData={demoData} onNavigate={navigate} />;
@@ -237,13 +293,22 @@ export function StudentApp() {
         return (
           <SettingsScreen
             profile={visibleProfile}
+            siswa={siswa}
             demo={location.demo}
             onSave={(next) => setProfile(saveLearnerProfile(next))}
             onExitDemo={exitDemo}
             onRequestResetProfile={() => setConfirmAction('reset-profile')}
             onRequestResetDemo={() => setConfirmAction('reset-demo')}
+            onRequestDeleteAllData={() => setConfirmAction('delete-all-data')}
+            onOpenPrivacy={() => navigate('privacy', location.demo)}
+            onImportApplied={({ siswa: siswaBaru, learnerProfile }) => {
+              setSiswa(siswaBaru);
+              setProfile(learnerProfile);
+            }}
           />
         );
+      case 'privacy':
+        return <PrivacyPolicy onKembali={() => navigate('settings', location.demo)} />;
       case 'home':
       default:
         return <HomeScreen profile={profile} demoData={demoData} onNavigate={navigate} />;
@@ -260,6 +325,7 @@ export function StudentApp() {
       onExitDemo={exitDemo}
       onSearchSelect={handleSearchSelect}
     >
+      <StorageWarningBanner />
       {content}
 
       {selectedModule && (
@@ -307,15 +373,9 @@ export function StudentApp() {
 
       {confirmAction && (
         <ConfirmDialog
-          title={confirmAction === 'reset-profile' ? 'Ulangi onboarding?' : 'Reset data demo?'}
-          description={
-            confirmAction === 'reset-profile'
-              ? 'Nama, tujuan, dan ritme belajar lokal akan dihapus. Progres lesson engine tetap dipertahankan.'
-              : 'Mode demo akan kembali ke data ilustratif awal milik Ardi.'
-          }
-          confirmLabel={
-            confirmAction === 'reset-profile' ? 'Ya, ulangi onboarding' : 'Reset data demo'
-          }
+          title={CONFIRM_COPY[confirmAction].title}
+          description={CONFIRM_COPY[confirmAction].description}
+          confirmLabel={CONFIRM_COPY[confirmAction].confirmLabel}
           onCancel={() => setConfirmAction(null)}
           onConfirm={confirmReset}
         />
@@ -357,6 +417,10 @@ function InfoDrawer({
             <span>{eyebrow}</span>
             <h2 id="drawer-title">{title}</h2>
           </div>
+          {/* US9 spec 002 (T051, FR-021): pola dialog modal WAI-ARIA standar —
+              fokus MUST berpindah ke dalam dialog saat terbuka, tombol tutup
+              adalah target yang aman/dapat diprediksi. */}
+          {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
           <button type="button" onClick={onClose} aria-label="Tutup" autoFocus>
             <Icon name="close" width={20} height={20} />
           </button>

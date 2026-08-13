@@ -1,0 +1,55 @@
+name: CI
+
+# Gerbang wajib sebelum kode boleh mencapai staging/production.
+# Kontrak lengkap: specs/002-production-readiness/contracts/ci-pipeline-contract.md
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Lint, type-check, test, audit, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Gerbang 1 — contracts/ci-pipeline-contract.md
+      - name: Lint (termasuk aturan jsx-a11y)
+        run: npm run lint
+
+      # Gerbang 2 — sinyal type-check terpisah dari build agar gagal lebih cepat
+      - name: Type-check
+        run: npx tsc -b
+
+      # Gerbang 3
+      - name: Unit test
+        run: npm test
+
+      # Gerbang 4 — hanya kerentanan kritis/tinggi pada dependency yang benar-benar
+      # dikirim ke browser yang menahan merge (FR-008). --omit=dev mengecualikan
+      # toolchain build/deploy (wrangler, @cloudflare/vite-plugin, dst.) yang tidak
+      # pernah masuk bundle produksi — lihat contracts/ci-pipeline-contract.md § Gerbang 4.
+      # Kerentanan pada devDependencies tetap dilacak lewat dependabot.yml (T018), bukan
+      # tidak diawasi sama sekali.
+      - name: Audit kerentanan dependency
+        run: npm audit --audit-level=high --omit=dev
+
+      # Gerbang 5 — commit SHA disematkan sebagai APP_VERSION (FR-005, T005)
+      - name: Build production
+        run: npm run build
+        env:
+          VITE_APP_VERSION: ${{ github.sha }}

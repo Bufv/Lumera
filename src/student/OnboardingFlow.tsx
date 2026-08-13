@@ -210,6 +210,11 @@ function ProfileStep({
       <label className="profile-field">
         <span>Nama panggilan</span>
         <input
+          // US9 spec 002 (T051, FR-021): satu-satunya input di langkah onboarding
+          // ini — mengarahkan fokus langsung ke sini saat langkah tampil
+          // menghemat satu Tab bagi pengguna keyboard, bukan popup mengejutkan
+          // di tengah konten lain.
+          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           value={profile.displayName}
           maxLength={24}
@@ -226,7 +231,7 @@ function ProfileStep({
             <span><strong>SMP Kelas VII</strong><small>Tersedia sekarang</small></span>
             <Icon name="check" width={20} height={20} />
           </div>
-          {['SMP Kelas VIII–IX', 'SMA', 'UTBK / SNBT'].map((label) => (
+          {['SMP Kelas VIII–IX', 'SMA'].map((label) => (
             <div className="grade-card grade-card--disabled" key={label}>
               <span><strong>{label}</strong><small>Segera hadir</small></span>
               <Icon name="lock" width={17} height={17} />

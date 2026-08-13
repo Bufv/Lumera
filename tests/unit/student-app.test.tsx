@@ -171,7 +171,14 @@ describe('Lumera Batch 1 student shell', () => {
     await setHash('#/belajar/matematika/bilangan-bulat');
     render(<App />);
 
-    expect(screen.getByRole('button', { name: 'Jalur' })).toHaveAttribute('aria-pressed', 'true');
+    // US10 spec 002 (T059): IntegerCourseScreen kini lazy — tunggu chunk-nya
+    // resolve sebelum asersi pertama, bukan getByRole sinkron langsung.
+    expect(
+      await screen.findByRole('button', { name: 'Jalur' }, { timeout: 5000 }),
+    ).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     expect(document.querySelector('[data-view="roadmap"]')).not.toBeNull();
     expect(document.querySelectorAll('.course-node')).toHaveLength(7);
 
@@ -193,6 +200,8 @@ describe('Lumera Batch 1 student shell', () => {
     await setHash('#/belajar/matematika/bilangan-bulat?mode=demo&view=list');
     render(<App />);
 
+    // US10 spec 002 (T059): tunggu IntegerCourseScreen (lazy) resolve dulu.
+    await screen.findByText('Sedang berjalan', {}, { timeout: 5000 });
     const rows = document.querySelectorAll('.course-row');
     expect(rows).toHaveLength(7);
     expect(within(rows[0] as HTMLElement).getByText('Sedang berjalan')).toBeTruthy();
@@ -228,8 +237,13 @@ describe('Lumera Batch 1 student shell', () => {
     await setHash('#/belajar/matematika/bilangan-bulat');
     render(<App />);
 
+    // US10 spec 002 (T059): tunggu IntegerCourseScreen (lazy) resolve dulu.
     fireEvent.click(
-      screen.getByRole('button', { name: 'Bilangan di Bawah Nol, sedang berjalan' }),
+      await screen.findByRole(
+        'button',
+        { name: 'Bilangan di Bawah Nol, sedang berjalan' },
+        { timeout: 5000 },
+      ),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Lanjutkan' }));
     expect(screen.getByRole('dialog', { name: /Bilangan di Bawah Nol/i })).toBeTruthy();
@@ -245,8 +259,13 @@ describe('Lumera Batch 1 student shell', () => {
     await setHash('#/belajar/matematika/bilangan-bulat');
     render(<App />);
 
+    // US10 spec 002 (T059): tunggu IntegerCourseScreen (lazy) resolve dulu.
     fireEvent.click(
-      screen.getByRole('button', { name: 'Bilangan di Bawah Nol, sedang berjalan' }),
+      await screen.findByRole(
+        'button',
+        { name: 'Bilangan di Bawah Nol, sedang berjalan' },
+        { timeout: 5000 },
+      ),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Lanjutkan' }));
     expect(screen.getByRole('dialog', { name: /Bilangan di Bawah Nol/i })).toBeTruthy();

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArtworkFrame } from '../design/ArtworkFrame';
 import { Icon } from '../design/Icon';
 import { RiveGameboardNode } from '../design/RiveGameboardNode';
+import { Tactile } from '../design/Tactile';
 import { INTEGER_COURSE } from './catalog';
 import type { CourseView, RouteName } from './routes';
 import { Breadcrumbs } from './StudentScreens';
@@ -125,8 +126,7 @@ function SimpulPeron({
           <div className="course-node__kartu" role="dialog" aria-label={simpul.judul}>
             <strong>{simpul.judul}</strong>
             <small>{KETERANGAN_STATUS[simpul.status]}</small>
-            <button
-              type="button"
+            <Tactile
               className="course-node__aksi"
               data-status={simpul.status}
               aria-disabled={!dapatDibuka}
@@ -136,7 +136,7 @@ function SimpulPeron({
               }}
             >
               {AKSI_STATUS[simpul.status]}
-            </button>
+            </Tactile>
           </div>
         )}
       </div>

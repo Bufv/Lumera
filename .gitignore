@@ -1,9 +1,13 @@
 # Node / build
 node_modules/
 dist/
-build/
 coverage/
 .vite/
+# NOTE: `build/` sengaja TIDAK diignore di sini — direktori itu berisi skrip
+# build sumber yang di-commit (build/prepare-sites-output.js, sites-vite-plugin.js,
+# bundle-size-report.js), bukan output build (yang keluar ke `dist/` di atas).
+# (US10 spec 002, T057 — ditemukan saat build/bundle-size-baseline.json baru
+# ternyata tidak akan ter-track oleh pola lama.)
 
 # OS
 .DS_Store
@@ -28,6 +32,7 @@ temp/
 !.env.example
 
 .wrangler/
+.lighthouseci/
 docs/sample/brilliant/
 docs/sample/mimo/
 docs/sample/pathway/

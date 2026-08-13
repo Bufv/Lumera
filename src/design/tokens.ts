@@ -129,7 +129,11 @@ export const color = {
 
   textPrimary: '#15172A',
   textSecondary: '#667085',
-  textTertiary: '#7A8193',
+  // US9 spec 002 (T053, FR-022): #7A8193 sebelumnya hanya 3.70:1 di atas
+  // bgPrimary — di bawah WCAG 2.1 AA (4.5:1) untuk teks berukuran normal
+  // (dipakai mis. label meta 14px di HeaderNav). Digelapkan sedikit ke 4.68:1,
+  // tetap jelas terpisah secara visual dari textPrimary.
+  textTertiary: '#697086',
   textDisabled: '#A4A8B5',
   textOnColor: '#FFFFFF',
 
@@ -164,7 +168,10 @@ export const color = {
   surfaceMuted: ramp.gray[50],
   ink: '#15172A',
   inkMuted: '#667085',
-  inkFaint: '#7A8193',
+  // US9 spec 002 (T053, FR-022): sama dengan textTertiary di atas — dipakai
+  // sebagai label sumbu grafik berukuran kecil (mis. VisualModel math-slope)
+  // yang jelas bukan "teks besar", jadi wajib 4.5:1.
+  inkFaint: '#697086',
   border: ramp.gray[200],
   violetDeep: ramp.violet[600],
   violetSoft: ramp.violet[100],

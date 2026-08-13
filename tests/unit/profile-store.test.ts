@@ -18,6 +18,7 @@ describe('profil pembelajar lokal', () => {
 
   it('memulai dengan profil SMP kelas VII yang belum menyelesaikan onboarding', () => {
     expect(createDefaultLearnerProfile()).toEqual({
+      schemaVersion: 1,
       displayName: '',
       stage: 'smp',
       grade: 7,

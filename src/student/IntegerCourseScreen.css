@@ -297,7 +297,7 @@
   left: 10px;
   width: 108px;
   height: 54px;
-  border-radius: 50%;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
 }
 
 .course-node__sisi {
@@ -316,7 +316,7 @@
   left: 27px;
   width: 74px;
   height: 34px;
-  border-radius: 50%;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
   background: #f1f2f5;
 }
 

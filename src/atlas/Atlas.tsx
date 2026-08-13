@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Icon, type IconName } from '../design/Icon';
 import { Lumo } from '../design/Lumo';
-import { semuaModul } from '../shell/registry';
+import { MODULE_META } from '../modules';
 import { SUBJECT_WORLDS } from './subject-worlds';
 import type { Siswa } from '../progress/store';
 import './Atlas.css';
@@ -44,7 +44,10 @@ export function Atlas({
   onPilihModul: (moduleId: string) => void;
   onKembali?: () => void;
 }) {
-  const modul = useMemo(() => semuaModul(), []);
+  // US11 spec 002 (T061): metadata ringan, bukan modul penuh — cukup untuk
+  // listing Atlas (id/subjectWorldId/judul/conceptIds), tanpa menarik
+  // VisualModel/UserAction ke bundle awal.
+  const modul = MODULE_META;
   const mastery = useMemo(
     () => new Map(siswa.mastery.map((item) => [item.moduleId, item.masteryPersen])),
     [siswa.mastery],

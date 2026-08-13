@@ -12,7 +12,8 @@ export type RouteName =
   | 'review'
   | 'saved'
   | 'progress'
-  | 'settings';
+  | 'settings'
+  | 'privacy';
 
 export type CourseView = 'roadmap' | 'list';
 
@@ -37,6 +38,9 @@ export const ROUTE_PATHS: Record<RouteName, string> = {
   saved: '/simpanan',
   progress: '/progres',
   settings: '/pengaturan',
+  // US6 spec 002 (T029, FR-013): kebijakan privasi harus dapat diakses siswa/
+  // orang tua kapan saja lewat tautan langsung, bukan hanya lewat menu.
+  privacy: '/privasi',
 };
 
 const PATH_ROUTES = new Map(

@@ -4,9 +4,20 @@
  * Penyimpanan ini sengaja terpisah dari `lumera.progress.v1`: profil berisi
  * pilihan onboarding dan preferensi UI, sedangkan progres pelajaran tetap
  * dikelola oleh modul progres yang sudah ada.
+ *
+ * Baca/tulis storage lewat `safeStorage` (US8 spec 002, R-012) — bukan
+ * `localStorage` langsung — agar kegagalan kuota-penuh/diblokir dilaporkan
+ * lewat `StorageWarningBanner`, satu mekanisme yang sama dipakai `progress/store.ts`.
  */
 
+import { safeGetItem, safeRemoveItem, safeSetItem } from '../storage/safeStorage';
+
 export const STORAGE_KEY = 'lumera.profile.v1';
+
+/** Naikkan setiap kali bentuk field LearnerProfile berubah tidak-kompatibel-
+ * mundur, dan tambahkan penanganannya di `normalizeLearnerProfile` (T034,
+ * spec 002 — mengikuti pola SISWA_SCHEMA_VERSION di progress/store.ts). */
+export const PROFILE_SCHEMA_VERSION = 1;
 
 export const LEARNING_GOALS = [
   'strengthen-foundations',
@@ -41,6 +52,8 @@ export const ONBOARDING_STEPS = [
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 export interface LearnerProfile {
+  /** Versi bentuk data ini — lihat PROFILE_SCHEMA_VERSION dan contracts/progress-export-contract.md. */
+  schemaVersion: number;
   displayName: string;
   stage: 'smp';
   grade: 7;
@@ -57,6 +70,7 @@ const DEFAULT_STUDY_DAYS: StudyDay[] = [];
 
 export function createDefaultLearnerProfile(): LearnerProfile {
   return {
+    schemaVersion: PROFILE_SCHEMA_VERSION,
     displayName: '',
     stage: 'smp',
     grade: 7,
@@ -106,6 +120,11 @@ export function normalizeLearnerProfile(value: unknown): LearnerProfile {
   const isComplete = value.onboardingComplete === true || rawStep === 'complete';
 
   return {
+    // Field ini sendiri tidak butuh migrasi bertahap: fungsi ini sudah
+    // merekonstruksi seluruh bentuk dari nol setiap dipanggil (bukan spread
+    // parsial seperti progress/store.ts), jadi outputnya selalu versi saat
+    // ini apapun versi input-nya (T034, spec 002).
+    schemaVersion: PROFILE_SCHEMA_VERSION,
     displayName: typeof value.displayName === 'string' ? value.displayName : defaults.displayName,
     stage: 'smp',
     grade: 7,
@@ -121,24 +140,11 @@ export function normalizeLearnerProfile(value: unknown): LearnerProfile {
   };
 }
 
-function browserStorage(): Storage | null {
-  if (typeof window === 'undefined') return null;
-
-  try {
-    return window.localStorage;
-  } catch {
-    // localStorage dapat diblokir oleh mode privasi atau kebijakan browser.
-    return null;
-  }
-}
-
 export function loadLearnerProfile(): LearnerProfile {
-  const storage = browserStorage();
-  if (!storage) return createDefaultLearnerProfile();
+  const raw = safeGetItem(STORAGE_KEY);
+  if (!raw) return createDefaultLearnerProfile();
 
   try {
-    const raw = storage.getItem(STORAGE_KEY);
-    if (!raw) return createDefaultLearnerProfile();
     return normalizeLearnerProfile(JSON.parse(raw) as unknown);
   } catch {
     return createDefaultLearnerProfile();
@@ -147,16 +153,9 @@ export function loadLearnerProfile(): LearnerProfile {
 
 export function saveLearnerProfile(profile: LearnerProfile): LearnerProfile {
   const normalized = normalizeLearnerProfile(profile);
-  const storage = browserStorage();
-
-  if (storage) {
-    try {
-      storage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-    } catch {
-      // Profil tetap dapat dipakai di memori ketika penyimpanan browser gagal.
-    }
-  }
-
+  // Kegagalan tulis (kuota penuh/diblokir) dilaporkan ke StorageWarningBanner
+  // lewat safeSetItem (US8 spec 002) — profil tetap dapat dipakai di memori.
+  safeSetItem(STORAGE_KEY, JSON.stringify(normalized));
   return normalized;
 }
 
@@ -170,14 +169,6 @@ export function updateLearnerProfile(update: LearnerProfileUpdate): LearnerProfi
 }
 
 export function resetLearnerProfile(): LearnerProfile {
-  const storage = browserStorage();
-  if (storage) {
-    try {
-      storage.removeItem(STORAGE_KEY);
-    } catch {
-      // Reset in-memory tetap berhasil meski storage browser sedang diblokir.
-    }
-  }
-
+  safeRemoveItem(STORAGE_KEY);
   return createDefaultLearnerProfile();
 }
