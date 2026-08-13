@@ -300,6 +300,12 @@ span.onboarding__wordmark {
 }
 
 .grade-card--selected {
+  /* FR-009 (specs/003-drop-utbk-snbt): sejak kartu "UTBK / SNBT" di-drop, sisa
+     kartu jenjang jadi 1 terpilih + 2 disabled — ganjil untuk grid 2 kolom.
+     Kartu terpilih membentang penuh 1 baris sendiri, menyisakan tepat 2 kartu
+     disabled untuk mengisi baris 2 kolom di bawahnya, sehingga tidak ada
+     baris yang bolong sebelah. */
+  grid-column: 1 / -1;
   border-color: #8b7dec;
   background: #f0eeff;
   color: #5143c8;
