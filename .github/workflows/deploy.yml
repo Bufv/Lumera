@@ -24,7 +24,7 @@ jobs:
       name: staging
       url: https://lumera-student-batch-1-staging.workers.dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
@@ -64,7 +64,7 @@ jobs:
       name: production
       url: https://lumera-student-batch-1-production.workers.dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
