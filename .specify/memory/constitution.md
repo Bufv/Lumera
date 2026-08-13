@@ -1,41 +1,69 @@
 <!--
 Sync Impact Report
 ==================
-Version change: (unfilled template) → 1.0.0
-Bump rationale: Initial ratification. The constitution previously contained only
-placeholder tokens; this is the first concrete adoption, so MAJOR.MINOR.PATCH starts at 1.0.0.
+Version change: 1.0.0 → 2.0.0
+Bump rationale: MAJOR because the scope redefinition ("Cakupan Lumera Core" narrowed to SMP-SMA,
+dropping UTBK/SNBT and kuliah awal) is backward-incompatible with content already built in
+specs/001-core-mvp-prototype/spec.md (User Story 7, part of FR-003, the Atlas UTBK/SNBT subject
+world node, and the explicit "target audiens" line). A new Preamble and a new non-negotiable
+principle (VIII) were also added, which alone would be MINOR, but the scope redefinition forces
+MAJOR.
 
-Modified principles: none (no prior named principles existed)
+Modified principles:
+- V. Dewasa Secara Visual, Bukan Childish — rationale line updated ("SMP–SMA–UTBK" → "SMP–SMA")
+  to match the narrowed scope.
 
 Added sections:
-- I. Interaksi Nyata, Bukan Dekoratif
-- II. Struktur 7 Langkah Lesson (NON-NEGOTIABLE)
-- III. Kedalaman di Atas Kuantitas
-- IV. Kebenaran Konten di Atas Kecepatan
-- V. Dewasa Secara Visual, Bukan Childish
-- VI. Instrumentasi Sejak Awal
-- VII. Aset Orisinal dan Berlisensi
-- Additional Constraints: Scope & Content Standards
-- Development Workflow & Quality Gates
-- Governance
+- Mukadimah (Misi) — new preamble above Core Principles: Lumera's purpose is solving Indonesian
+  children's literacy and disengagement problems, not business/revenue maximization. Monetization
+  is explicitly subordinated to this mission and deferred (see Additional Constraints).
+- VIII. Privasi dan Keamanan Data Siswa (NON-NEGOTIABLE) — new principle covering data
+  minimization, right to self-delete, no third-party sale, and privacy review gating for any
+  feature that stores/processes student data in the database, given the majority of users are
+  minors and progress data now persists server-side (not just localStorage).
+
+Modified sections:
+- Additional Constraints: Scope & Content Standards — "Cakupan Lumera Core" narrowed from
+  "SMP, SMA, UTBK/SNBT, dan kuliah awal" to "SMP dan SMA"; new bullet added deferring
+  monetization/premium features to a future realization phase, out of scope for now.
+- Development Workflow & Quality Gates — "selesai" checklist now also requires a privacy review
+  per Principle VIII.
+- Governance / Kepatuhan — compliance scope updated from "Prinsip I–VII" to "Prinsip I–VIII".
 
 Removed sections: none
 
 Templates requiring updates:
-- ✅ .specify/templates/plan-template.md — Constitution Check gates filled with the seven concrete gates
-- ✅ .specify/templates/tasks-template.md — note added that instrumentation tasks (Principle VI) are mandatory per story
-- ✅ .specify/templates/spec-template.md — reviewed; no structural change required (principles are enforced at the plan gate, not via new mandatory spec sections)
+- ✅ .specify/templates/plan-template.md — Constitution Check gates updated to v2.0.0, gate VIII
+  added, gate V wording aligned to SMP-SMA scope
+- ✅ .specify/templates/tasks-template.md — version reference updated to v2.0.0; privacy-review
+  task requirement added alongside instrumentation/content-verification requirements
+- ✅ .specify/templates/spec-template.md — reviewed; no structural change required
 - ✅ .claude/skills/speckit-*/SKILL.md — reviewed; no outdated agent-specific references requiring change
-- ✅ specs/001-core-mvp-prototype/spec.md — amended 2026-07-29 to cover all seven principles.
-  Added FR-015 (Principle VI), FR-016 (IV), FR-017 (VII), FR-018 (V), FR-019 (terminology),
-  FR-020 (III), entity Catatan Aktivitas Belajar, SC-006–SC-009, and an explicit Out of Scope
-  section. Alignment tracked in specs/001-core-mvp-prototype/checklists/requirements.md.
+- ⚠ specs/001-core-mvp-prototype/spec.md — NOT amended by this command (out of governance scope).
+  User Story 7 ("Penalaran Kuantitatif (UTBK)"), the UTBK candidate in FR-003, the Atlas
+  "UTBK/SNBT" subject world node, and the "target audiens ... UTBK/kuliah awal" line now fall
+  outside the narrowed constitution scope and need a deliberate amendment via /speckit-specify.
+  Tracked in this command's Next Actions.
 
 Follow-up TODOs:
-- None. TODO(SPEC_001_INSTRUMENTATION) was resolved by the 2026-07-29 spec amendment (FR-015).
+- None left unresolved by this amendment; the spec 001 UTBK misalignment above is intentionally
+  deferred as a Next Action, not a TODO placeholder.
 -->
 
 # Lumera Constitution
+
+## Mukadimah (Misi)
+
+Lumera dibangun untuk menyelesaikan masalah nyata anak-anak Indonesia: rendahnya literasi dan
+proses belajar yang membosankan — bukan pertama-tama sebagai model bisnis. Setiap keputusan
+produk, fitur, dan prioritas MUST diuji terhadap pertanyaan "Apakah ini membuat siswa Indonesia
+lebih literat dan lebih terlibat dalam belajar?", bukan "Apakah ini memaksimalkan pendapatan?".
+Prinsip-prinsip di bawah ini MUST dibaca dan diterapkan dengan misi ini sebagai konteks utama.
+
+Pertimbangan monetisasi (termasuk fitur premium) MAY dipikirkan untuk keberlanjutan jangka
+panjang produk di dunia nyata, tetapi MUST NOT dirancang atau diimplementasikan pada fase
+pengembangan saat ini, dan ketika saatnya direalisasikan, MUST ditinjau ulang agar tetap tunduk
+pada misi sosial ini (lihat Additional Constraints: Scope & Content Standards).
 
 ## Core Principles
 
@@ -88,7 +116,7 @@ Adventure". Estetika game anak, copy berlebihan ("Yuk belajar!", "Hebat banget k
 yang meledak-ledak di setiap klik, serta leaderboard/ruang sosial yang ramai MUST NOT digunakan.
 Pengecualian gaya hanya berlaku untuk Lumera Junior, yang berada di luar cakupan Lumera Core.
 
-Rationale: Target Lumera Core adalah SMP–SMA–UTBK. Nuansa kekanak-kanakan langsung menghilangkan
+Rationale: Target Lumera Core adalah SMP–SMA. Nuansa kekanak-kanakan langsung menghilangkan
 kredibilitas produk di mata segmen tersebut dan orang tua mereka.
 
 ### VI. Instrumentasi Sejak Awal
@@ -111,16 +139,40 @@ hasil AI generik tanpa arah desain yang jelas MUST NOT digunakan sebagai aset pr
 Rationale: Konten visual custom adalah unfair advantage Lumera (PRD Bagian 12). Aset jiplakan
 menghapus keunggulan itu sekaligus menciptakan risiko hukum.
 
+### VIII. Privasi dan Keamanan Data Siswa (NON-NEGOTIABLE)
+
+Karena mayoritas pengguna Lumera Core adalah anak di bawah umur, setiap data siswa yang tersimpan
+di database (termasuk data progres belajar hasil instrumentasi Prinsip VI) MUST mengikuti prinsip
+minimisasi data: hanya data yang benar-benar esensial untuk pengalaman belajar boleh disimpan, dan
+data pribadi non-esensial (mis. alamat, nomor telepon) MUST NOT disimpan tanpa kebutuhan
+fungsional yang jelas. Siswa (atau wali) MUST dapat menghapus seluruh data pribadinya sendiri
+kapan saja, dalam satu aksi jelas, tanpa bantuan teknis. Data siswa MUST NOT dijual atau
+dibagikan ke pihak ketiga untuk kepentingan komersial apa pun. Setiap fitur baru yang menyimpan
+atau memproses data siswa MUST melewati tinjauan privasi sebelum dirilis.
+
+Rationale: Lumera menyasar anak SMP–SMA; kegagalan melindungi data mereka adalah risiko
+kepercayaan dan hukum tertinggi yang dihadapi produk ini, sejalan dengan Mukadimah dan dengan
+kepatuhan privasi anak yang sudah menjadi prioritas P1 di specs/002-production-readiness.
+Kepercayaan siswa, orang tua, dan sekolah bergantung sepenuhnya pada bagaimana data ini
+diperlakukan.
+
 ## Additional Constraints: Scope & Content Standards
 
 - Bahasa antarmuka default adalah Bahasa Indonesia. Terminologi produk (Lumera Atlas, Knowledge
   Bank, Refresh Harian, Lumens, Lumo) MUST digunakan konsisten dan MUST NOT diterjemahkan ulang
   secara ad hoc antar fitur.
-- Cakupan Lumera Core adalah SMP, SMA, UTBK/SNBT, dan kuliah awal. Fitur yang menargetkan SD
-  MUST diarahkan ke Lumera Junior dan MUST NOT mengubah gaya visual atau tone Lumera Core.
+- Cakupan Lumera Core adalah SMP dan SMA. UTBK/SNBT dan kuliah awal berada di luar cakupan untuk
+  saat ini — spec turunan yang sebelumnya menargetkan segmen tersebut (mis. modul UTBK di
+  specs/001-core-mvp-prototype) MUST ditinjau dan diamandemen secara eksplisit, bukan dibiarkan
+  bertentangan diam-diam dengan cakupan ini. Fitur yang menargetkan SD MUST diarahkan ke Lumera
+  Junior dan MUST NOT mengubah gaya visual atau tone Lumera Core.
 - Gamifikasi terbatas pada streak, Lumens, progress, mastery %, badge, dan pengingat konsep lemah.
   Leaderboard berat, ruang sosial, dan kompetisi antar siswa MUST NOT ditambahkan tanpa amandemen
   konstitusi.
+- Model monetisasi (fitur premium, freemium, langganan, atau bentuk lain) MUST NOT dirancang atau
+  diimplementasikan pada fase pengembangan saat ini. Ide ini dicatat sebagai pertimbangan
+  realisasi produk di dunia nyata di masa depan, dan ketika saatnya tiba MUST ditinjau ulang agar
+  tetap tunduk pada Mukadimah (misi sosial di atas profit) — bukan prioritas sekarang.
 - Setiap spec turunan MUST menyatakan secara eksplisit fitur mana yang berada di luar cakupannya,
   sehingga batas antar spec tetap jelas.
 
@@ -131,7 +183,8 @@ menghapus keunggulan itu sekaligus menciptakan risiko hukum.
   beserta alasan dan alternatif yang ditolak.
 - Sebuah modul pelajaran MUST NOT ditandai selesai sampai: seluruh 7 langkah berfungsi (Prinsip II),
   seluruh kontrol interaktifnya benar-benar berfungsi (Prinsip I), konten telah diverifikasi
-  terhadap Kurikulum Merdeka (Prinsip IV), dan instrumentasi minimal aktif (Prinsip VI).
+  terhadap Kurikulum Merdeka (Prinsip IV), instrumentasi minimal aktif (Prinsip VI), dan data
+  siswa yang tersimpan sudah melewati tinjauan privasi (Prinsip VIII).
 - Review konten pedagogi MUST dilakukan oleh orang selain penulis modul tersebut.
 - Trade-off jadwal MUST diselesaikan dengan memangkas jumlah modul, bukan kedalaman modul
   (Prinsip III). Keputusan pemangkasan MUST dicatat dalam plan atau tasks feature terkait.
@@ -148,7 +201,7 @@ praktik lain yang bertentangan dengannya.
   yang tidak backward compatible; MINOR untuk penambahan prinsip/section atau perluasan panduan
   yang material; PATCH untuk klarifikasi, perbaikan kata, dan penyempurnaan non-semantik.
 - **Kepatuhan**: Setiap review plan dan review implementasi MUST memverifikasi kepatuhan terhadap
-  Prinsip I–VII. Pelanggaran yang ditemukan setelah rilis MUST diperbaiki sebelum penambahan
+  Prinsip I–VIII. Pelanggaran yang ditemukan setelah rilis MUST diperbaiki sebelum penambahan
   cakupan baru pada area yang sama.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-29 | **Last Amended**: 2026-07-29
+**Version**: 2.0.0 | **Ratified**: 2026-07-29 | **Last Amended**: 2026-08-13

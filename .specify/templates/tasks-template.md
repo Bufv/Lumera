@@ -253,10 +253,12 @@ With multiple developers:
 
 ### Constitution-driven task requirements
 
-Per `.specify/memory/constitution.md` v1.0.0, every user story that ships a lesson module MUST include:
+Per `.specify/memory/constitution.md` v2.0.0, every user story that ships a lesson module MUST include:
 
 - An instrumentation task capturing concept, error type, and time-on-task (Principle VI) — this is
   not deferrable to a later feature.
 - A content-verification task against Kurikulum Merdeka, reviewed by someone other than the module
   author (Principle IV).
 - Tasks covering all 7 lesson steps (Principle II); a story is not complete with steps missing.
+- A privacy-review task for any story that stores or processes new student data, covering data
+  minimization, self-deletion, and no third-party sharing (Principle VIII).
