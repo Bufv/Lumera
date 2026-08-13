@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { initErrorReporting } from './monitoring/errorReporting';
 import './index.css';
+import './student/LearnScreen.square.css';
 
 // US3 spec 002: pemantauan error produksi diinisialisasi paling awal, sebelum
 // render apapun, agar error saat render pertama pun tertangkap.
