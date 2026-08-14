@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState, type ComponentType } from 'react';
 import { Icon } from '../design/Icon';
 import { Tactile } from '../design/Tactile';
 import {
@@ -16,6 +16,8 @@ import { StorageWarningBanner } from '../storage/StorageWarningBanner';
 import { findStudentModule } from './catalog';
 import { ARDI_DEMO_FIXTURE, type DemoSavedConcept } from './demo';
 import { OnboardingFlow } from './OnboardingFlow';
+import type { LessonShellProps } from '../shell/LessonShell';
+import type { AnyLessonModule } from '../shell/types';
 import {
   hashForCourseView,
   hashForRoute,
@@ -44,6 +46,32 @@ import './StudentOverlays.css';
 // siswa benar-benar membuka kursus Bilangan Bulat.
 const IntegerCourseScreen = lazy(() =>
   import('./IntegerCourseScreen').then((m) => ({ default: m.IntegerCourseScreen })),
+);
+
+// Spec 004 (defer-lumera-atlas) US1 (T008, T010, T023): generasi UI kedua
+// yang sudah dibangun dan diuji terisolasi (tests/unit/layar-belajar.test.tsx)
+// — sebelumnya tidak pernah dipasang ke StudentApp (lihat research.md
+// Decision 1). Lumera Atlas SENGAJA tidak ikut dipasang di sini (ditunda,
+// lihat research.md Decision 2). Dimuat lazy — sama alasannya dengan
+// `IntegerCourseScreen` di atas — karena `../courses/katalog` (dipakai
+// Beranda maupun LearnRoute) berukuran ~25KB dan MUST NOT ikut bundle awal
+// (Technical Context: Performance Goals, plan.md).
+const Beranda = lazy(() => import('../beranda/Beranda').then((m) => ({ default: m.Beranda })));
+const LearnRoute = lazy(() =>
+  import('./LearnRoute').then((m) => ({ default: m.LearnRoute })),
+);
+// `LessonShell` sendiri (bukan hanya Beranda/LearnRoute di atas) juga MUST
+// lazy — sebelum spec 004, tidak ada satupun jalur produksi yang mengimpornya
+// (hanya test lewat modules/eager.ts), jadi ia belum pernah masuk bundle awal
+// sama sekali. Import statis di sini akan meregresi itu.
+// Cast eksplisit diperlukan: `LessonShell<TState, TJawaban>` generic, tapi
+// `lazy()` hanya bisa mewakili satu instansiasi konkret — di sini selalu
+// dipanggil dengan `AnyLessonModule` (`LessonModule<never, never>`), jadi
+// instansiasi itu yang dipakai.
+const LessonShell = lazy(() =>
+  import('../shell/LessonShell').then((m) => ({
+    default: m.LessonShell as unknown as ComponentType<LessonShellProps<never, never>>,
+  })),
 );
 
 // US6 spec 002 (T030): 'reset-profile' tetap ada untuk alur onboarding-ulang
@@ -108,6 +136,11 @@ export function StudentApp() {
   const [selectedModule, setSelectedModule] = useState<StudentModuleSummary | null>(null);
   const [selectedConcept, setSelectedConcept] = useState<DemoSavedConcept | null>(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
+  // Spec 004 US1 (T006): pelajaran (dari 4 modul LessonShell nyata) yang
+  // sedang dimuat/dimainkan lewat Beranda/Belajar/KursusDetail — bukan entity
+  // persisten, lihat data-model.md § "State baru di level UI".
+  const [activeLesson, setActiveLesson] = useState<AnyLessonModule | null>(null);
+  const [loadingModuleId, setLoadingModuleId] = useState<string | null>(null);
   // US7 spec 002 (T038): progres nyata, dibutuhkan SettingsScreen untuk cek
   // staleness saat impor (contracts/progress-export-contract.md aturan 4) dan
   // diperbarui setelah impor/hapus-semua-data berhasil.
@@ -155,7 +188,39 @@ export function StudentApp() {
     setSelectedModule(null);
     setSelectedConcept(null);
     setConfirmAction(null);
+    // Spec 004 US1 (T011): pelajaran yang sedang terbuka juga transient —
+    // navigasi keluar dari home/learn MUST membersihkannya, sama seperti state
+    // di atas. (`openKursusId` sendiri hidup di `LearnRoute.tsx` — unmount
+    // otomatis membersihkannya saat route berubah, lihat T023.)
+    setActiveLesson(null);
+    setLoadingModuleId(null);
   }, [location.route, location.demo]);
+
+  // Spec 004 US1 (T006, T023): satu-satunya jalan masuk ke LessonShell dari
+  // layar Beranda/Belajar/KursusDetail. `../modules` (registry `muatModul`)
+  // sendiri di-`import()` dinamis di sini, BUKAN statis di atas — sebelum
+  // spec 004 tidak ada jalur produksi yang mengimpornya sama sekali (hanya
+  // test lewat modules/eager.ts), dan meta tiap modul menarik `src/content/*`
+  // (teks pelajaran sungguhan) yang MUST NOT ikut bundle awal.
+  const bukaPelajaran = (moduleId: string) => {
+    setLoadingModuleId(moduleId);
+    void import('../modules').then(({ muatModul }) =>
+      muatModul(moduleId).then((modul) => {
+        setActiveLesson(modul);
+        setLoadingModuleId(null);
+      }),
+    );
+  };
+
+  // Dipanggil baik saat pelajaran diselesaikan (onSelesai) maupun ditutup di
+  // tengah jalan (onKeluar) — `selesaikanPelajaran` (dipanggil LessonShell
+  // sendiri sebelum langkah 7) sudah menulis ke store sebelum salah satu dari
+  // ini terpanggil, jadi `bacaSiswa()` di sini selalu membaca data terbaru.
+  const tutupPelajaran = () => {
+    setActiveLesson(null);
+    setLoadingModuleId(null);
+    setSiswa(bacaSiswa());
+  };
 
   const navigate = (route: RouteName, demo = location.demo) => {
     const nextCourseView = route === 'integers' ? location.courseView : 'roadmap';
@@ -248,15 +313,46 @@ export function StudentApp() {
     );
   }
 
+  // Spec 004 US1 (T007): LessonShell mengisi seluruh halaman (`min-height:
+  // 100vh` di LessonChrome.css) — pola early-return yang sama dengan
+  // OnboardingFlow di atas, BUKAN overlay di dalam StudentShell (nav bar
+  // StudentShell tidak relevan selagi siswa sedang mengerjakan pelajaran).
+  const loadingFallback = (
+    <div className="pelajaran-loading" role="status" aria-live="polite">
+      Menyiapkan pelajaran…
+    </div>
+  );
+  if (activeLesson) {
+    return (
+      <Suspense fallback={loadingFallback}>
+        <LessonShell modul={activeLesson} onKeluar={tutupPelajaran} onSelesai={tutupPelajaran} />
+      </Suspense>
+    );
+  }
+  if (loadingModuleId) {
+    return loadingFallback;
+  }
+
   const content = (() => {
     switch (location.route) {
-      case 'learn':
+      case 'learn': {
+        // Spec 004 US1 (T010): siswa non-demo melihat Belajar/KursusDetail
+        // (generasi-2, katalog nyata) — bukan lagi LearnScreen fixture. Mode
+        // demo Ardi TIDAK disentuh (spec.md Assumptions).
+        if (location.demo) {
+          return (
+            <LearnScreen
+              onNavigate={navigate}
+              progressPercent={demoData?.courseProgress.percent ?? 0}
+            />
+          );
+        }
         return (
-          <LearnScreen
-            onNavigate={navigate}
-            progressPercent={demoData?.courseProgress.percent ?? 0}
-          />
+          <Suspense fallback={null}>
+            <LearnRoute siswa={siswa} onMulaiPelajaran={bukaPelajaran} />
+          </Suspense>
         );
+      }
       case 'math':
         return (
           <MathScreen
@@ -311,7 +407,19 @@ export function StudentApp() {
         return <PrivacyPolicy onKembali={() => navigate('settings', location.demo)} />;
       case 'home':
       default:
-        return <HomeScreen profile={profile} demoData={demoData} onNavigate={navigate} />;
+        // Spec 004 US1 (T008): siswa non-demo melihat Beranda (generasi-2,
+        // progres nyata) — bukan lagi HomeScreen fixture. Mode demo Ardi
+        // TIDAK disentuh (spec.md Assumptions): tetap HomeScreen seperti
+        // sebelumnya. `onBukaPetaIlmu` SENGAJA tidak diteruskan — lihat T009
+        // di Beranda.tsx (Atlas ditunda, tombolnya jadi disabled, bukan
+        // disambungkan ke layar lain).
+        return location.demo ? (
+          <HomeScreen profile={profile} demoData={demoData} onNavigate={navigate} />
+        ) : (
+          <Suspense fallback={null}>
+            <Beranda siswa={siswa} onMulai={bukaPelajaran} onBukaBelajar={() => navigate('learn')} />
+          </Suspense>
+        );
     }
   })();
 

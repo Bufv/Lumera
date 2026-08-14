@@ -56,9 +56,16 @@ describe('Lumera Batch 1 student shell', () => {
 
     const wordmark = screen.getByRole('button', { name: 'Lumera — ke Beranda' });
     expect(wordmark.querySelector('img, svg')).toBeNull();
-    const knowledgeMap = screen.getByRole('button', { name: /Peta Ilmu/i });
-    expect(knowledgeMap).toHaveAttribute('aria-disabled', 'true');
-    expect(knowledgeMap).toBeDisabled();
+    // Spec 004 (defer-lumera-atlas): sejak Beranda dipasang (T008), ada DUA
+    // tombol "Peta Ilmu" nonaktif di layar ini — nav bar (sudah ada sebelum
+    // spec 004) dan Beranda sendiri (T009). Keduanya MUST konsisten disabled;
+    // ambil yang pertama (nav) untuk sisa asersi "header controls" test ini.
+    const knowledgeMaps = screen.getAllByRole('button', { name: /Peta Ilmu/i });
+    for (const tombol of knowledgeMaps) {
+      expect(tombol).toHaveAttribute('aria-disabled', 'true');
+      expect(tombol).toBeDisabled();
+    }
+    const knowledgeMap = knowledgeMaps[0]!;
     expect(document.querySelector('.student-streak')).toHaveTextContent('Mulai');
 
     const beforeMapClick = window.location.hash;
@@ -108,53 +115,70 @@ describe('Lumera Batch 1 student shell', () => {
     expect(screen.queryByText(/Langkah 1 dari 7/i)).toBeNull();
   });
 
+  // Spec 004 (defer-lumera-atlas) T012: sejak Beranda (generasi-2, progres
+  // nyata) dipasang menggantikan HomeScreen fixture untuk siswa non-demo
+  // (T008), test ini diperbarui untuk menguji honesty Beranda — bukan lagi
+  // struktur HomeScreen lama yang sudah tidak dirender di route ini.
   it('keeps fresh Home values honest and excludes every illustrative concept', async () => {
     saveLearnerProfile(completedProfile());
     await setHash('#/beranda');
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Selamat malam, Nadia' })).toBeTruthy();
-    expect(screen.getAllByText('Siap dimulai').length).toBeGreaterThan(0);
-    expect(document.querySelector('.today-panel')).toHaveTextContent(/0\s*\/\s*5/);
+    expect(
+      await screen.findByRole('heading', { name: /Selamat (pagi|siang|sore|malam)/ }),
+    ).toBeTruthy();
     expect(document.querySelector('.student-streak')).toHaveTextContent('Mulai');
-    expect(screen.queryByText('45%')).toBeNull();
+    expect(screen.getByText(/^0\s*Lumens$/)).toBeTruthy();
+    expect(
+      screen.getByText('Selesaikan satu pelajaran, dan jejakmu muncul di sini.'),
+    ).toBeTruthy();
+    // Tidak ada konten ilustratif mode demo Ardi yang bocor ke siswa baru.
     expect(screen.queryByText('Cara Membaca Garis Bilangan')).toBeNull();
     expect(screen.queryByText('Aturan Membandingkan Bilangan Negatif')).toBeNull();
     expect(screen.queryByText('Contoh Perubahan Suhu')).toBeNull();
-    expect(screen.queryByText('Pengurangan Bilangan Bulat')).toBeNull();
   });
 
-  it('presents one active Mathematics course and keeps future courses flat', async () => {
+  // Spec 004 T012: Belajar (generasi-2, katalog nyata — 4 jalur yang memetakan
+  // ke 4 modul LessonShell) menggantikan LearnScreen fixture ("Bilangan Bulat"
+  // saja + comingSoon) untuk siswa non-demo.
+  it('menampilkan seluruh jalur belajar generasi-2 di Belajar, dan membuka kursus mengarah ke KursusDetail', async () => {
     saveLearnerProfile(completedProfile());
     await setHash('#/belajar');
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Satu jalur, langkah demi langkah.' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /Pecahan dan Desimal/i })).toBeNull();
-    expect(screen.getByLabelText('Pecahan dan Desimal, segera hadir')).toBeTruthy();
-    expect(screen.getAllByText('Segera hadir')).toHaveLength(10);
+    // Belajar dimuat lazy (T023, code-splitting) — tunggu chunk-nya resolve.
+    expect(await screen.findByRole('heading', { name: 'Jalur belajar' })).toBeTruthy();
+    expect(screen.getByText('Matematika Dasar')).toBeTruthy();
+    expect(screen.getByText('Sains Terapan')).toBeTruthy();
+    expect(screen.getByText('Ekonomi dan Keputusan')).toBeTruthy();
+    expect(screen.getByText('Sejarah dan Nalar Sosial')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ }));
-    await waitFor(() => expect(window.location.hash).toBe('#/belajar/matematika/bilangan-bulat'));
+    fireEvent.click(
+      screen.getByRole('button', { name: /Buka kursus Kemiringan dan Garis Lurus/i }),
+    );
+    expect(await screen.findByRole('heading', { name: 'Kemiringan dan Garis Lurus' })).toBeTruthy();
   });
 
-  it('filters learning paths and subjects with the local Belajar search', async () => {
+  it('menyaring jalur belajar lewat pencarian dan filter jenjang di Belajar', async () => {
     saveLearnerProfile(completedProfile());
     await setHash('#/belajar');
     render(<App />);
 
-    const search = screen.getByRole('searchbox', {
-      name: 'Cari jalur, kursus, atau mata pelajaran',
+    // Belajar dimuat lazy (T023, code-splitting) — tunggu chunk-nya resolve.
+    const search = await screen.findByRole('searchbox', {
+      name: 'Cari jalur, kursus, atau pelajaran',
     });
-    fireEvent.change(search, { target: { value: 'IPA' } });
+    fireEvent.change(search, { target: { value: 'kemiringan' } });
 
-    expect(screen.getByText('1 hasil ditemukan')).toBeTruthy();
-    expect(screen.getByText('IPA')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ })).toBeNull();
+    expect(screen.getByText('Matematika Dasar')).toBeTruthy();
+    expect(screen.queryByText('Sains Terapan')).toBeNull();
+    expect(screen.queryByText('Ekonomi dan Keputusan')).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Hapus pencarian' }));
-    expect(screen.getByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ })).toBeTruthy();
+    fireEvent.change(search, { target: { value: '' } });
+    fireEvent.click(screen.getByRole('button', { name: 'SMA' }));
+    expect(screen.getByText('Ekonomi dan Keputusan')).toBeTruthy();
+    expect(screen.getByText('Sejarah dan Nalar Sosial')).toBeTruthy();
+    expect(screen.queryByText('Matematika Dasar')).toBeNull();
   });
 
   it('renders the Mathematics legacy URL as the same focused Belajar page', async () => {
@@ -232,6 +256,14 @@ describe('Lumera Batch 1 student shell', () => {
     );
   });
 
+  // Spec 004 (defer-lumera-atlas) T005: ini sengaja masih menguji jalur
+  // `IntegerCourseScreen`/katalog "Bilangan Bulat" LAMA (route `integers`),
+  // yang isinya bukan salah satu dari 4 modul `LessonShell` konstitusi — jadi
+  // TIDAK disentuh oleh spec 004. Loop inti yang disambungkan spec 004 (US1)
+  // ada di `tests/unit/loop-inti-tanpa-atlas.test.tsx`, lewat Beranda/
+  // KursusDetail (route `home`/`learn`), bukan lewat layar ini. Kalau test ini
+  // suatu saat "PASS palsu" (mis. ada yang menghapusnya tanpa mengganti),
+  // itu bukan berarti spec 004 selesai — cek test satunya.
   it('opens module information but never a lesson player', async () => {
     saveLearnerProfile(completedProfile());
     await setHash('#/belajar/matematika/bilangan-bulat');

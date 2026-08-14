@@ -161,7 +161,18 @@
   margin-top: 8px;
 }
 
-.level__peta svg {
+/*
+ * Spec 004 (defer-lumera-atlas) T025 — perbaikan bug ditemukan lewat quickstart
+ * (verifikasi visual, komponen ini belum pernah dirender di browser sungguhan
+ * sebelum spec 004; jsdom tidak menghitung layout jadi bug ini tidak pernah
+ * ketahuan test otomatis). Selector deskendan `.level__peta svg` SEHARUSNYA
+ * hanya menyasar SVG jalur (satu-satunya svg anak LANGSUNG dari .level__peta),
+ * tapi juga ikut menimpa ukuran ikon kunci/centang di dalam .simpul__kartu
+ * (svg bersarang lebih dalam) — meregangkannya jadi 206×76px menutupi seluruh
+ * baris simpul, bertumpuk dengan label teks. `>` membatasi rule ke anak
+ * langsung saja.
+ */
+.level__peta > svg {
   position: absolute;
   inset: 0;
   width: 100%;

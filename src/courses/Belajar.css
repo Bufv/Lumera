@@ -380,6 +380,21 @@
     align-items: stretch;
   }
 
+  /*
+   * Spec 004 (defer-lumera-atlas) T025 — perbaikan bug ditemukan lewat
+   * quickstart (verifikasi visual mobile, komponen ini belum pernah dirender
+   * di browser sungguhan sebelum spec 004). `.cari-kolom` memakai
+   * `flex: 1 1 20rem` yang di layout baris (desktop) berarti lebar minimal
+   * ~320px — masuk akal. Begitu breakpoint ini membalik `.belajar__cari` jadi
+   * `flex-direction: column`, flex-basis yang sama mengikuti sumbu utama yang
+   * baru (vertikal), membuat kotak pencarian TINGGINYA 320px alih-alih
+   * lebarnya. `flex-basis: auto` mengembalikannya ke `height: 52px` yang
+   * sudah didefinisikan eksplisit di `.cari-kolom`.
+   */
+  .cari-kolom {
+    flex-basis: auto;
+  }
+
   .segmen button {
     flex: 1;
   }

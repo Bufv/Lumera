@@ -25,12 +25,10 @@ import './Beranda.css';
 export function Beranda({
   siswa,
   onMulai,
-  onBukaPetaIlmu,
   onBukaBelajar,
 }: {
   siswa: Siswa;
   onMulai: (moduleId: string) => void;
-  onBukaPetaIlmu: () => void;
   onBukaBelajar: () => void;
 }) {
   // US11 spec 002 (T061): metadata ringan (bukan modul penuh) — lihat catatan di Atlas.tsx.
@@ -111,7 +109,19 @@ export function Beranda({
                   Urutannya dari konsep yang paling perlu dilatih.
                 </p>
               </div>
-              <button type="button" className="btn-flat" onClick={onBukaPetaIlmu}>
+              {/* Spec 004 (defer-lumera-atlas) US1/T009: Lumera Atlas ditunda ke
+                  pengembangan berikutnya — tombol ini MUST NOT diam-diam
+                  diarahkan ke layar lain (mis. Belajar). Pola disabled/"segera
+                  hadir" ini sengaja disamakan dengan tombol Peta Ilmu yang
+                  sudah ada di nav bar (StudentShell.tsx), bukan pola baru. */}
+              <button
+                type="button"
+                className="btn-flat"
+                disabled
+                aria-disabled="true"
+                aria-label="Peta Ilmu, segera hadir"
+                title="Peta Ilmu · Segera hadir"
+              >
                 Peta Ilmu
                 <Icon name="chevron" width={16} height={16} />
               </button>

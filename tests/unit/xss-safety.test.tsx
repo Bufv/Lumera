@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { App } from '../../src/App';
 import { createDefaultLearnerProfile, saveLearnerProfile } from '../../src/profile';
@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 describe('nama tampilan siswa tidak dapat mengeksekusi skrip (US5 spec 002)', () => {
-  it('menampilkan payload sebagai teks literal di sapaan Beranda, bukan HTML/skrip', async () => {
+  it('menampilkan payload sebagai teks literal di menu profil, bukan HTML/skrip', async () => {
     saveLearnerProfile({
       ...createDefaultLearnerProfile(),
       displayName: PAYLOAD,
@@ -40,6 +40,13 @@ describe('nama tampilan siswa tidak dapat mengeksekusi skrip (US5 spec 002)', ()
     });
     await setHash('#/beranda');
     render(<App />);
+
+    // Spec 004 (defer-lumera-atlas): sejak Beranda (generasi-2) dipasang
+    // (T008), sapaan di beranda tidak lagi menyertakan nama tampilan sama
+    // sekali (`sapaanWaktu` murni jam, lihat src/beranda/harian.ts) — nama
+    // lengkap sekarang tampil di menu profil StudentShell (tidak disentuh
+    // spec 004), jadi payload diverifikasi di sana.
+    fireEvent.click(screen.getByRole('button', { name: 'Buka menu profil' }));
 
     // Payload tampil sebagai teks apa adanya di suatu tempat pada halaman ...
     expect(screen.getByText(PAYLOAD, { exact: false })).toBeTruthy();

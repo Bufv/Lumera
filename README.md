@@ -72,8 +72,9 @@ Prinsip produk yang dijaga di dalam implementasi:
 | Mode demo Ardi                        | Tersedia         | Data progres, streak, simpanan, dan review yang secara eksplisit ditandai ilustratif         |
 | Core lesson engine                    | Tersedia         | `LessonShell`, registry, progress engine, dan telemetry telah diuji                          |
 | Empat modul interaktif                | Tersedia di core | Matematika, Fisika, Ekonomi, dan Sejarah                                                     |
-| Integrasi modul ke student shell baru | Dalam proses     | Kartu modul pada student shell saat ini masih membuka ringkasan, belum seluruh lesson engine |
-| Refresh/Simpanan/Progres nyata        | Sebagian         | Empty state tersedia; data penuh pada mode demo masih berupa fixture ilustratif              |
+| Integrasi modul ke student shell baru | Tersedia (Beranda/Belajar) | 4 modul `LessonShell` disambungkan lewat Beranda/Belajar/KursusDetail (spec 004); katalog "Bilangan Bulat" lama (`IntegerCourseScreen`) masih membuka ringkasan saja — jalur terpisah, di luar 4 modul konstitusi |
+| Refresh/Simpanan/Progres nyata        | Sebagian         | Beranda kini membaca progres nyata (Lumens/streak/mastery); Simpanan dan sebagian mode demo masih berupa fixture ilustratif |
+| Lumera Atlas (peta visual)            | Direncanakan untuk pengembangan berikutnya | Komponen sudah dibangun (`src/atlas/Atlas.tsx`) tapi sengaja belum dipasang sebagai homepage — ditunda, lihat `specs/004-defer-lumera-atlas/spec.md` |
 | Backend, akun, dan cloud sync         | Belum tersedia   | Seluruh data runtime masih lokal pada browser                                                |
 | Deployment Cloudflare                 | Terkonfigurasi   | Worker, static assets binding, dan fallback SPA tersedia                                     |
 
@@ -488,9 +489,13 @@ Aturan teknis utama:
 - progres terikat pada browser dan origin yang digunakan;
 - hanya jalur Matematika SMP kelas VII yang tersedia pada student catalog Batch 1;
 - beberapa halaman menampilkan empty state atau fixture demo, bukan data produksi;
-- integrasi student shell baru dengan seluruh core lesson engine masih berlangsung;
-- progress dan telemetry lesson engine belum diperbarui dari student interface aktif;
-- Peta Ilmu/Atlas belum menjadi entry point utama pada student interface baru;
+- integrasi core lesson engine ke student shell baru sudah berjalan lewat Beranda/Belajar/
+  KursusDetail (4 modul konstitusi); katalog "Bilangan Bulat" lama (`IntegerCourseScreen`) masih
+  jalur terpisah yang belum ikut terintegrasi;
+- progress dan telemetry lesson engine kini diperbarui dari student interface aktif (Beranda) untuk
+  4 modul di atas — belum berlaku untuk katalog "Bilangan Bulat" lama;
+- Lumera Atlas ditunda ke pengembangan berikutnya secara sengaja (bukan entry point rilis ini) —
+  lihat `specs/004-defer-lumera-atlas/spec.md`;
 - Knowledge Bank, Refresh Harian penuh, pembayaran, akun keluarga, dan dashboard sekolah masih
   berada di luar cakupan prototype;
 - font Plus Jakarta Sans dimuat dari Google Fonts dan menggunakan fallback sistem ketika jaringan

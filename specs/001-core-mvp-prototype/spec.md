@@ -15,6 +15,15 @@ dipersempit ke SMP–SMA saja). User Story 7, bagian UTBK pada FR-003, entity Su
 baris target audiens ditandai **superseded** oleh `specs/003-drop-utbk-snbt/spec.md` — lihat
 anotasi masing-masing di bawah. Teks asli dipertahankan untuk traceability historis.
 
+**Last Amended**: 2026-08-13 — Lumera Atlas (User Story 1, FR-001, FR-002) ditandai **Deferred —
+Next Development** oleh `specs/004-defer-lumera-atlas/spec.md`: riset repositori menemukan Atlas
+sudah dibangun sebagai komponen (`src/atlas/Atlas.tsx`) tapi tidak pernah tersambung ke aplikasi
+yang berjalan. Alih-alih menunggu Atlas selesai, loop inti (pilih pelajaran → selesaikan → progres
+tersimpan) disambungkan lewat entry point lain yang sudah ada (`Beranda`/`Belajar`/`KursusDetail`).
+SC-001 dan SC-002 direvisi agar diukur dari entry point tersebut, bukan Atlas. Berbeda dari
+"superseded" (dibatalkan) di atas — **deferred berarti tetap jadi rencana produk, hanya ditunda**;
+teks asli dipertahankan penuh untuk traceability.
+
 **Input**: User description: "berdasarkan semua file di dalam folder @docs\" — scoped by user selection to the "MVP prototype fungsional" slice of the Lumera PRD (docs/concept.md, docs/leancanvas.md): Lumera Atlas (minimal), the 7-step interactive lesson flow across the six candidate subject modules (at least 4 must be fully functional), and basic gamification (streak, Lumens, progress/mastery %).
 
 ## User Scenarios & Testing *(mandatory)*
@@ -24,6 +33,14 @@ anotasi masing-masing di bawah. Teks asli dipertahankan untuk traceability histo
   requires at least 4 of the 6 lesson-module stories to be fully functional before the
   product expands to other subjects/features — any 4 can be chosen to satisfy that bar.
 -->
+
+> **🕓 DEFERRED — NEXT DEVELOPMENT (2026-08-13)**: Lumera Atlas belum tersambung ke aplikasi yang
+> berjalan (dibangun sebagai komponen, `src/atlas/Atlas.tsx`, tapi tidak pernah dipasang sebagai
+> homepage — lihat `specs/004-defer-lumera-atlas/research.md`). Story ini **ditunda ke siklus
+> pengembangan berikutnya**, BUKAN dibatalkan — lihat `specs/004-defer-lumera-atlas/spec.md`.
+> Untuk rilis saat ini, loop pilih-pelajaran-selesaikan dicapai lewat entry point lain
+> (`Beranda`/`Belajar`/`KursusDetail`), bukan lewat story ini. Teks di bawah dipertahankan utuh —
+> MUST NOT dihitung sebagai gate rilis saat ini (lihat FR-001, FR-002, SC-001, SC-002).
 
 ### User Story 1 - Navigasi Lumera Atlas (Priority: P1)
 
@@ -166,8 +183,8 @@ Setelah menyelesaikan satu atau lebih pelajaran, siswa dapat melihat streak hari
 
 ### Functional Requirements
 
-- **FR-001**: Sistem MUST menampilkan Lumera Atlas sebagai homepage berisi node subject world yang saling terhubung secara visual (bukan grid tombol statis).
-- **FR-002**: Sistem MUST memungkinkan siswa memilih sebuah node di Atlas dan masuk ke modul pelajaran interaktif yang sesuai.
+- **FR-001**: **[Deferred — Next Development, lihat `specs/004-defer-lumera-atlas/spec.md`]** Sistem MUST menampilkan Lumera Atlas sebagai homepage berisi node subject world yang saling terhubung secara visual (bukan grid tombol statis).
+- **FR-002**: **[Deferred — Next Development, lihat `specs/004-defer-lumera-atlas/spec.md`]** Sistem MUST memungkinkan siswa memilih sebuah node di Atlas dan masuk ke modul pelajaran interaktif yang sesuai.
 - **FR-003**: Sistem MUST mengimplementasikan minimal 4 dari 5 modul pelajaran interaktif berikut secara penuh fungsional: Membaca Kemiringan Grafik (Matematika), Simulasi Gerak Lurus (Fisika), Supply & Demand Simulator (Ekonomi), Rantai Sebab-Akibat (Sejarah), Perbaiki Argumen (Bahasa). (Disesuaikan oleh spec 003 — "Penalaran Kuantitatif (UTBK)" di-drop dari daftar kandidat karena di luar cakupan Constitution v2.0.0; lihat `specs/003-drop-utbk-snbt/spec.md` FR-002.)
 - **FR-004**: Setiap modul yang dibangun MUST mengikuti alur 7 langkah: Prompt → Model visual → Aksi pengguna → Umpan balik instan → Penjelasan "Kenapa?" → Refleksi → Lanjutkan.
 - **FR-005**: Sistem MUST memberikan umpan balik instan (benar/salah) setiap kali siswa melakukan aksi pada langkah interaksi/simulasi.
@@ -203,7 +220,7 @@ Setelah menyelesaikan satu atau lebih pelajaran, siswa dapat melihat streak hari
 ### Measurable Outcomes
 
 - **SC-001**: Minimal 4 dari 5 modul pelajaran yang dispesifikasikan dapat diselesaikan end-to-end oleh pengguna uji tanpa error atau jalan buntu. (Disesuaikan oleh spec 003 — lihat FR-003.)
-- **SC-002**: Siswa baru dapat berpindah dari membuka Atlas hingga menyelesaikan satu pelajaran penuh dalam waktu kurang dari 5 menit tanpa bantuan eksternal.
+- **SC-002**: Siswa baru dapat berpindah dari membuka aplikasi (entry point yang benar-benar dipakai rilis ini — Beranda, bukan Atlas; lihat `specs/004-defer-lumera-atlas/spec.md` SC-001) hingga menyelesaikan satu pelajaran penuh dalam waktu kurang dari 5 menit tanpa bantuan eksternal. Versi "dari Atlas hingga selesai" dicatat sebagai target next-development terpisah, diukur ulang begitu Atlas terpasang.
 - **SC-003**: 90% atau lebih dari percobaan interaksi pada langkah "Aksi pengguna" menghasilkan umpan balik instan yang terlihat (tidak ada interaksi yang macet/tidak merespons).
 - **SC-004**: 100% pelajaran yang diselesaikan menghasilkan pembaruan Lumens, streak, dan progress yang terlihat oleh siswa.
 - **SC-005**: Tidak ditemukan elemen interaktif yang tidak berfungsi ("tombol palsu") pada modul manapun yang dirilis dalam prototype ini.
