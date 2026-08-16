@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   hashForCourseView,
+  hashForCourse,
+  hashForLesson,
   hashForRoute,
   isOnboardingRoute,
   parseStudentHash,
@@ -53,6 +55,29 @@ describe('student hash routes', () => {
     expect(parseStudentHash('#/belajar/matematika/bilangan-bulat?view=grid').courseView).toBe(
       'roadmap',
     );
+  });
+
+  it('parses and builds data-driven course and lesson links', () => {
+    expect(hashForCourse('aljabar', true, 'list')).toBe(
+      '#/belajar/matematika/aljabar?mode=demo&view=list',
+    );
+    expect(parseStudentHash(hashForCourse('aljabar', true, 'list'))).toEqual({
+      route: 'course',
+      demo: true,
+      courseView: 'list',
+      courseSlug: 'aljabar',
+    });
+
+    expect(hashForLesson('kalkulus', 'semakin-dekat', true)).toBe(
+      '#/belajar/matematika/kalkulus/semakin-dekat?mode=demo',
+    );
+    expect(parseStudentHash(hashForLesson('kalkulus', 'semakin-dekat', true))).toEqual({
+      route: 'lesson',
+      demo: true,
+      courseView: 'roadmap',
+      courseSlug: 'kalkulus',
+      lessonSlug: 'semakin-dekat',
+    });
   });
 
   it('falls back according to onboarding completion', () => {

@@ -7,6 +7,13 @@ import type {
   StudentSubject,
   StudentSubjectId,
 } from './types';
+import {
+  LEARNING_PATHS,
+  getCourseHref,
+  type LearningCourse,
+  type LearningPath,
+  type LessonNode,
+} from './learningCatalog';
 
 export const INTEGER_MODULES: readonly StudentModuleSummary[] = [
   {
@@ -186,24 +193,23 @@ function subjectSearchRecord(subject: StudentSubject): StudentSearchRecord {
   };
 }
 
-function pathSearchRecord(path: StudentLearningPath, subject: StudentSubject): StudentSearchRecord {
+function canonicalPathSearchRecord(path: LearningPath): StudentSearchRecord {
   return {
     id: `learningPath:${path.id}`,
     entityId: path.id,
     kind: 'learningPath',
     title: path.title,
     description: path.description,
-    status: path.status,
-    href: SUBJECT_ROUTES[subject.id] ?? null,
-    breadcrumbs: [subject.title],
-    keywords: [subject.title, 'SMP', 'Kelas VII', path.description],
+    status: 'available',
+    href: '#/belajar',
+    breadcrumbs: ['Matematika', path.shortTitle],
+    keywords: [path.phase, path.gradeBand, path.description],
   };
 }
 
-function courseSearchRecord(
-  course: StudentCourse,
-  path: StudentLearningPath,
-  subject: StudentSubject,
+function canonicalCourseSearchRecord(
+  course: LearningCourse,
+  path: LearningPath,
 ): StudentSearchRecord {
   return {
     id: `course:${course.id}`,
@@ -212,52 +218,43 @@ function courseSearchRecord(
     title: course.title,
     description: course.description,
     status: course.status,
-    href:
-      course.status === 'available' && course.id === INTEGER_COURSE.id
-        ? '#/belajar/matematika/bilangan-bulat'
-        : null,
-    breadcrumbs: [subject.title, path.title],
-    keywords: [subject.title, path.title, course.gradeLabel, course.description],
+    href: getCourseHref(course),
+    breadcrumbs: ['Matematika', path.shortTitle],
+    keywords: [course.phase, course.gradeBand, course.description],
   };
 }
 
-function moduleSearchRecord(
-  module: StudentModuleSummary,
-  course: StudentCourse,
-  path: StudentLearningPath,
-  subject: StudentSubject,
+function canonicalLessonSearchRecord(
+  lesson: LessonNode,
+  course: LearningCourse,
+  path: LearningPath,
 ): StudentSearchRecord {
   return {
-    id: `module:${module.id}`,
-    entityId: module.id,
+    id: `module:${lesson.id}`,
+    entityId: lesson.id,
     kind: 'module',
-    title: module.title,
-    description: module.description,
-    status: module.status,
-    href:
-      module.status === 'available' && course.id === INTEGER_COURSE.id
-        ? '#/belajar/matematika/bilangan-bulat'
-        : null,
-    breadcrumbs: [subject.title, path.title, course.title],
-    keywords: [module.description, ...module.outcomes],
+    title: lesson.title,
+    description: lesson.description,
+    status: lesson.moduleId ? 'available' : 'comingSoon',
+    // Search opens the owning roadmap so prerequisite and review gates remain visible.
+    href: lesson.moduleId ? getCourseHref(course) : null,
+    breadcrumbs: ['Matematika', path.shortTitle, course.title, lesson.label],
+    keywords: [lesson.description, course.title, path.title],
   };
 }
 
-function buildSearchRecords(subjects: readonly StudentSubject[]): StudentSearchRecord[] {
-  return subjects.flatMap((subject) => [
-    subjectSearchRecord(subject),
-    ...subject.learningPaths.flatMap((path) => [
-      pathSearchRecord(path, subject),
-      ...path.courses.flatMap((course) => [
-        courseSearchRecord(course, path, subject),
-        ...course.modules.map((module) => moduleSearchRecord(module, course, path, subject)),
-      ]),
+export const STUDENT_SEARCH_RECORDS: readonly StudentSearchRecord[] = [
+  ...STUDENT_SUBJECTS.map(subjectSearchRecord),
+  ...LEARNING_PATHS.flatMap((path) => [
+    canonicalPathSearchRecord(path),
+    ...path.courses.flatMap((course) => [
+      canonicalCourseSearchRecord(course, path),
+      ...course.levels.flatMap((level) =>
+        level.lessons.map((lesson) => canonicalLessonSearchRecord(lesson, course, path)),
+      ),
     ]),
-  ]);
-}
-
-export const STUDENT_SEARCH_RECORDS: readonly StudentSearchRecord[] =
-  buildSearchRecords(STUDENT_SUBJECTS);
+  ]),
+];
 
 function normalized(value: string): string {
   return value

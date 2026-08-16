@@ -1,0 +1,55 @@
+/* ============================================================
+   LumeraLevelBanner.css
+   Lumera 3D Level Banner with Violet Shelf
+   ============================================================ */
+
+.lumera-level-banner-wrap {
+  position: relative;
+  width: min(480px, 100%);
+  margin: 0 auto 52px;
+  user-select: none;
+}
+
+.lumera-level-pill {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 14px 28px;
+  background: #ffffff;
+  border: 2px solid #818cf8;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(109, 92, 231, 0.1);
+}
+
+.lumera-level-shelf {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 22px;
+  background: linear-gradient(180deg, #818cf8 0%, #6d5ce7 100%);
+  border-radius: 14px;
+  z-index: 1;
+  box-shadow: 0 6px 16px rgba(109, 92, 231, 0.25);
+}
+
+.lumera-level-kicker {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #6d5ce7;
+  text-transform: uppercase;
+}
+
+.lumera-level-heading {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}

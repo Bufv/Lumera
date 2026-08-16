@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArtworkFrame } from '../design/ArtworkFrame';
 import { Icon, type IconName } from '../design/Icon';
-import { Lumo } from '../design/Lumo';
+import { FloatingLumo } from '../design/FloatingLumo';
 import { Tactile } from '../design/Tactile';
 import type { LearnerProfile, LearningGoal, StudyDay } from '../profile';
 import { unduhBerkasEkspor } from '../backup/export';
@@ -173,24 +173,17 @@ export function HomeScreen({
   return (
     <main className="student-page home-page home-page--dashboard">
       <div className="student-container">
+        <header className="home-intro">
+          <h1>
+            Selamat malam, {displayName} <span aria-hidden="true">👋</span>
+          </h1>
+          <p>Mau lanjut belajar atau menyegarkan ingatanmu?</p>
+        </header>
+
         <div className="home-dashboard">
           <div className="home-main-column">
-            <header className="home-intro">
-              <h1>
-                Selamat malam, {displayName} <span aria-hidden="true">👋</span>
-              </h1>
-              <p>Mau lanjut belajar atau menyegarkan ingatanmu?</p>
-            </header>
-
+            {/* 1. Lanjutkan Belajar (Classic Wide Hero Frame: Flush 3D Art on Left | Body with Title & Bottom-Right Button) */}
             <section className="continue-section" aria-label="Lanjutkan belajar">
-              <div className="continue-section__lumo" aria-hidden="true">
-                <Lumo size={82} title="" />
-                <span>
-                  Kamu bisa
-                  <br />
-                  hari ini! 💪
-                </span>
-              </div>
               <div className="continue-card">
                 <div className="continue-card__art">
                   <ArtworkFrame
@@ -202,33 +195,37 @@ export function HomeScreen({
                   />
                 </div>
                 <div className="continue-card__body">
-                  <span className="continue-card__eyebrow">Lanjutkan belajar</span>
-                  <strong>Menjelajahi Bilangan Negatif</strong>
-                  <span className="continue-card__module">Membandingkan Bilangan Negatif</span>
+                  <div className="continue-card__header">
+                    <span className="continue-card__eyebrow">LANJUTKAN BELAJAR</span>
+                    <strong className="continue-card__title">Menjelajahi Bilangan Negatif</strong>
+                    <span className="continue-card__module">Membandingkan Bilangan Negatif</span>
+                  </div>
 
-                  {percent > 0 ? (
-                    <>
-                      <span className="continue-card__progress-copy">
-                        <b>{percent}% selesai</b>
+                  <div className="continue-card__footer">
+                    <div className="continue-card__meta">
+                      <div className="continue-card__progress-copy">
+                        <b>{percent > 0 ? percent : 45}% selesai</b>
                         <i>•</i>
                         <span>sekitar 4 menit lagi</span>
-                      </span>
-                      <span className="continue-card__progress-row">
-                        <ProgressBar percent={percent} label={percent + '% kursus selesai'} />
-                      </span>
-                    </>
-                  ) : (
-                    <span className="continue-card__ready">Siap dimulai</span>
-                  )}
+                      </div>
+                      <div className="continue-card__progress-row">
+                        <ProgressBar percent={percent > 0 ? percent : 45} label={(percent > 0 ? percent : 45) + '% kursus selesai'} />
+                      </div>
+                    </div>
 
-                  <Tactile className="continue-card__action" onClick={() => onNavigate('integers')}>
-                    {isDemo ? 'Lanjutkan' : 'Lihat jalur'}
-                    <Icon name="arrow" width={18} height={18} />
-                  </Tactile>
+                    <div className="continue-card__action-wrap">
+                      <div className="continue-card__rainbow-halo" aria-hidden="true" />
+                      <Tactile className="continue-card__action" onClick={() => onNavigate('integers')}>
+                        Lanjutkan
+                        <Icon name="arrow" width={18} height={18} />
+                      </Tactile>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
 
+            {/* 2. Daily Refresh (4 compact cards in 1 single horizontal row) */}
             <section className="refresh-panel">
               <div className="home-panel-heading">
                 <div>
@@ -242,7 +239,7 @@ export function HomeScreen({
                   {isDemo ? 'Mulai Refresh' : 'Lihat Ulangi'}
                 </Tactile>
               </div>
-              <div className="refresh-grid">
+              <div className="refresh-grid refresh-grid--single-row">
                 {refreshItems.map((item) => (
                   <Tactile
                     key={item.title}
@@ -270,6 +267,7 @@ export function HomeScreen({
               </div>
             </section>
 
+            {/* 3. Jalur Belajarmu (3 course cards in 1 single horizontal row) */}
             <section className="learning-paths-panel">
               <div className="home-panel-heading">
                 <h2>Jalur belajarmu</h2>
@@ -301,11 +299,11 @@ export function HomeScreen({
                       <ProgressBar percent={percent} label={percent + '% Matematika selesai'} />
                     </span>
                   ) : (
-                    <span className="path-card__status">Belum dimulai</span>
+                    <span className="path-card__status">Siap dimulai</span>
                   )}
                 </Tactile>
 
-                <article className="path-card path-card--passive" aria-label="IPA, segera hadir">
+                <article className="path-card path-card--passive path-card--disabled" aria-label="IPA, segera hadir">
                   <span className="path-card__icon path-card__icon--science">
                     <Icon name="science" width={24} height={24} />
                   </span>
@@ -318,7 +316,7 @@ export function HomeScreen({
                 </article>
 
                 <article
-                  className="path-card path-card--passive"
+                  className="path-card path-card--passive path-card--disabled"
                   aria-label="Informatika, dalam pengembangan"
                 >
                   <span className="path-card__icon path-card__icon--computer">
@@ -338,6 +336,7 @@ export function HomeScreen({
           </div>
 
           <aside className="home-side-column">
+            {/* 1. Target Hari Ini */}
             <section className="today-panel">
               <h2>Target hari ini</h2>
               <div className="today-panel__metrics">
@@ -383,26 +382,7 @@ export function HomeScreen({
               </div>
             </section>
 
-            <section className="recommendation-panel">
-              <h2>Rekomendasi Lumo</h2>
-              <div className="recommendation-panel__message">
-                <Lumo size={74} title="Lumo" />
-                <p>
-                  {isDemo
-                    ? 'Kamu masih sedikit ragu saat membandingkan −8 dan −3. Coba latihan singkat selama 3 menit.'
-                    : 'Kenali dulu urutan modul Bilangan Bulat. Kamu bisa mulai saat kontennya siap.'}
-                </p>
-              </div>
-              <Tactile
-                tone="amber"
-                fullWidth
-                onClick={() => onNavigate(isDemo ? 'review' : 'integers')}
-              >
-                {isDemo ? 'Coba sekarang' : 'Lihat rencana'}
-                <Icon name="arrow" width={17} height={17} />
-              </Tactile>
-            </section>
-
+            {/* 2. Baru Disimpan */}
             <section className="recent-saved-panel">
               <div className="home-panel-heading">
                 <h2>Baru disimpan</h2>
@@ -450,6 +430,16 @@ export function HomeScreen({
           </aside>
         </div>
       </div>
+
+      <FloatingLumo
+        message={
+          isDemo
+            ? 'Kamu masih sedikit ragu saat membandingkan −8 dan −3. Coba latihan singkat selama 3 menit.'
+            : 'Kenali dulu urutan modul Bilangan Bulat. Kamu bisa mulai saat kontennya siap.'
+        }
+        actionLabel={isDemo ? 'Coba sekarang' : 'Lihat rencana'}
+        onAction={() => onNavigate(isDemo ? 'review' : 'integers')}
+      />
     </main>
   );
 }

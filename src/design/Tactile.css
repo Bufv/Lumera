@@ -1,34 +1,35 @@
 .lumera-tactile {
-  --tactile-surface: #6d5ce7;
-  --tactile-depth: #5143c8;
+  --tactile-surface: #15172a;
+  --tactile-depth: #000000;
   --tactile-foreground: #ffffff;
-  --tactile-border: transparent;
+  --tactile-border: #000000;
 
   box-sizing: border-box;
   display: inline-flex;
-  min-height: 44px;
+  min-height: 42px;
   margin: 0 0 6px;
-  padding: 11px 18px;
+  padding: 10px 20px;
   align-items: center;
   justify-content: center;
   gap: 8px;
   color: var(--tactile-foreground);
   font: inherit;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.25;
   text-align: center;
   text-decoration: none;
   background: var(--tactile-surface);
-  border: 1px solid var(--tactile-border);
-  border-radius: 12px;
-  box-shadow: 0 4px 0 var(--tactile-depth);
+  border: 1.5px solid var(--tactile-border);
+  border-radius: 9999px;
+  box-shadow: 0 3.5px 0 var(--tactile-depth), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   cursor: pointer;
   transform: translateY(0);
   transition:
-    transform 140ms ease-out,
-    box-shadow 140ms ease-out,
-    background-color 140ms ease-out,
-    border-color 140ms ease-out;
+    transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    box-shadow 160ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    filter 150ms ease;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -36,16 +37,35 @@
 }
 
 .lumera-tactile--neutral {
-  --tactile-surface: #ffffff;
-  --tactile-depth: #cfd1db;
+  --tactile-surface: linear-gradient(180deg, #ffffff 0%, #f1f4f9 100%);
+  --tactile-depth: #cbd5e1;
   --tactile-foreground: #15172a;
-  --tactile-border: #e4e6ee;
+  --tactile-border: #e2e8f0;
+  box-shadow: 0 3px 0 0 #cbd5e1, inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .lumera-tactile--amber {
-  --tactile-surface: #f4b725;
-  --tactile-depth: #c78c00;
-  --tactile-foreground: #15172a;
+  --tactile-surface: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+  --tactile-depth: #d97706;
+  --tactile-foreground: #ffffff;
+  --tactile-border: #f59e0b;
+  box-shadow: 0 3.5px 0 0 #d97706, inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.lumera-tactile--green {
+  --tactile-surface: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  --tactile-depth: #047857;
+  --tactile-foreground: #ffffff;
+  --tactile-border: #10b981;
+  box-shadow: 0 3.5px 0 0 #047857, inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.lumera-tactile--purple {
+  --tactile-surface: linear-gradient(180deg, #9d8df8 0%, #6d5ce7 100%);
+  --tactile-depth: #5143c8;
+  --tactile-foreground: #ffffff;
+  --tactile-border: #6d5ce7;
+  box-shadow: 0 3.5px 0 0 #5143c8, inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .lumera-tactile--card {
@@ -54,7 +74,7 @@
   align-items: stretch;
   justify-content: flex-start;
   text-align: left;
-  border-radius: 16px;
+  border-radius: 18px;
 }
 
 .lumera-tactile--full {
@@ -66,10 +86,15 @@
   outline-offset: 3px;
 }
 
-.lumera-tactile:active:not(:disabled):not([aria-disabled='true']) {
-  box-shadow: 0 0 0 var(--tactile-depth);
-  transform: translateY(4px);
-  transition-duration: 80ms;
+.lumera-tactile:active:not(:disabled):not([aria-disabled='true']),
+.lumera-tactile[data-pressed='true']:not(:disabled):not([aria-disabled='true']) {
+  box-shadow: 0 0 0 transparent !important;
+  transform: translateY(4px) scale(0.985) !important;
+  filter: brightness(0.97) !important;
+  transition:
+    transform 60ms cubic-bezier(0.1, 0.9, 0.2, 1),
+    box-shadow 60ms cubic-bezier(0.1, 0.9, 0.2, 1),
+    filter 60ms ease !important;
 }
 
 .lumera-tactile:disabled,
@@ -85,12 +110,21 @@
 @media (hover: hover) and (pointer: fine) {
   .lumera-tactile:hover:not(:disabled):not([aria-disabled='true']) {
     box-shadow: 0 6px 0 var(--tactile-depth);
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.012);
+    transition:
+      transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1),
+      box-shadow 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
   }
 
-  .lumera-tactile:active:not(:disabled):not([aria-disabled='true']) {
-    box-shadow: 0 0 0 var(--tactile-depth);
-    transform: translateY(4px);
+  .lumera-tactile:active:not(:disabled):not([aria-disabled='true']),
+  .lumera-tactile[data-pressed='true']:not(:disabled):not([aria-disabled='true']) {
+    box-shadow: 0 0 0 transparent !important;
+    transform: translateY(4px) scale(0.985) !important;
+    filter: brightness(0.97) !important;
+    transition:
+      transform 60ms cubic-bezier(0.1, 0.9, 0.2, 1),
+      box-shadow 60ms cubic-bezier(0.1, 0.9, 0.2, 1),
+      filter 60ms ease !important;
   }
 }
 

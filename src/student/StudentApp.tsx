@@ -12,11 +12,15 @@ import {
 import { PrivacyPolicy } from '../privacy/PrivacyPolicy';
 import { hapusSemuaDataSiswa } from '../privacy/deleteAllData';
 import { bacaSiswa, type Siswa } from '../progress/store';
-import { findStudentModule } from './catalog';
+import { selesaikanPelajaran } from '../progress/award';
+import { bacaProgresDemo, resetProgresDemo, selesaikanPelajaranDemo } from '../progress/demoStore';
+import { MicroLessonPlayer, type MicroLessonCompletion } from '../microlearning';
 import { ARDI_DEMO_FIXTURE, type DemoSavedConcept } from './demo';
 import { OnboardingFlow } from './OnboardingFlow';
 import {
+  hashForCourse,
   hashForCourseView,
+  hashForLesson,
   hashForRoute,
   isOnboardingRoute,
   parseStudentHash,
@@ -25,10 +29,19 @@ import {
   type StudentLocation,
 } from './routes';
 import { IntegerCourseScreen } from './IntegerCourseScreen';
+import { LearningPathsScreen } from './LearningPathsScreen';
+import { CourseRoadmapScreen } from './CourseRoadmapScreen';
+import {
+  ACTIVE_LEARNING_COURSES,
+  deriveLessonAvailability,
+  findLearningCourse,
+  findLessonNode,
+  getCourseProgress,
+  type LearningCourse,
+  type LessonNode,
+} from './learningCatalog';
 import {
   HomeScreen,
-  LearnScreen,
-  MathScreen,
   ProgressScreen,
   ReviewScreen,
   SavedScreen,
@@ -76,6 +89,40 @@ const DEMO_DAYS: StudyDay[] = [
   'sunday',
 ];
 
+const LESSON_RETURN_HASH_STATE_KEY = 'lumeraLessonReturnHash';
+
+function currentHistoryState(): Record<string, unknown> {
+  return typeof window.history.state === 'object' && window.history.state !== null
+    ? { ...(window.history.state as Record<string, unknown>) }
+    : {};
+}
+
+function rememberLessonReturnHash(returnHash: string): void {
+  window.history.replaceState(
+    { ...currentHistoryState(), [LESSON_RETURN_HASH_STATE_KEY]: returnHash },
+    '',
+    window.location.href,
+  );
+}
+
+function validLessonReturnHash(courseSlug: string, demo: boolean): string | null {
+  const candidate = currentHistoryState()[LESSON_RETURN_HASH_STATE_KEY];
+  if (typeof candidate !== 'string' || !candidate.startsWith('#/')) return null;
+  const destination = parseStudentHash(candidate, true);
+  return destination.route === 'course' &&
+    destination.courseSlug === courseSlug &&
+    destination.demo === demo
+    ? candidate
+    : null;
+}
+
+function replaceCurrentStudentHash(nextHash: string): void {
+  const nextState = currentHistoryState();
+  delete nextState[LESSON_RETURN_HASH_STATE_KEY];
+  window.history.replaceState(nextState, '', nextHash);
+  window.dispatchEvent(new HashChangeEvent('hashchange'));
+}
+
 function demoProfile(): LearnerProfile {
   return {
     schemaVersion: PROFILE_SCHEMA_VERSION,
@@ -104,6 +151,10 @@ export function StudentApp() {
   // staleness saat impor (contracts/progress-export-contract.md aturan 4) dan
   // diperbarui setelah impor/hapus-semua-data berhasil.
   const [siswa, setSiswa] = useState<Siswa>(() => bacaSiswa());
+  const [demoSiswa, setDemoSiswa] = useState<Siswa | null>(() =>
+    location.demo ? bacaProgresDemo() : null,
+  );
+  const [focusLessonId, setFocusLessonId] = useState<string | undefined>();
   const demoData = location.demo ? ARDI_DEMO_FIXTURE : null;
   const visibleProfile = useMemo(
     () => (location.demo ? demoProfile() : profile),
@@ -116,6 +167,25 @@ export function StudentApp() {
       ),
     [demoData],
   );
+  const learningProgress = location.demo ? demoSiswa : siswa;
+  const completedLearningModuleIds = useMemo(
+    () => learningProgress?.modulSelesai ?? [],
+    [learningProgress?.modulSelesai],
+  );
+  const progressByCourse = useMemo(
+    () =>
+      Object.fromEntries(
+        ACTIVE_LEARNING_COURSES.map((course) => [
+          course.slug,
+          getCourseProgress(course, completedLearningModuleIds).percent,
+        ]),
+      ),
+    [completedLearningModuleIds],
+  );
+
+  useEffect(() => {
+    if (location.demo && !demoSiswa) setDemoSiswa(bacaProgresDemo());
+  }, [demoSiswa, location.demo]);
 
   useEffect(() => {
     if (!window.location.hash) {
@@ -150,6 +220,7 @@ export function StudentApp() {
   }, [location.route, location.demo]);
 
   const navigate = (route: RouteName, demo = location.demo) => {
+    if (route === 'course' || route === 'lesson') return;
     const nextCourseView = route === 'integers' ? location.courseView : 'roadmap';
     const nextHash = hashForRoute(route, demo, nextCourseView);
     setSelectedModule(null);
@@ -163,11 +234,35 @@ export function StudentApp() {
     }
   };
 
+  const openCourse = (courseSlug: string) => {
+    setFocusLessonId(undefined);
+    window.location.hash = hashForCourse(courseSlug, location.demo);
+  };
+
+  const openLesson = (lesson: LessonNode, course: LearningCourse) => {
+    if (!lesson.moduleId) return;
+    const returnHash = window.location.hash;
+    const returnLocation = parseStudentHash(returnHash, true);
+    window.location.hash = hashForLesson(course.slug, lesson.slug, location.demo);
+    if (
+      returnLocation.route === 'course' &&
+      returnLocation.courseSlug === course.slug &&
+      returnLocation.demo === location.demo
+    ) {
+      rememberLessonReturnHash(returnHash);
+    }
+  };
+
   const changeCourseView = (courseView: CourseView) => {
-    const nextHash = hashForCourseView(courseView, location.demo);
+    const courseSlug = location.courseSlug ?? 'bilangan-bulat';
+    const nextHash = hashForCourseView(courseView, location.demo, courseSlug);
     setSelectedModule(null);
     if (window.location.hash === nextHash) {
-      setLocation({ route: 'integers', demo: location.demo, courseView });
+      setLocation(
+        courseSlug === 'bilangan-bulat'
+          ? { route: 'integers', demo: location.demo, courseView }
+          : { route: 'course', demo: location.demo, courseView, courseSlug },
+      );
     } else {
       window.location.hash = nextHash;
     }
@@ -193,11 +288,45 @@ export function StudentApp() {
   const handleSearchSelect = (record: StudentSearchRecord) => {
     if (!record.href || record.status === 'comingSoon') return;
     const destination = parseStudentHash(record.href, true);
-    navigate(destination.route);
-    if (record.kind === 'module') {
-      const module = findStudentModule(record.entityId);
-      if (module) window.setTimeout(() => setSelectedModule(module), 0);
+    if (destination.route === 'course' && destination.courseSlug) {
+      openCourse(destination.courseSlug);
+      return;
     }
+    if (destination.route === 'lesson' && destination.courseSlug && destination.lessonSlug) {
+      window.location.hash = hashForLesson(
+        destination.courseSlug,
+        destination.lessonSlug,
+        location.demo,
+      );
+      return;
+    }
+    navigate(destination.route, location.demo);
+  };
+
+  const completeMicroLesson = (payload: MicroLessonCompletion) => {
+    const course = ACTIVE_LEARNING_COURSES.find((candidate) =>
+      candidate.levels.some((level) =>
+        level.lessons.some((lesson) => lesson.moduleId === payload.lessonId),
+      ),
+    );
+    if (!course) return;
+
+    const result = location.demo
+      ? selesaikanPelajaranDemo(payload.lessonId, payload.mistakes)
+      : selesaikanPelajaran(payload.lessonId, payload.mistakes);
+    if (location.demo) setDemoSiswa(result.siswa);
+    else setSiswa(result.siswa);
+
+    const registeredLessons = course.levels.flatMap((level) =>
+      level.lessons.filter((lesson): lesson is LessonNode & { moduleId: string } =>
+        Boolean(lesson.moduleId),
+      ),
+    );
+    const completedIndex = registeredLessons.findIndex(
+      (lesson) => lesson.moduleId === payload.lessonId,
+    );
+    setFocusLessonId(registeredLessons[completedIndex + 1]?.id);
+    replaceCurrentStudentHash(hashForCourse(course.slug, location.demo));
   };
 
   const confirmReset = () => {
@@ -209,6 +338,8 @@ export function StudentApp() {
       return;
     }
     if (confirmAction === 'reset-demo') {
+      resetProgresDemo();
+      setDemoSiswa(bacaProgresDemo());
       setConfirmAction(null);
       setSelectedConcept(null);
       setSelectedModule(null);
@@ -240,20 +371,78 @@ export function StudentApp() {
     );
   }
 
+  const routedCourse = location.courseSlug ? findLearningCourse(location.courseSlug) : null;
+  const routedLesson =
+    routedCourse && location.lessonSlug
+      ? findLessonNode(routedCourse.slug, location.lessonSlug)
+      : null;
+  const previewPendingReview = location.demo || import.meta.env.DEV;
+  const routedLessonState =
+    routedLesson && routedCourse
+      ? deriveLessonAvailability(
+          routedLesson,
+          new Set(completedLearningModuleIds),
+          previewPendingReview,
+        ).availability
+      : null;
+  const routedLessonCanOpen =
+    routedLessonState === 'available' ||
+    routedLessonState === 'inProgress' ||
+    routedLessonState === 'completed';
+
+  if (
+    location.route === 'lesson' &&
+    routedCourse?.status === 'available' &&
+    routedLesson?.moduleId &&
+    routedLessonCanOpen
+  ) {
+    return (
+      <MicroLessonPlayer
+        lessonId={routedLesson.moduleId}
+        lumens={learningProgress?.lumens ?? 0}
+        reducedMotion={visibleProfile.reduceMotion}
+        onExit={() => {
+          setFocusLessonId(routedLesson.id);
+          if (validLessonReturnHash(routedCourse.slug, location.demo)) {
+            window.history.back();
+            return;
+          }
+          replaceCurrentStudentHash(hashForCourse(routedCourse.slug, location.demo));
+        }}
+        onComplete={completeMicroLesson}
+      />
+    );
+  }
+
   const content = (() => {
     switch (location.route) {
       case 'learn':
-        return (
-          <LearnScreen
-            onNavigate={navigate}
-            progressPercent={demoData?.courseProgress.percent ?? 0}
-          />
-        );
       case 'math':
         return (
-          <MathScreen
-            onNavigate={navigate}
-            progressPercent={demoData?.courseProgress.percent ?? 0}
+          <LearningPathsScreen
+            onOpenCourse={openCourse}
+            progressByCourse={progressByCourse}
+            demo={location.demo}
+          />
+        );
+      case 'course':
+      case 'lesson':
+        return routedCourse?.status === 'available' ? (
+          <CourseRoadmapScreen
+            course={routedCourse}
+            completedModuleIds={completedLearningModuleIds}
+            demo={previewPendingReview}
+            view={location.courseView}
+            focusLessonId={location.route === 'lesson' ? routedLesson?.id : focusLessonId}
+            onBack={() => navigate('learn')}
+            onChangeView={changeCourseView}
+            onOpenLesson={openLesson}
+          />
+        ) : (
+          <LearningPathsScreen
+            onOpenCourse={openCourse}
+            progressByCourse={progressByCourse}
+            demo={location.demo}
           />
         );
       case 'integers':

@@ -1,0 +1,55 @@
+/* ============================================================
+   BrilliantLevelBanner.css
+   Authentic Brilliant-Style 3D Level Banner with Shelf
+   ============================================================ */
+
+.brilliant-level-banner-wrap {
+  position: relative;
+  width: min(440px, 100%);
+  margin: 0 auto 56px;
+  user-select: none;
+}
+
+.brilliant-level-pill {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 28px;
+  background: #ffffff;
+  border: 1.5px solid #93c5fd;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+.brilliant-level-shelf {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+  border-radius: 12px;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.brilliant-level-kicker {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #2563eb;
+  text-transform: uppercase;
+}
+
+.brilliant-level-heading {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}

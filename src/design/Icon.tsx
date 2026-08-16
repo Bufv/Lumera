@@ -22,18 +22,20 @@ export type IconName =
   | 'lock'
   | 'math'
   | 'play'
+  | 'refresh'
   | 'route'
   | 'science'
   | 'search'
   | 'sparkles'
-  | 'target';
+  | 'target'
+  | 'user';
 
 export function Icon({ name, ...props }: { name: IconName } & SVGProps<SVGSVGElement>) {
   const common = {
     viewBox: '0 0 24 24',
     fill: 'none',
     stroke: 'currentColor',
-    strokeWidth: 1.9,
+    strokeWidth: 2,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
     'aria-hidden': true,
@@ -90,6 +92,16 @@ export function Icon({ name, ...props }: { name: IconName } & SVGProps<SVGSVGEle
       </svg>
     );
   }
+  if (name === 'refresh') {
+    return (
+      <svg {...common}>
+        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+        <path d="M21 21v-5h-5" />
+      </svg>
+    );
+  }
   if (name === 'play') {
     return (
       <svg {...common}>
@@ -109,7 +121,7 @@ export function Icon({ name, ...props }: { name: IconName } & SVGProps<SVGSVGEle
   if (name === 'bookmark') {
     return (
       <svg {...common}>
-        <path d="M6.5 4.5A1.5 1.5 0 0 1 8 3h8a1.5 1.5 0 0 1 1.5 1.5V21L12 17.5 6.5 21Z" />
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
       </svg>
     );
   }
@@ -124,9 +136,8 @@ export function Icon({ name, ...props }: { name: IconName } & SVGProps<SVGSVGEle
   if (name === 'home') {
     return (
       <svg {...common}>
-        <path d="m3 11 9-7 9 7" />
-        <path d="M5.5 9.5V20h13V9.5" />
-        <path d="M9.5 20v-6h5v6" />
+        <path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5Z" />
+        <path d="M9 22V12h6v10" />
       </svg>
     );
   }
@@ -180,8 +191,8 @@ export function Icon({ name, ...props }: { name: IconName } & SVGProps<SVGSVGEle
   if (name === 'book') {
     return (
       <svg {...common}>
-        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5Z" />
-        <path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5Z" />
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
       </svg>
     );
   }
@@ -230,6 +241,14 @@ export function Icon({ name, ...props }: { name: IconName } & SVGProps<SVGSVGEle
         <circle cx="12" cy="12" r="4" />
         <circle cx="12" cy="12" r=".8" fill="currentColor" />
         <path d="m14.8 9.2 5-5" />
+      </svg>
+    );
+  }
+  if (name === 'user') {
+    return (
+      <svg {...common}>
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
       </svg>
     );
   }

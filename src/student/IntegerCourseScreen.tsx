@@ -1,41 +1,48 @@
-import { useState } from 'react';
-import { ArtworkFrame } from '../design/ArtworkFrame';
+import { useState, useEffect, type CSSProperties } from 'react';
 import { Icon } from '../design/Icon';
 import { RiveGameboardNode } from '../design/RiveGameboardNode';
 import { Tactile } from '../design/Tactile';
 import { INTEGER_COURSE } from './catalog';
 import type { CourseView, RouteName } from './routes';
-import { Breadcrumbs } from './StudentScreens';
 import type { StudentModuleSummary } from './types';
+import type { RiveNodeStatus } from '../design/RiveGameboardNode.types';
 import './IntegerCourseScreen.css';
 
 /* ------------------------------------------------------------------ model */
 
-type StatusSimpul = 'selesai' | 'berjalan' | 'terkunci' | 'rencana';
+export type StatusSimpul = 'selesai' | 'berjalan' | 'terkunci' | 'rencana';
 
-interface SimpulJalur {
+export interface SimpulJalur {
   id: string;
+  nomorUrut: string;
   judul: string;
+  deskripsi: string;
   status: StatusSimpul;
-  /** Modul nyata dari katalog; null untuk modul yang naskahnya belum ada. */
   modul: StudentModuleSummary | null;
 }
 
-interface LevelJalur {
+export interface LevelJalur {
   id: string;
   nomor: number;
   judul: string;
   simpul: SimpulJalur[];
 }
 
-/**
- * Katalog baru punya dua modul; sisanya rencana kurikulum. Modul rencana tetap
- * ditampilkan sebagai simpul agar bentuk jalurnya terbaca, tetapi statusnya
- * 'rencana' sehingga tidak pernah bisa dibuka (aturan comingSoon di README).
- */
-const MODUL_RENCANA: Readonly<Record<string, string[]>> = {
-  'level-1': ['Garis Bilangan dan Urutan', 'Nilai Mutlak'],
-  'level-2': ['Perkalian dan Pembagian', 'Sifat Operasi Hitung', 'Soal Kontekstual'],
+const NODE_COORDINATES = [
+  { left: 42, top: 40 },  // Node 1: Center-Right
+  { left: 16, top: 220 }, // Node 2: Far Left
+  { left: 41, top: 400 }, // Node 3: Center
+  { left: 65, top: 580 }, // Node 4: Far Right
+] as const;
+
+const DESKRIPSI_MODUL: Record<string, string> = {
+  'bilangan-di-bawah-nol': 'Mengenali bilangan negatif melalui suhu, posisi, dan garis bilangan.',
+  'operasi-bilangan-bulat': 'Memahami perubahan nilai saat bilangan bulat dijumlahkan atau dikurangkan.',
+  'garis-bilangan-dan-urutan': 'Membandingkan dan mengurutkan bilangan bulat pada garis bilangan.',
+  'nilai-mutlak': 'Menjelaskan jarak dari nol dan makna nilai mutlak dalam konteks nyata.',
+  'perkalian-dan-pembagian': 'Menemukan pola tanda pada perkalian dan pembagian bilangan bulat.',
+  'sifat-operasi-hitung': 'Memanfaatkan sifat komutatif, asosiatif, dan distributif.',
+  'soal-kontekstual': 'Memecahkan masalah kontekstual menggunakan bilangan bulat.',
 };
 
 function statusModul(index: number, progres: number): StatusSimpul {
@@ -45,24 +52,84 @@ function statusModul(index: number, progres: number): StatusSimpul {
 }
 
 function susunLevel(moduleProgress: Readonly<Record<string, number>>): LevelJalur[] {
-  const nyata: SimpulJalur[] = INTEGER_COURSE.modules.map((modul, index) => ({
-    id: modul.id,
-    judul: modul.title,
-    status: statusModul(index, moduleProgress[modul.id] ?? 0),
-    modul,
-  }));
-
-  const rencana = (levelId: string): SimpulJalur[] =>
-    (MODUL_RENCANA[levelId] ?? []).map((judul) => ({
-      id: `${levelId}-${judul}`,
-      judul,
-      status: 'rencana' as const,
+  const level1Simpul: SimpulJalur[] = [
+    {
+      id: 'bilangan-di-bawah-nol',
+      nomorUrut: '1.1',
+      judul: 'Bilangan di Bawah Nol',
+      deskripsi: DESKRIPSI_MODUL['bilangan-di-bawah-nol'] ?? '',
+      status: statusModul(0, moduleProgress['bilangan-di-bawah-nol'] ?? 0),
+      modul: INTEGER_COURSE.modules[0] ?? null,
+    },
+    {
+      id: 'operasi-bilangan-bulat',
+      nomorUrut: '1.2',
+      judul: 'Operasi Bilangan Bulat',
+      deskripsi: DESKRIPSI_MODUL['operasi-bilangan-bulat'] ?? '',
+      status:
+        (moduleProgress['bilangan-di-bawah-nol'] ?? 0) > 0
+          ? statusModul(1, moduleProgress['operasi-bilangan-bulat'] ?? 0)
+          : 'terkunci',
+      modul: INTEGER_COURSE.modules[1] ?? null,
+    },
+    {
+      id: 'level-1-Garis Bilangan dan Urutan',
+      nomorUrut: '1.3',
+      judul: 'Garis Bilangan dan Urutan',
+      deskripsi: DESKRIPSI_MODUL['garis-bilangan-dan-urutan'] ?? '',
+      status: 'rencana',
       modul: null,
-    }));
+    },
+    {
+      id: 'level-1-Nilai Mutlak',
+      nomorUrut: '1.4',
+      judul: 'Nilai Mutlak',
+      deskripsi: DESKRIPSI_MODUL['nilai-mutlak'] ?? '',
+      status: 'rencana',
+      modul: null,
+    },
+  ];
+
+  const level2Simpul: SimpulJalur[] = [
+    {
+      id: 'level-2-Perkalian dan Pembagian',
+      nomorUrut: '2.1',
+      judul: 'Perkalian dan Pembagian',
+      deskripsi: DESKRIPSI_MODUL['perkalian-dan-pembagian'] ?? '',
+      status: 'rencana',
+      modul: null,
+    },
+    {
+      id: 'level-2-Sifat Operasi Hitung',
+      nomorUrut: '2.2',
+      judul: 'Sifat Operasi Hitung',
+      deskripsi: DESKRIPSI_MODUL['sifat-operasi-hitung'] ?? '',
+      status: 'rencana',
+      modul: null,
+    },
+    {
+      id: 'level-2-Soal Kontekstual',
+      nomorUrut: '2.3',
+      judul: 'Soal Kontekstual',
+      deskripsi: DESKRIPSI_MODUL['soal-kontekstual'] ?? '',
+      status: 'rencana',
+      modul: null,
+    },
+  ];
 
   return [
-    { id: 'level-1', nomor: 1, judul: 'Fondasi Bilangan', simpul: [...nyata, ...rencana('level-1')] },
-    { id: 'level-2', nomor: 2, judul: 'Operasi Lanjutan', simpul: rencana('level-2') },
+    {
+      id: 'level-1',
+      nomor: 1,
+      judul: 'Fondasi Bilangan',
+      simpul: level1Simpul,
+    },
+    {
+      id: 'level-2',
+      nomor: 2,
+      judul: 'Operasi Lanjutan',
+      simpul: level2Simpul,
+    },
   ];
 }
 
@@ -81,278 +148,256 @@ const AKSI_STATUS: Record<StatusSimpul, string> = {
 };
 
 const KETERANGAN_STATUS: Record<StatusSimpul, string> = {
-  selesai: 'Semua capaian modul ini sudah dikuasai.',
-  berjalan: 'Lanjutkan dari capaian terakhir yang kamu kerjakan.',
-  terkunci: 'Terbuka setelah modul sebelumnya selesai.',
-  rencana: 'Naskah modul ini masih kami siapkan.',
+  selesai: 'Semua capaian modul ini sudah dikuasai. Kamu dapat mengulanginya kapan saja.',
+  berjalan: 'Modul ini terbuka dan siap dipelajari.',
+  terkunci: 'Selesaikan modul sebelumnya untuk membuka modul ini.',
+  rencana: 'Materi modul ini sedang dipersiapkan dalam kurikulum.',
 };
 
-/** Pola zig-zag baris peron: tengah, kiri, tengah, kanan, berulang. */
-const POSISI_BARIS = ['tengah', 'kiri', 'tengah', 'kanan'] as const;
-
-/* ------------------------------------------------------------------ simpul */
-
-function SimpulPeron({
-  simpul,
-  posisi,
-  terbuka,
-  onPilih,
-  onBuka,
-}: {
-  simpul: SimpulJalur;
-  posisi: 'kiri' | 'tengah' | 'kanan';
-  terbuka: boolean;
-  onPilih: () => void;
-  onBuka: (module: StudentModuleSummary) => void;
-}) {
-  const dapatDibuka = simpul.status === 'selesai' || simpul.status === 'berjalan';
-
-  return (
-    <div className="course-path__baris" data-posisi={posisi}>
-      <div className="course-node" data-status={simpul.status}>
-        <button
-          type="button"
-          className="course-node__peron"
-          onClick={onPilih}
-          aria-expanded={terbuka}
-          aria-label={`${simpul.judul}, ${LABEL_STATUS[simpul.status].toLowerCase()}`}
-        >
-          <RiveGameboardNode status={simpul.status} selected={terbuka} />
-        </button>
-
-        <p className="course-node__judul">{simpul.judul}</p>
-
-        {terbuka && (
-          <div className="course-node__kartu" role="dialog" aria-label={simpul.judul}>
-            <strong>{simpul.judul}</strong>
-            <small>{KETERANGAN_STATUS[simpul.status]}</small>
-            <Tactile
-              className="course-node__aksi"
-              data-status={simpul.status}
-              aria-disabled={!dapatDibuka}
-              disabled={!dapatDibuka}
-              onClick={() => {
-                if (simpul.modul && dapatDibuka) onBuka(simpul.modul);
-              }}
-            >
-              {AKSI_STATUS[simpul.status]}
-            </Tactile>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+function mapStatusToRive(status: StatusSimpul): RiveNodeStatus {
+  if (status === 'selesai') return 'selesai';
+  if (status === 'berjalan') return 'berjalan';
+  return 'terkunci';
 }
 
 /* ------------------------------------------------------------------ layar */
 
+export interface IntegerCourseScreenProps {
+  percent?: number;
+  view?: CourseView;
+  onChangeView?: (view: CourseView) => void;
+  moduleProgress?: Readonly<Record<string, number>>;
+  onNavigate: (route: RouteName) => void;
+  onOpenModule?: (module: StudentModuleSummary) => void;
+}
+
 export function IntegerCourseScreen({
-  percent,
-  view,
+  view = 'roadmap',
   onChangeView,
-  moduleProgress,
+  moduleProgress = {},
   onNavigate,
   onOpenModule,
-}: {
-  percent: number;
-  view: CourseView;
-  onChangeView: (view: CourseView) => void;
-  moduleProgress: Readonly<Record<string, number>>;
-  onNavigate: (route: RouteName) => void;
-  onOpenModule: (module: StudentModuleSummary) => void;
-}) {
+}: IntegerCourseScreenProps) {
   const [simpulTerbuka, setSimpulTerbuka] = useState<string | null>(null);
-  const level = susunLevel(moduleProgress);
-  const jumlahModul = level.reduce((total, l) => total + l.simpul.length, 0);
-  const selesai = level.reduce(
-    (total, l) => total + l.simpul.filter((s) => s.status === 'selesai').length,
-    0,
-  );
-  const safePercent = Math.max(0, Math.min(100, percent));
+  const levels = susunLevel(moduleProgress);
 
-  const gantiTampilan = (berikutnya: CourseView) => {
-    setSimpulTerbuka(null);
-    onChangeView(berikutnya);
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSimpulTerbuka(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const bukaModul = (simpul: SimpulJalur) => {
+    const dapatDibuka = simpul.status === 'selesai' || simpul.status === 'berjalan';
+    if (simpul.modul && dapatDibuka) {
+      setSimpulTerbuka(null);
+      onOpenModule?.(simpul.modul);
+    }
   };
-
-  const bukaModul = (module: StudentModuleSummary) => {
-    setSimpulTerbuka(null);
-    onOpenModule(module);
-  };
-
-  let urutan = 0;
 
   return (
-    <main className="student-page course-page">
-      <div className="student-container">
-        <Breadcrumbs
-          items={[
-            { label: 'Belajar', onClick: () => onNavigate('learn') },
-            { label: 'Matematika', onClick: () => onNavigate('math') },
-            { label: 'Bilangan Bulat' },
-          ]}
-        />
+    <main className="student-page course-roadmap-canvas-screen course-page" data-view={view}>
+      <div className="course-roadmap-canvas-container">
+        {/* Minimal Toolbar */}
+        <div className="course-roadmap-top-bar">
+          <button
+            type="button"
+            className="learning-roadmap__back-btn"
+            onClick={() => onNavigate('learn')}
+            aria-label="Kembali ke Belajar"
+          >
+            <Icon name="arrow" width={16} height={16} />
+            Kembali ke Belajar
+          </button>
 
-        <div className="course-layout">
-          <aside className="course-aside">
-            <section className="course-card">
-              <ArtworkFrame
-                assetKey={INTEGER_COURSE.artworkKey}
-                placeholderIcon="math"
-                alt="Ilustrasi Bilangan Bulat"
-                ratio="wide"
-                variant="violet"
-              />
-              <span className="page-kicker">Kursus · SMP Kelas VII</span>
-              <h1>{INTEGER_COURSE.title}</h1>
-              <p>{INTEGER_COURSE.description}</p>
-              <div className="course-card__meta">
-                <span>{jumlahModul} modul</span>
-                <i aria-hidden="true" />
-                <span>{level.length} level</span>
-              </div>
-              <div className="course-card__progres">
-                <div>
-                  <strong>{safePercent}%</strong>
-                  <small>
-                    {selesai} dari {jumlahModul} modul
-                  </small>
-                </div>
-                <span
-                  className="course-card__bar"
-                  role="progressbar"
-                  aria-valuenow={safePercent}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label={`${safePercent}% kursus Bilangan Bulat selesai`}
-                >
-                  <i style={{ width: `${safePercent}%` }} />
-                </span>
-              </div>
-            </section>
-
+          {onChangeView && (
             <div className="course-view-switch" role="group" aria-label="Pilih tampilan kursus">
               <button
                 type="button"
                 data-active={view === 'roadmap'}
                 aria-pressed={view === 'roadmap'}
-                onClick={() => gantiTampilan('roadmap')}
+                onClick={() => onChangeView('roadmap')}
               >
-                <Icon name="route" width={17} height={17} />
+                <Icon name="route" width={15} height={15} />
                 Jalur
               </button>
               <button
                 type="button"
                 data-active={view === 'list'}
                 aria-pressed={view === 'list'}
-                onClick={() => gantiTampilan('list')}
+                onClick={() => onChangeView('list')}
               >
-                <Icon name="list" width={17} height={17} />
+                <Icon name="list" width={15} height={15} />
                 Daftar
               </button>
             </div>
-          </aside>
+          )}
+        </div>
 
-          <div className="course-kolom">
-            {view === 'roadmap' ? (
-              <div className="course-path" data-view="roadmap">
-                {level.map((l) => (
-                  <section key={l.id} className="course-path__level">
-                    <header className="course-level" data-aktif={l.nomor === 1}>
-                      <span>Level {l.nomor}</span>
-                      <strong>{l.judul}</strong>
-                    </header>
-                    {l.simpul.map((simpul) => {
-                      const posisi = POSISI_BARIS[urutan++ % 4] ?? 'tengah';
-                      return (
-                        <SimpulPeron
-                          key={simpul.id}
-                          simpul={simpul}
-                          posisi={posisi}
-                          terbuka={simpulTerbuka === simpul.id}
-                          onPilih={() =>
-                            setSimpulTerbuka((kini) => (kini === simpul.id ? null : simpul.id))
+        {view === 'roadmap' ? (
+          <div className="course-roadmap-flow course-path" data-view="roadmap">
+            {levels.map((lvl) => (
+              <section key={lvl.id} className="course-roadmap-level-section course-path__level">
+                {/* Top Level Pill matching exact screenshot */}
+                <header className="course-level-pill course-level" data-aktif={lvl.nomor === 1}>
+                  <span>LEVEL {lvl.nomor}</span>
+                  <strong>{lvl.judul}</strong>
+                </header>
+
+                {/* Staggered Canvas Nodes */}
+                <div
+                  className="course-roadmap-staggered-canvas"
+                  style={{ minHeight: `${lvl.simpul.length * 180 + 80}px` }}
+                >
+                  {lvl.simpul.map((simpul, index) => {
+                    const coord = NODE_COORDINATES[index % NODE_COORDINATES.length] ?? {
+                      left: 42,
+                      top: index * 180 + 40,
+                    };
+                    const riveStatus = mapStatusToRive(simpul.status);
+                    const dapatDibuka =
+                      simpul.status === 'selesai' || simpul.status === 'berjalan';
+                    const terbuka = simpulTerbuka === simpul.id;
+
+                    const nodeStyle: CSSProperties = {
+                      position: 'absolute',
+                      left: `${coord.left}%`,
+                      top: `${coord.top}px`,
+                      zIndex: terbuka ? 60 : 1,
+                    };
+
+                    return (
+                      <div
+                        key={simpul.id}
+                        className="course-roadmap-staggered-node course-node"
+                        data-status={simpul.status}
+                        style={nodeStyle}
+                      >
+                        <button
+                          type="button"
+                          className="course-roadmap-node__peron course-node__peron"
+                          onClick={() =>
+                            setSimpulTerbuka((curr) => (curr === simpul.id ? null : simpul.id))
                           }
-                          onBuka={bukaModul}
-                        />
+                          aria-expanded={terbuka}
+                          aria-label={`${simpul.judul}, ${LABEL_STATUS[simpul.status].toLowerCase()}`}
+                        >
+                          <RiveGameboardNode status={riveStatus} selected={terbuka} />
+                        </button>
+
+                        <div className="course-roadmap-node__label">
+                          <strong className="course-roadmap-node__title course-node__judul">
+                            {simpul.judul}
+                          </strong>
+                        </div>
+
+                        {terbuka && (
+                          <div
+                            className="course-node__kartu"
+                            role="dialog"
+                            aria-label={simpul.judul}
+                          >
+                            <button
+                              type="button"
+                              className="course-node__kartu-close"
+                              aria-label="Tutup"
+                              onClick={() => setSimpulTerbuka(null)}
+                            >
+                              ×
+                            </button>
+                            <strong>{simpul.judul}</strong>
+                            <p>{KETERANGAN_STATUS[simpul.status]}</p>
+                            <Tactile
+                              tone={simpul.status === 'berjalan' ? 'purple' : 'neutral'}
+                              className="course-node__aksi"
+                              data-status={simpul.status}
+                              disabled={!dapatDibuka}
+                              aria-disabled={!dapatDibuka}
+                              onClick={() => bukaModul(simpul)}
+                            >
+                              {AKSI_STATUS[simpul.status]}
+                              {dapatDibuka && (
+                                <Icon name="arrow" width={15} height={15} />
+                              )}
+                            </Tactile>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <div className="course-roadmap-list-view course-rows" data-view="list">
+            {levels.map((lvl) => {
+              const selesaiLevel = lvl.simpul.filter((s) => s.status === 'selesai').length;
+              return (
+                <section key={lvl.id} className="course-roadmap-list-level course-rows__level">
+                  <header>
+                    <strong>
+                      Level {lvl.nomor} · {lvl.judul}
+                    </strong>
+                    <small>
+                      {lvl.simpul.some((s) => s.status !== 'rencana')
+                        ? `${selesaiLevel} / ${lvl.simpul.length} selesai`
+                        : 'Belum terbuka'}
+                    </small>
+                  </header>
+                  <ul>
+                    {lvl.simpul.map((simpul, index) => {
+                      const dapatDibuka =
+                        simpul.status === 'selesai' || simpul.status === 'berjalan';
+                      return (
+                        <li key={simpul.id}>
+                          <button
+                            type="button"
+                            className="course-roadmap-list-row course-row"
+                            data-status={simpul.status}
+                            disabled={!dapatDibuka}
+                            aria-disabled={!dapatDibuka}
+                            onClick={() => {
+                              if (simpul.modul && dapatDibuka) onOpenModule?.(simpul.modul);
+                            }}
+                          >
+                            <span className="course-row__nomor">
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                            <span className="course-row__ikon" aria-hidden="true">
+                              {simpul.status === 'selesai' && (
+                                <Icon name="check" width={14} height={14} />
+                              )}
+                              {simpul.status === 'berjalan' && (
+                                <Icon name="play" width={13} height={13} />
+                              )}
+                              {(simpul.status === 'terkunci' || simpul.status === 'rencana') && (
+                                <Icon name="lock" width={13} height={13} />
+                              )}
+                            </span>
+                            <span className="course-row__judul">{simpul.judul}</span>
+                            <span className="course-row__status">
+                              {LABEL_STATUS[simpul.status]}
+                            </span>
+                            {dapatDibuka ? (
+                              <Icon name="chevron" width={16} height={16} />
+                            ) : (
+                              <span />
+                            )}
+                          </button>
+                        </li>
                       );
                     })}
-                  </section>
-                ))}
-                <p className="course-path__catatan">
-                  Modul di luar dua modul pertama masih berupa rencana kurikulum.
-                </p>
-              </div>
-            ) : (
-              <div className="course-rows" data-view="list">
-                {level.map((l) => {
-                  const selesaiLevel = l.simpul.filter((s) => s.status === 'selesai').length;
-                  return (
-                    <section key={l.id} className="course-rows__level">
-                      <header>
-                        <strong>
-                          Level {l.nomor} · {l.judul}
-                        </strong>
-                        <small>
-                          {l.simpul.some((s) => s.status !== 'rencana')
-                            ? `${selesaiLevel} / ${l.simpul.length} selesai`
-                            : 'Belum terbuka'}
-                        </small>
-                      </header>
-                      <ul>
-                        {l.simpul.map((simpul, index) => {
-                          const dapatDibuka =
-                            simpul.status === 'selesai' || simpul.status === 'berjalan';
-                          return (
-                            <li key={simpul.id}>
-                              <button
-                                type="button"
-                                className="course-row"
-                                data-status={simpul.status}
-                                disabled={!dapatDibuka}
-                                aria-disabled={!dapatDibuka}
-                                onClick={() => {
-                                  if (simpul.modul && dapatDibuka) onOpenModule(simpul.modul);
-                                }}
-                              >
-                                <span className="course-row__nomor">
-                                  {String(index + 1).padStart(2, '0')}
-                                </span>
-                                <span className="course-row__ikon" aria-hidden="true">
-                                  {simpul.status === 'selesai' && (
-                                    <Icon name="check" width={14} height={14} />
-                                  )}
-                                  {simpul.status === 'berjalan' && (
-                                    <Icon name="play" width={13} height={13} />
-                                  )}
-                                  {(simpul.status === 'terkunci' || simpul.status === 'rencana') && (
-                                    <Icon name="lock" width={13} height={13} />
-                                  )}
-                                </span>
-                                <span className="course-row__judul">{simpul.judul}</span>
-                                <span className="course-row__status">
-                                  {LABEL_STATUS[simpul.status]}
-                                </span>
-                                {dapatDibuka ? (
-                                  <Icon name="chevron" width={16} height={16} />
-                                ) : (
-                                  <span />
-                                )}
-                              </button>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </section>
-                  );
-                })}
-                <p className="course-rows__catatan">
-                  Modul di luar dua modul pertama masih berupa rencana kurikulum.
-                </p>
-              </div>
-            )}
+                  </ul>
+                </section>
+              );
+            })}
           </div>
-        </div>
+        )}
       </div>
     </main>
   );

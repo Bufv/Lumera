@@ -1,0 +1,393 @@
+/* ============================================================
+   KnowledgeNodeTile.css
+   Mechanical Keycap Push Physics & Direct 3D Aligned Chromatic Beam
+   ============================================================ */
+
+.knowledge-node-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: max-content;
+  user-select: none;
+}
+
+.knowledge-node-button {
+  position: relative;
+  width: 96px;
+  height: 84px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  display: grid;
+  place-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.knowledge-node-button:disabled {
+  cursor: default;
+}
+
+/* ------------------------------------------------------------ 3D Keycap Structure */
+
+.knowledge-tile-3d {
+  position: relative;
+  width: 84px;
+  height: 68px;
+  perspective: 600px;
+}
+
+/* Base Drop Shadow on the floor */
+.knowledge-tile-shadow {
+  position: absolute;
+  bottom: -4px;
+  left: 7px;
+  width: 70px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0) 70%);
+  filter: blur(3.5px);
+  z-index: 1;
+  transform: scale(1);
+  transition: transform 120ms cubic-bezier(0.34, 1.35, 0.64, 1), filter 120ms ease, opacity 120ms ease;
+}
+
+/* 3D Keycap Chassis / Side Base */
+.knowledge-tile-side {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  width: 76px;
+  height: 48px;
+  border-radius: 18px;
+  background: #cbd5e1;
+  box-shadow: 0 5px 0 0 #94a3b8;
+  z-index: 2;
+  transform: translateY(0) rotateX(25deg);
+  transition: transform 120ms cubic-bezier(0.34, 1.35, 0.64, 1), box-shadow 120ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+/* 3D Keycap Top Cap Surface (Has identical rotateX(25deg) tilt and dimensions) */
+.knowledge-tile-top {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  width: 76px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+  border: 1.5px solid #ffffff;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.9),
+    0 4px 10px rgba(15, 23, 42, 0.08);
+  z-index: 3;
+  transform: translateY(0) rotateX(25deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 120ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    box-shadow 120ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    filter 120ms ease;
+}
+
+/* ------------------------------------------------------------ Direct 3D Aligned Chromatic Selection Glow */
+
+/* 1. Ambient Chromatic Aura (100% matched to 3D tilt) */
+.knowledge-node-item[data-selected='true'] .knowledge-tile-top::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 22px;
+  background: conic-gradient(
+    from 0deg,
+    #ff5e00 0deg,
+    #ffbe0b 55deg,
+    #10b981 115deg,
+    #06b6d4 175deg,
+    #6366f1 235deg,
+    #d946ef 295deg,
+    #ff5e00 360deg
+  );
+  filter: blur(5px);
+  opacity: 0.85;
+  z-index: -1;
+  animation: chromaticBeamSpin 2.8s linear infinite;
+  pointer-events: none;
+}
+
+/* 2. Razor-Sharp 2px Chromatic Border (100% matched to 3D tilt) */
+.knowledge-node-item[data-selected='true'] .knowledge-tile-top::after {
+  content: '';
+  position: absolute;
+  inset: -2.5px;
+  border-radius: 20.5px;
+  background: conic-gradient(
+    from 0deg,
+    #ff5e00 0deg,
+    #ffbe0b 55deg,
+    #10b981 115deg,
+    #06b6d4 175deg,
+    #6366f1 235deg,
+    #d946ef 295deg,
+    #ff5e00 360deg
+  );
+  z-index: -1;
+  animation: chromaticBeamSpin 2.8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes chromaticBeamSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------ Hover & Key Push Tactile Physics */
+
+/* Hover state: slight springiness */
+.knowledge-node-button:hover:not(:disabled) .knowledge-tile-top {
+  filter: brightness(1.04);
+}
+
+/* Pressed State: Mechanical Keycap PUSH Animation */
+.knowledge-node-button:active:not(:disabled) .knowledge-tile-top,
+.knowledge-node-item[data-selected='true'] .knowledge-tile-top {
+  transform: translateY(5px) rotateX(25deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.knowledge-node-button:active:not(:disabled) .knowledge-tile-side,
+.knowledge-node-item[data-selected='true'] .knowledge-tile-side {
+  transform: translateY(2px) rotateX(25deg);
+  box-shadow: 0 1.5px 0 0 #94a3b8;
+}
+
+.knowledge-node-button:active:not(:disabled) .knowledge-tile-shadow,
+.knowledge-node-item[data-selected='true'] .knowledge-tile-shadow {
+  transform: scale(0.88);
+  filter: blur(1.8px);
+  opacity: 0.8;
+}
+
+/* ------------------------------------------------------------ State Modifiers */
+
+/* 1. Completed State (Solid Violet Keycap) */
+.knowledge-node-item[data-type='completed'] .knowledge-tile-side {
+  background: #5143c8;
+  box-shadow: 0 5px 0 0 #3a2793;
+}
+
+.knowledge-node-item[data-type='completed'] .knowledge-tile-top {
+  background: linear-gradient(180deg, #7c6cf0 0%, #6d5ce7 100%);
+  border-color: #8b7dec;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.6),
+    0 4px 14px rgba(109, 92, 231, 0.28);
+}
+
+.knowledge-node-item[data-type='completed'] .knowledge-node-button:active:not(:disabled) .knowledge-tile-side,
+.knowledge-node-item[data-type='completed'][data-selected='true'] .knowledge-tile-side {
+  box-shadow: 0 1.5px 0 0 #3a2793;
+}
+
+/* 2. Current Active State (Glowing Light Keycap with Formula) */
+.knowledge-node-item[data-type='current'] .knowledge-tile-side {
+  background: #ded9fb;
+  box-shadow: 0 5px 0 0 #bdb4f5;
+}
+
+.knowledge-node-item[data-type='current'] .knowledge-tile-top {
+  background: linear-gradient(180deg, #ffffff 0%, #f7f6fe 100%);
+  border: 2px solid #6d5ce7;
+  box-shadow:
+    0 0 0 3.5px rgba(109, 92, 231, 0.18),
+    0 6px 18px rgba(109, 92, 231, 0.16);
+}
+
+.knowledge-node-item[data-type='current'] .knowledge-node-button:active:not(:disabled) .knowledge-tile-side,
+.knowledge-node-item[data-type='current'][data-selected='true'] .knowledge-tile-side {
+  box-shadow: 0 1.5px 0 0 #bdb4f5;
+}
+
+.knowledge-tile-aura {
+  position: absolute;
+  inset: -6px;
+  border-radius: 22px;
+  background: radial-gradient(circle, rgba(109, 92, 231, 0.14) 0%, rgba(109, 92, 231, 0) 70%);
+  pointer-events: none;
+  animation: tileAuraPulse 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes tileAuraPulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.knowledge-tile-sparkle {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  color: #f97316;
+  font-size: 16px;
+  font-weight: 800;
+  text-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+  pointer-events: none;
+  animation: sparkleTwinkle 2s ease-in-out infinite alternate;
+}
+
+@keyframes sparkleTwinkle {
+  0% {
+    transform: scale(0.85) rotate(0deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.15) rotate(15deg);
+    opacity: 1;
+  }
+}
+
+/* 3. Challenge State (Orange Star Keycap) */
+.knowledge-node-item[data-type='challenge'] .knowledge-tile-side {
+  background: #fed7aa;
+  box-shadow: 0 5px 0 0 #fdba74;
+}
+
+.knowledge-node-item[data-type='challenge'] .knowledge-tile-top {
+  background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
+  border: 1.5px solid #f97316;
+  box-shadow:
+    0 0 0 3px rgba(249, 115, 22, 0.14),
+    0 4px 14px rgba(249, 115, 22, 0.12);
+}
+
+.knowledge-node-item[data-type='challenge'] .knowledge-node-button:active:not(:disabled) .knowledge-tile-side,
+.knowledge-node-item[data-type='challenge'][data-selected='true'] .knowledge-tile-side {
+  box-shadow: 0 1.5px 0 0 #fdba74;
+}
+
+/* 4. Locked State */
+.knowledge-node-item[data-type='locked'] .knowledge-tile-side {
+  background: #e2e8f0;
+  box-shadow: 0 4px 0 0 #cbd5e1;
+}
+
+.knowledge-node-item[data-type='locked'] .knowledge-tile-top {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  box-shadow: none;
+  opacity: 0.85;
+}
+
+/* ------------------------------------------------------------ Glyphs inside Keycap */
+
+.knowledge-concept-glyph {
+  display: grid;
+  place-items: center;
+  transform: rotateX(-25deg);
+  z-index: 4;
+  transition: transform 120ms ease;
+}
+
+.glyph-math-formula {
+  font-family: inherit;
+  font-size: 14.5px;
+  color: #4338ca;
+  letter-spacing: -0.02em;
+}
+
+.glyph-math-formula em {
+  font-style: italic;
+  font-weight: 700;
+  color: #6d5ce7;
+}
+
+.glyph-math-formula strong {
+  font-weight: 800;
+  color: #f97316;
+  margin-left: 2px;
+}
+
+/* ------------------------------------------------------------ Label Typography */
+
+.knowledge-node-label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+
+.knowledge-node-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.knowledge-node-num {
+  font-size: 15px;
+  font-weight: 800;
+  color: #6d5ce7;
+}
+
+.knowledge-node-item[data-type='locked'] .knowledge-node-num {
+  color: #94a3b8;
+}
+
+.knowledge-node-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+.knowledge-node-item[data-type='locked'] .knowledge-node-title {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.knowledge-node-sub {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #6d5ce7;
+  padding-left: 18px;
+}
+
+.knowledge-node-item[data-type='available'] .knowledge-node-sub {
+  color: #64748b;
+}
+
+.knowledge-node-item[data-type='challenge'] .knowledge-node-headline .knowledge-node-title {
+  color: #ea580c;
+}
+
+.knowledge-node-item[data-type='challenge'] .knowledge-node-sub {
+  color: #78716c;
+  padding-left: 0;
+}
+
+.knowledge-node-item[data-type='locked'] .knowledge-node-sub {
+  color: #94a3b8;
+}
+
+/* ------------------------------------------------------------ Popout Container */
+
+.knowledge-node-popout-wrap {
+  position: absolute;
+  top: 92px;
+  left: 0;
+  z-index: 60;
+}

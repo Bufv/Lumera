@@ -3,6 +3,7 @@ import { hapusSemuaDataSiswa } from '../../src/privacy/deleteAllData';
 import { PRIVACY_SECTIONS } from '../../src/privacy/content';
 import { saveLearnerProfile, type LearnerProfile } from '../../src/profile';
 import { bacaSiswa, simpanSiswa } from '../../src/progress/store';
+import { DEMO_PROGRESS_STORAGE_KEY, selesaikanPelajaranDemo } from '../../src/progress/demoStore';
 import { telemetry } from '../../src/telemetry/adapter';
 
 /**
@@ -33,6 +34,7 @@ describe('hapusSemuaDataSiswa', () => {
 
     const siswa = bacaSiswa();
     simpanSiswa({ ...siswa, lumens: 120, streakCount: 4, modulSelesai: ['math-slope'] });
+    selesaikanPelajaranDemo('aljabar-pola-yang-tumbuh', 0);
 
     await telemetry.record({
       type: 'lesson_completed',
@@ -49,6 +51,7 @@ describe('hapusSemuaDataSiswa', () => {
     expect(localStorage.getItem('lumera.profile.v1')).not.toBeNull();
     expect(JSON.parse(localStorage.getItem('lumera.progress.v1')!).lumens).toBe(120);
     expect(await telemetry.readAll()).toHaveLength(1);
+    expect(localStorage.getItem(DEMO_PROGRESS_STORAGE_KEY)).not.toBeNull();
 
     const freshProfile = await hapusSemuaDataSiswa();
 
@@ -61,6 +64,7 @@ describe('hapusSemuaDataSiswa', () => {
     expect(siswaBaru.lumens).toBe(0);
     expect(siswaBaru.modulSelesai).toEqual([]);
     expect(await telemetry.readAll()).toEqual([]);
+    expect(localStorage.getItem(DEMO_PROGRESS_STORAGE_KEY)).toBeNull();
   });
 
   it('tidak melempar error saat ketiga kunci sudah kosong dari awal', async () => {

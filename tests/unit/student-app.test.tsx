@@ -84,7 +84,7 @@ describe('Lumera Batch 1 student shell', () => {
     expect(targetPanel).toHaveTextContent(/20\s*menit/i);
     expect(targetPanel).toHaveTextContent(/3\s*\/\s*5/);
     expect(screen.getByRole('heading', { name: 'Daily Refresh' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'Rekomendasi Lumo' })).toBeTruthy();
+    expect(screen.getByLabelText('Tanya Lumo, asisten belajar')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Baru disimpan' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Jalur belajarmu' })).toBeTruthy();
 
@@ -124,19 +124,22 @@ describe('Lumera Batch 1 student shell', () => {
     expect(screen.queryByText('Pengurangan Bilangan Bulat')).toBeNull();
   });
 
-  it('presents one active Mathematics course and keeps future courses flat', async () => {
+  it('presents Algebra and Calculus while keeping future courses flat', async () => {
     saveLearnerProfile(completedProfile());
     await setHash('#/belajar');
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Satu jalur, langkah demi langkah.' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /Pecahan dan Desimal/i })).toBeNull();
-    expect(screen.getByLabelText('Pecahan dan Desimal, segera hadir')).toBeTruthy();
-    expect(screen.getAllByText('Segera hadir')).toHaveLength(10);
+    expect(
+      screen.getByRole('heading', { name: 'Temukan ide. Mainkan sampai masuk akal.' }),
+    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Buka jalur kursus Aljabar/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Buka jalur kursus Kalkulus/ })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Relasi & Fungsi/i })).toBeNull();
+    expect(screen.getByLabelText('Relasi & Fungsi, segera hadir')).toBeTruthy();
+    expect(screen.getAllByText('Segera hadir')).toHaveLength(5);
 
-    fireEvent.click(screen.getByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ }));
-    await waitFor(() => expect(window.location.hash).toBe('#/belajar/matematika/bilangan-bulat'));
+    fireEvent.click(screen.getByRole('button', { name: /Buka jalur kursus Aljabar/ }));
+    await waitFor(() => expect(window.location.hash).toBe('#/belajar/matematika/aljabar'));
   });
 
   it('filters learning paths and subjects with the local Belajar search', async () => {
@@ -144,17 +147,15 @@ describe('Lumera Batch 1 student shell', () => {
     await setHash('#/belajar');
     render(<App />);
 
-    const search = screen.getByRole('searchbox', {
-      name: 'Cari jalur, kursus, atau mata pelajaran',
-    });
-    fireEvent.change(search, { target: { value: 'IPA' } });
+    const search = screen.getByRole('searchbox', { name: 'Cari jalur atau kursus' });
+    fireEvent.change(search, { target: { value: 'Geometri Analitik' } });
 
-    expect(screen.getByText('1 hasil ditemukan')).toBeTruthy();
-    expect(screen.getByText('IPA')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ })).toBeNull();
+    expect(screen.getByText('1 kursus ditemukan')).toBeTruthy();
+    expect(screen.getByText('Geometri Analitik')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Buka jalur kursus Aljabar/ })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Hapus pencarian' }));
-    expect(screen.getByRole('button', { name: /Lihat jalur kursus Bilangan Bulat/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Buka jalur kursus Aljabar/ })).toBeTruthy();
   });
 
   it('renders the Mathematics legacy URL as the same focused Belajar page', async () => {
@@ -162,7 +163,9 @@ describe('Lumera Batch 1 student shell', () => {
     await setHash('#/belajar/matematika');
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Satu jalur, langkah demi langkah.' })).toBeTruthy();
+    expect(
+      screen.getByRole('heading', { name: 'Temukan ide. Mainkan sampai masuk akal.' }),
+    ).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Matematika', level: 1 })).toBeNull();
   });
 
@@ -213,13 +216,13 @@ describe('Lumera Batch 1 student shell', () => {
     fireEvent.change(input, { target: { value: 'IPA' } });
     expect(screen.getByRole('button', { name: /IPA/i })).toBeDisabled();
 
-    fireEvent.change(input, { target: { value: 'Bilangan Bulat' } });
+    fireEvent.change(input, { target: { value: 'Aljabar' } });
     const dialog = screen.getByRole('dialog', { name: 'Cari di Lumera' });
-    const result = within(dialog).getByText('Bilangan Bulat').closest('button')!;
+    const result = within(dialog).getByText('Aljabar').closest('button')!;
     expect(result).not.toBeDisabled();
     fireEvent.click(result);
     await waitFor(() =>
-      expect(window.location.hash).toContain('/belajar/matematika/bilangan-bulat'),
+      expect(window.location.hash).toContain('/belajar/matematika/aljabar'),
     );
   });
 

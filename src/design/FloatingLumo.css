@@ -1,0 +1,257 @@
+.lumera-floating-lumo-root {
+  position: fixed;
+  z-index: 1000;
+  touch-action: none;
+  user-select: none;
+}
+
+.lumera-floating-lumo-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #ffb347;
+  border: 2px solid #f59e0b;
+  box-shadow:
+    0 4px 0 0 #d97706,
+    0 14px 32px -4px rgba(13, 27, 42, 0.25),
+    0 4px 12px -2px rgba(13, 27, 42, 0.12);
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  padding: 0;
+  outline: none;
+  transform: translateY(0);
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+  position: relative;
+}
+
+/* No hover animation */
+.lumera-floating-lumo-btn:hover {
+  transform: none;
+  box-shadow:
+    0 4px 0 0 #d97706,
+    0 14px 32px -4px rgba(13, 27, 42, 0.25),
+    0 4px 12px -2px rgba(13, 27, 42, 0.12);
+}
+
+/* Pure 3D click depression */
+.lumera-floating-lumo-btn:active,
+.lumera-floating-lumo-btn[data-dragging='true'] {
+  cursor: grabbing;
+  transform: translateY(4px);
+  box-shadow:
+    0 0 0 0 #d97706,
+    0 6px 16px -2px rgba(13, 27, 42, 0.18);
+}
+
+.lumera-floating-lumo-btn__badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.lumera-floating-lumo-btn__art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Comic Book Speech Bubble Popover */
+.lumera-lumo-popover {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  right: 0;
+  width: min(290px, 85vw);
+  background: #ffffff;
+  border: 1.5px solid #e8e3da;
+  border-radius: 20px;
+  padding: 16px 18px 16px;
+  box-shadow:
+    0 18px 40px -8px rgba(13, 27, 42, 0.22),
+    0 6px 16px -3px rgba(13, 27, 42, 0.08);
+  animation: lumeraPopoverIn 180ms cubic-bezier(0.34, 1.35, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lumera-lumo-popover[data-closing='true'] {
+  animation: lumeraPopoverOut 150ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Position Below Lumo when near top */
+.lumera-lumo-popover--top {
+  bottom: auto;
+  top: calc(100% + 14px);
+}
+
+/* Position to Right of Lumo when near left */
+.lumera-lumo-popover--left {
+  right: auto;
+  left: 0;
+}
+
+/* Default Tail: Points DOWN towards Lumo (Bottom-Right) */
+.lumera-lumo-popover::before {
+  content: '';
+  position: absolute;
+  bottom: -11px;
+  right: 22px;
+  width: 0;
+  height: 0;
+  border-width: 11px 9px 0 9px;
+  border-style: solid;
+  border-color: #e8e3da transparent transparent transparent;
+}
+
+.lumera-lumo-popover::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  right: 23px;
+  width: 0;
+  height: 0;
+  border-width: 10px 8px 0 8px;
+  border-style: solid;
+  border-color: #ffffff transparent transparent transparent;
+}
+
+/* Tail when popover is on the LEFT of screen: Points DOWN towards Lumo (Bottom-Left) */
+.lumera-lumo-popover--left::before {
+  right: auto;
+  left: 22px;
+}
+
+.lumera-lumo-popover--left::after {
+  right: auto;
+  left: 23px;
+}
+
+/* Tail when popover is BELOW Lumo (Top-Right): Points UP towards Lumo */
+.lumera-lumo-popover--top::before {
+  bottom: auto;
+  top: -11px;
+  right: 22px;
+  left: auto;
+  border-width: 0 9px 11px 9px;
+  border-color: transparent transparent #e8e3da transparent;
+}
+
+.lumera-lumo-popover--top::after {
+  bottom: auto;
+  top: -9px;
+  right: 23px;
+  left: auto;
+  border-width: 0 8px 10px 8px;
+  border-color: transparent transparent #ffffff transparent;
+}
+
+/* Tail when popover is BELOW Lumo and on the LEFT of screen (Top-Left): Points UP */
+.lumera-lumo-popover--top.lumera-lumo-popover--left::before {
+  right: auto;
+  left: 22px;
+}
+
+.lumera-lumo-popover--top.lumera-lumo-popover--left::after {
+  right: auto;
+  left: 23px;
+}
+
+@keyframes lumeraPopoverIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes lumeraPopoverOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9) translateY(8px);
+  }
+}
+
+/* Pinned Top-Right Close Button */
+.lumera-lumo-popover__close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+  z-index: 2;
+}
+
+.lumera-lumo-popover__close:hover {
+  color: #0d1b2a;
+  background: #f1f5f9;
+}
+
+.lumera-lumo-popover__text {
+  margin: 0;
+  padding-right: 20px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #1e293b;
+  font-weight: 550;
+}
+
+.lumera-lumo-popover__action.lumera-tactile {
+  --tactile-surface: var(--lumera-amber, #ffb347);
+  --tactile-depth: var(--lumera-amber-depth, #d97706);
+  --tactile-foreground: #ffffff;
+  --tactile-border: #f59e0b;
+  background: var(--lumera-amber, #ffb347);
+  border: 1.5px solid #f59e0b;
+  box-shadow: 0 4px 0 0 var(--lumera-amber-depth, #d97706);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(13, 27, 42, 0.25);
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 750;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.lumera-lumo-popover__action.lumera-tactile svg {
+  color: #ffffff;
+  stroke: #ffffff;
+}
+
+.lumera-lumo-popover__action.lumera-tactile:hover {
+  background: var(--lumera-amber-hover, #ffa726);
+  transform: none;
+  box-shadow: 0 4px 0 0 var(--lumera-amber-depth, #d97706);
+}
+
+.lumera-lumo-popover__action.lumera-tactile:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 0 var(--lumera-amber-depth, #d97706);
+}

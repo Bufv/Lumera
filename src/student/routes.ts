@@ -9,6 +9,8 @@ export type RouteName =
   | 'learn'
   | 'math'
   | 'integers'
+  | 'course'
+  | 'lesson'
   | 'review'
   | 'saved'
   | 'progress'
@@ -21,9 +23,13 @@ export interface StudentLocation {
   route: RouteName;
   demo: boolean;
   courseView: CourseView;
+  courseSlug?: string;
+  lessonSlug?: string;
 }
 
-export const ROUTE_PATHS: Record<RouteName, string> = {
+type StaticRouteName = Exclude<RouteName, 'course' | 'lesson'>;
+
+export const ROUTE_PATHS: Record<StaticRouteName, string> = {
   welcome: '/mulai',
   'onboarding-profile': '/mulai/profil',
   'onboarding-goal': '/mulai/tujuan',
@@ -51,14 +57,25 @@ export function parseStudentHash(hash: string, onboardingComplete = false): Stud
   const normalized = hash.replace(/^#/, '') || '';
   const [rawPath = '', rawQuery = ''] = normalized.split('?');
   const path = rawPath.length > 1 ? rawPath.replace(/\/$/, '') : rawPath;
-  const route = PATH_ROUTES.get(path) ?? (onboardingComplete ? 'home' : 'welcome');
   const params = new URLSearchParams(rawQuery);
   const courseView: CourseView = params.get('view') === 'list' ? 'list' : 'roadmap';
-  return { route, demo: params.get('mode') === 'demo', courseView };
+  const demo = params.get('mode') === 'demo';
+  const staticRoute = PATH_ROUTES.get(path);
+  if (staticRoute) return { route: staticRoute, demo, courseView };
+
+  const courseMatch = path.match(/^\/belajar\/matematika\/([^/]+)(?:\/([^/]+))?$/);
+  if (courseMatch) {
+    const [, courseSlug, lessonSlug] = courseMatch;
+    return lessonSlug
+      ? { route: 'lesson', demo, courseView, courseSlug, lessonSlug }
+      : { route: 'course', demo, courseView, courseSlug };
+  }
+
+  return { route: onboardingComplete ? 'home' : 'welcome', demo, courseView };
 }
 
 export function hashForRoute(
-  route: RouteName,
+  route: StaticRouteName,
   demo = false,
   courseView: CourseView = 'roadmap',
 ): string {
@@ -68,8 +85,39 @@ export function hashForRoute(
   return `#${ROUTE_PATHS[route]}${query.length > 0 ? `?${query.join('&')}` : ''}`;
 }
 
-export function hashForCourseView(courseView: CourseView, demo = false): string {
-  return hashForRoute('integers', demo, courseView);
+function learningQuery(demo: boolean, courseView: CourseView, includeView: boolean): string {
+  const query: string[] = [];
+  if (demo) query.push('mode=demo');
+  if (includeView && courseView === 'list') query.push('view=list');
+  return query.length > 0 ? `?${query.join('&')}` : '';
+}
+
+export function hashForCourse(
+  courseSlug: string,
+  demo = false,
+  courseView: CourseView = 'roadmap',
+): string {
+  return `#/belajar/matematika/${encodeURIComponent(courseSlug)}${learningQuery(
+    demo,
+    courseView,
+    true,
+  )}`;
+}
+
+export function hashForLesson(courseSlug: string, lessonSlug: string, demo = false): string {
+  return `#/belajar/matematika/${encodeURIComponent(courseSlug)}/${encodeURIComponent(
+    lessonSlug,
+  )}${learningQuery(demo, 'roadmap', false)}`;
+}
+
+export function hashForCourseView(
+  courseView: CourseView,
+  demo = false,
+  courseSlug = 'bilangan-bulat',
+): string {
+  return courseSlug === 'bilangan-bulat'
+    ? hashForRoute('integers', demo, courseView)
+    : hashForCourse(courseSlug, demo, courseView);
 }
 
 export function isOnboardingRoute(route: RouteName): boolean {

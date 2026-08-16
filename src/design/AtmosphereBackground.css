@@ -1,0 +1,167 @@
+.lumera-ambient-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background-color: #faf9f6;
+}
+
+.lumera-ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* Orb 1: Warm Gold & Amber Sun - Full Clockwise Circuit */
+.lumera-ambient-orb--gold {
+  top: -10vw;
+  right: -5vw;
+  width: 55vw;
+  height: 55vw;
+  background: radial-gradient(circle at 45% 45%, rgba(255, 179, 71, 0.7) 0%, rgba(253, 217, 138, 0.45) 45%, transparent 75%);
+  filter: blur(75px);
+  animation: lumeraCircuitGold 20s ease-in-out infinite;
+}
+
+/* Orb 2: Soft Indigo Mist - Full Counter-Clockwise Circuit */
+.lumera-ambient-orb--indigo {
+  top: -8vw;
+  left: -8vw;
+  width: 52vw;
+  height: 52vw;
+  background: radial-gradient(circle at 50% 50%, rgba(199, 210, 254, 0.75) 0%, rgba(224, 231, 255, 0.35) 50%, transparent 75%);
+  filter: blur(80px);
+  animation: lumeraCircuitIndigo 22s ease-in-out infinite;
+}
+
+/* Orb 3: Radiant Amber & Warm Cream Breathing Core */
+.lumera-ambient-orb--amber {
+  top: 25vh;
+  left: 25vw;
+  width: 48vw;
+  height: 48vw;
+  background: radial-gradient(circle at 50% 50%, rgba(253, 217, 138, 0.6) 0%, rgba(255, 179, 71, 0.3) 50%, transparent 75%);
+  filter: blur(85px);
+  animation: lumeraBreatheAmber 14s ease-in-out infinite;
+}
+
+/* Orb 4: Soft Sky Blue Oceanic Swirl */
+.lumera-ambient-orb--blue {
+  bottom: -10vw;
+  right: 15vw;
+  width: 48vw;
+  height: 48vw;
+  background: radial-gradient(circle at 50% 50%, rgba(191, 219, 254, 0.65) 0%, rgba(219, 234, 254, 0.25) 55%, transparent 78%);
+  filter: blur(80px);
+  animation: lumeraCircuitBlue 18s ease-in-out infinite;
+}
+
+/* Tactile Rough Organic Paper Grain Overlay */
+.lumera-grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.15;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='roughNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.85 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23roughNoise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 160px 160px;
+}
+
+/* Full 360-degree Orbit for Gold Orb */
+@keyframes lumeraCircuitGold {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.85;
+  }
+  25% {
+    transform: translate3d(-10vw, 55vh, 0) scale(1.25);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(-55vw, 45vh, 0) scale(0.9);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translate3d(-50vw, -5vh, 0) scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.85;
+  }
+}
+
+/* Full 360-degree Orbit for Indigo Mist */
+@keyframes lumeraCircuitIndigo {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.75;
+  }
+  25% {
+    transform: translate3d(55vw, 10vh, 0) scale(1.2);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate3d(50vw, 55vh, 0) scale(0.88);
+    opacity: 0.6;
+  }
+  75% {
+    transform: translate3d(5vw, 50vh, 0) scale(1.25);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.75;
+  }
+}
+
+/* Noticeable Organic Breathing Core */
+@keyframes lumeraBreatheAmber {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.85);
+    opacity: 0.45;
+  }
+  33% {
+    transform: translate3d(12vw, 12vh, 0) scale(1.3);
+    opacity: 0.85;
+  }
+  66% {
+    transform: translate3d(-14vw, 8vh, 0) scale(1.05);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.85);
+    opacity: 0.45;
+  }
+}
+
+/* Diagonal Orbit for Sky Blue Orb */
+@keyframes lumeraCircuitBlue {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.7;
+  }
+  35% {
+    transform: translate3d(-35vw, -40vh, 0) scale(1.22);
+    opacity: 0.9;
+  }
+  70% {
+    transform: translate3d(8vw, -50vh, 0) scale(0.92);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lumera-ambient-orb {
+    animation: none !important;
+    transform: none !important;
+  }
+}

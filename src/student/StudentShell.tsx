@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Icon, type IconName } from '../design/Icon';
+import { AtmosphereBackground } from '../design/AtmosphereBackground';
 import { searchStudentContent } from './catalog';
 import type { StudentSearchRecord } from './types';
 import type { RouteName } from './routes';
@@ -30,21 +31,20 @@ function BellIcon({ size = 21 }: { size?: number }) {
   );
 }
 
-const PRIMARY_NAV: NavItem[] = [
+const DESKTOP_NAV: NavItem[] = [
   { route: 'home', label: 'Beranda', icon: 'home' },
   { route: 'learn', label: 'Belajar', icon: 'book' },
-  { route: 'review', label: 'Ulangi', icon: 'clock' },
+  { route: 'review', label: 'Ulangi', icon: 'refresh' },
   { route: 'saved', label: 'Simpanan', icon: 'bookmark' },
 ];
 
 const MOBILE_NAV: NavItem[] = [
-  ...PRIMARY_NAV,
-  { route: 'progress', label: 'Profil', icon: 'target' },
+  ...DESKTOP_NAV,
+  { route: 'progress', label: 'Profil', icon: 'user' },
 ];
 
 function routeIsActive(current: RouteName, target: RouteName): boolean {
-  if (target === 'learn')
-    return current === 'learn' || current === 'math' || current === 'integers';
+  if (target === 'learn') return ['learn', 'math', 'integers', 'course'].includes(current);
   return current === target;
 }
 
@@ -108,6 +108,7 @@ export function StudentShell({
 
   return (
     <div className="student-shell">
+      <AtmosphereBackground />
       <header className="student-header">
         <div className="student-header__inner">
           <button
@@ -119,12 +120,13 @@ export function StudentShell({
             Lumera
           </button>
 
-          <nav className="student-nav" aria-label="Navigasi utama">
-            {PRIMARY_NAV.map((item) => (
+          <nav className="student-nav" aria-label="Navigasi utama" data-search-open={searchOpen}>
+            {DESKTOP_NAV.map((item) => (
               <button
                 type="button"
                 key={item.route}
                 className="student-nav__item"
+                data-route={item.route}
                 data-active={routeIsActive(route, item.route)}
                 aria-current={routeIsActive(route, item.route) ? 'page' : undefined}
                 onClick={() => navigate(item.route)}
@@ -135,6 +137,7 @@ export function StudentShell({
             <button
               type="button"
               className="student-nav__item student-nav__item--locked"
+              data-route="peta-ilmu"
               aria-disabled="true"
               aria-label="Peta Ilmu, segera hadir"
               title="Peta Ilmu · Segera hadir"
@@ -145,20 +148,132 @@ export function StudentShell({
           </nav>
 
           <div className="student-header__actions">
-            <button
-              type="button"
-              className="search-trigger"
-              onClick={() => {
-                setProfileOpen(false);
-                setNotificationOpen(false);
-                setSearchOpen(true);
-              }}
-              aria-label="Buka pencarian"
+            <div
+              className={`student-header__keys-pill${searchOpen ? ' student-header__keys-pill--hidden' : ''}`}
+              title="Kunci Belajar harian"
+              aria-hidden={searchOpen}
             >
-              <Icon name="search" width={18} height={18} />
-              <span>Cari apa pun...</span>
-              <kbd>Ctrl K</kbd>
-            </button>
+              <strong>0</strong>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="7.5" cy="15.5" r="5.5" />
+                <path d="m11.5 11.5 8.5-8.5" />
+                <path d="m16 7 2 2" />
+                <path d="m18 5 2 2" />
+              </svg>
+            </div>
+
+            <div className={`search-inline-wrap${searchOpen ? ' search-inline-wrap--open' : ''}`}>
+              <button
+                type="button"
+                className="search-trigger visually-hidden"
+                aria-label="Buka pencarian"
+                onClick={() => {
+                  setProfileOpen(false);
+                  setNotificationOpen(false);
+                  setSearchOpen(true);
+                  searchInput.current?.focus();
+                }}
+              >
+                Buka pencarian
+              </button>
+              <div
+                className="search-inline-box"
+                onClick={() => {
+                  if (!searchOpen) {
+                    setProfileOpen(false);
+                    setNotificationOpen(false);
+                    setSearchOpen(true);
+                  }
+                }}
+              >
+                <Icon name="search" width={18} height={18} className="search-inline-icon" />
+                <input
+                  ref={searchInput}
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  onFocus={() => {
+                    setProfileOpen(false);
+                    setNotificationOpen(false);
+                    setSearchOpen(true);
+                  }}
+                  placeholder={searchOpen ? 'Cari mata pelajaran, kursus, modul...' : 'Cari apa pun...'}
+                  aria-label="Cari mata pelajaran, kursus, atau modul"
+                  className="search-inline-input"
+                />
+                {!searchOpen && <kbd className="search-inline-kbd">Ctrl K</kbd>}
+                {searchOpen && (
+                  <button
+                    type="button"
+                    className="search-inline-close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSearchOpen(false);
+                      setQuery('');
+                    }}
+                    aria-label="Tutup pencarian"
+                    title="Tutup pencarian (Esc)"
+                  >
+                    <Icon name="close" width={14} height={14} />
+                  </button>
+                )}
+              </div>
+
+              {searchOpen && (
+                <div className="search-dropdown-card" role="dialog" aria-label="Cari di Lumera">
+                  <div className="search-dropdown__results" aria-live="polite">
+                    {query.trim() === '' ? (
+                      <div className="search-dropdown__hint">
+                        <span className="search-dropdown__hint-badge">Tips</span>
+                        <p>Coba “Matematika”, “Bilangan Bulat”, atau “garis bilangan”.</p>
+                      </div>
+                    ) : results.length === 0 ? (
+                      <div className="search-dropdown__empty">
+                        <strong>Belum ada yang cocok</strong>
+                        <span>Periksa ejaan atau gunakan istilah yang lebih singkat.</span>
+                      </div>
+                    ) : (
+                      results.map((record) => (
+                        <button
+                          type="button"
+                          key={record.id}
+                          className="search-result"
+                          disabled={record.status === 'comingSoon'}
+                          onClick={() => {
+                            setSearchOpen(false);
+                            setQuery('');
+                            onSearchSelect(record);
+                          }}
+                        >
+                          <span className="search-result__icon">
+                            <Icon
+                              name={
+                                record.kind === 'module'
+                                  ? 'pages'
+                                  : record.kind === 'course'
+                                    ? 'book'
+                                    : 'grid'
+                              }
+                              width={18}
+                              height={18}
+                            />
+                          </span>
+                          <span className="search-result__copy">
+                            <strong>{record.title}</strong>
+                            <small>{record.breadcrumbs.join(' · ')}</small>
+                          </span>
+                          {record.status === 'comingSoon' ? (
+                            <span className="status-chip">Segera hadir</span>
+                          ) : (
+                            <Icon name="arrow" width={16} height={16} />
+                          )}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div
               className="student-streak"
@@ -207,7 +322,7 @@ export function StudentShell({
                     </span>
                     <p>
                       <strong>Rencana belajarmu sudah siap</strong>
-                      <small>Mulai dari Matematika · Bilangan Bulat.</small>
+                      <small>Mulai dari Aljabar atau jelajahi Kalkulus.</small>
                     </p>
                   </div>
                 </section>
@@ -302,80 +417,14 @@ export function StudentShell({
       </nav>
 
       {searchOpen && (
-        <div className="search-dialog" role="dialog" aria-modal="true" aria-label="Cari di Lumera">
-          <button
-            type="button"
-            className="search-dialog__backdrop"
-            onClick={() => setSearchOpen(false)}
-            aria-label="Tutup pencarian"
-          />
-          <section className="search-dialog__panel">
-            <div className="search-dialog__input">
-              <Icon name="search" width={21} height={21} />
-              <input
-                ref={searchInput}
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Cari mata pelajaran, kursus, atau modul"
-                aria-label="Cari mata pelajaran, kursus, atau modul"
-              />
-              <button type="button" onClick={() => setSearchOpen(false)} aria-label="Tutup">
-                <Icon name="close" width={18} height={18} />
-              </button>
-            </div>
-
-            <div className="search-dialog__results" aria-live="polite">
-              {query.trim() === '' ? (
-                <p className="search-dialog__hint">
-                  Coba “Matematika”, “Bilangan Bulat”, atau “garis bilangan”.
-                </p>
-              ) : results.length === 0 ? (
-                <div className="search-dialog__empty">
-                  <strong>Belum ada yang cocok</strong>
-                  <span>Periksa ejaan atau gunakan istilah yang lebih singkat.</span>
-                </div>
-              ) : (
-                results.map((record) => (
-                  <button
-                    type="button"
-                    key={record.id}
-                    className="search-result"
-                    disabled={record.status === 'comingSoon'}
-                    onClick={() => {
-                      setSearchOpen(false);
-                      setQuery('');
-                      onSearchSelect(record);
-                    }}
-                  >
-                    <span className="search-result__icon">
-                      <Icon
-                        name={
-                          record.kind === 'module'
-                            ? 'pages'
-                            : record.kind === 'course'
-                              ? 'book'
-                              : 'grid'
-                        }
-                        width={20}
-                        height={20}
-                      />
-                    </span>
-                    <span className="search-result__copy">
-                      <strong>{record.title}</strong>
-                      <small>{record.breadcrumbs.join(' · ')}</small>
-                    </span>
-                    {record.status === 'comingSoon' ? (
-                      <span className="status-chip">Segera hadir</span>
-                    ) : (
-                      <Icon name="arrow" width={18} height={18} />
-                    )}
-                  </button>
-                ))
-              )}
-            </div>
-          </section>
-        </div>
+        <div
+          className="search-backdrop"
+          onClick={() => {
+            setSearchOpen(false);
+            setQuery('');
+          }}
+          aria-hidden="true"
+        />
       )}
     </div>
   );

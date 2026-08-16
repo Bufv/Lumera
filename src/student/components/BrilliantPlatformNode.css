@@ -1,0 +1,105 @@
+/* ============================================================
+   BrilliantPlatformNode.css
+   Authentic Brilliant-Style 3D Concentric Disc Platform
+   ============================================================ */
+
+.brilliant-platform-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: max-content;
+  user-select: none;
+  transition: transform 180ms ease;
+}
+
+.brilliant-platform-btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  display: grid;
+  place-items: center;
+  transform: translateY(0);
+  transition: transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.brilliant-platform-btn:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.02);
+}
+
+.brilliant-platform-btn:active:not(:disabled) {
+  transform: translateY(2px) scale(0.98);
+}
+
+.brilliant-platform-btn:disabled {
+  cursor: default;
+}
+
+.brilliant-platform-svg-wrap {
+  width: 140px;
+  height: 105px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+
+.brilliant-platform-svg-wrap svg {
+  overflow: visible;
+}
+
+/* Floating Gem Animation */
+.floating-gem-token {
+  animation: floatingGemBob 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes floatingGemBob {
+  0% {
+    transform: translate(0, -6px);
+  }
+  100% {
+    transform: translate(0, -14px);
+  }
+}
+
+/* Side Dumbbell Ambient Glow */
+.side-pedestal-group {
+  animation: sidePedestalPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes sidePedestalPulse {
+  0% {
+    transform: translate(112px, 52px) scale(0.98);
+  }
+  100% {
+    transform: translate(112px, 50px) scale(1.02);
+  }
+}
+
+/* Typography on the Right */
+.brilliant-platform-label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  max-width: 200px;
+}
+
+.brilliant-platform-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.brilliant-platform-item[data-status='locked'] .brilliant-platform-title {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.brilliant-platform-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+}

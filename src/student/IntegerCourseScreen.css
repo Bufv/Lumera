@@ -1,757 +1,405 @@
-/* ============================================================ halaman kursus
-   Menggantikan blok .course-summary / .course-view-switch / .course-roadmap /
-   .course-list-view lama pada StudentScreens.css.
-   Kedalaman memakai kontrak keycap 4px dari src/design/tokens.ts.
-   ========================================================================= */
+/* ============================================================
+   IntegerCourseScreen.css
+   Pure Canvas Stepping-Stone Layout matching Image 2 with absolute pixel precision.
+   ============================================================ */
 
-.course-page .breadcrumbs {
+.course-page.course-roadmap-canvas-screen {
+  min-height: calc(100vh - 64px);
+  padding: 24px 20px 140px;
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(255, 255, 255, 0.98) 0%, rgba(253, 251, 247, 0.7) 60%),
+    linear-gradient(180deg, #eef2f7 0%, #fbfaf8 45%, #fff7eb 100%);
+  color: var(--lumera-navy, #0d1b2a);
+}
+
+.course-roadmap-canvas-container {
+  width: min(920px, 100%);
+  margin-inline: auto;
+}
+
+/* Minimal Top Toolbar */
+.course-roadmap-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
-.course-layout {
-  display: grid;
-  grid-template-columns: 330px minmax(0, 1fr);
-  align-items: start;
-  gap: 40px;
-}
-
-.course-aside {
-  position: sticky;
-  top: 96px;
-}
-
-.course-kolom {
-  min-width: 0;
-}
-
-/* ------------------------------------------------------------ kartu kursus */
-
-.course-card {
-  padding: 20px;
-  border: 1px solid #e4e6ee;
-  border-radius: 20px;
-  background: #ffffff;
-  box-shadow:
-    0 4px 0 #e4e6ee,
-    0 12px 26px rgba(21, 23, 42, 0.07);
-}
-
-.course-card > .lumera-artwork {
-  border-radius: 14px;
-}
-
-.course-card .page-kicker {
-  margin-top: 16px;
-}
-
-.course-card h1 {
-  margin: 8px 0 0;
-  font-size: 27px;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.12;
-}
-
-.course-card > p {
-  margin: 8px 0 0;
-  color: #667085;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.course-card__meta {
-  margin-top: 16px;
-  display: flex;
+/* Minimal Shaded Back Button */
+.learning-roadmap__back-btn {
+  min-height: 38px;
+  padding: 7px 16px;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #7a8193;
-  font-size: 11px;
-  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f4f9 100%);
+  box-shadow: 0 2.5px 0 0 #cbd5e1, inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: #64748b;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  transform: translateY(0);
+  transition:
+    transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    box-shadow 160ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    border-color 150ms ease,
+    color 150ms ease;
 }
 
-.course-card__meta i {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #d3d6df;
+.learning-roadmap__back-btn svg {
+  transform: rotate(180deg);
 }
 
-.course-card__progres {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid #e4e6ee;
+.learning-roadmap__back-btn:hover {
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 4.5px 0 0 #94a3b8;
 }
 
-.course-card__progres > div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+.learning-roadmap__back-btn:active {
+  transform: translateY(1.5px);
+  box-shadow: 0 1px 0 0 #cbd5e1;
 }
 
-.course-card__progres strong {
-  color: #5143c8;
-  font-size: 22px;
-  letter-spacing: -0.04em;
-}
-
-.course-card__progres small {
-  color: #667085;
-  font-size: 10px;
-}
-
-.course-card__bar {
-  margin-top: 8px;
-  height: 10px;
-  display: block;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #f1f2f5;
-  box-shadow: inset 0 2px 0 rgba(21, 23, 42, 0.06);
-}
-
-.course-card__bar i {
-  height: 100%;
-  display: block;
-  border-radius: 999px;
-  background: #6d5ce7;
-  box-shadow: inset 0 -3px 0 #5143c8;
-}
-
-/* ---------------------------------------------------------------- toggle */
-
+/* Shaded View Switcher Pill */
 .course-view-switch {
-  margin-top: 14px;
-  padding: 4px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3px;
-  border: 1px solid #e4e6ee;
-  border-radius: 14px;
-  background: #f1f2f5;
-  box-shadow: inset 0 2px 0 rgba(21, 23, 42, 0.05);
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #ffffff 0%, #f4f5f8 100%);
+  box-shadow: 0 2.5px 0 0 #d1d5db, inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .course-view-switch button {
-  min-height: 40px;
-  padding: 8px 12px;
+  min-height: 32px;
+  padding: 5px 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 9999px;
   background: transparent;
-  color: #667085;
+  color: #64748b;
   cursor: pointer;
-  font: inherit;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 11.5px;
   font-weight: 700;
+  transform: translateY(0);
+  transition:
+    transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    box-shadow 160ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.course-view-switch button:hover {
+  color: #0f172a;
 }
 
 .course-view-switch button[data-active='true'] {
   background: #ffffff;
-  color: #5143c8;
-  box-shadow: 0 3px 0 #ded9fb;
+  color: #5b4de0;
+  box-shadow: 0 2px 0 0 #5b4de0, inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-.course-view-switch button:focus-visible {
-  outline: 3px solid #6d5ce7;
-  outline-offset: 2px;
+/* ------------------------------------------------------------ Top Level Pill (Exact Image 2 Match) */
+
+.course-roadmap-level-section {
+  margin-bottom: 64px;
 }
 
-/* ------------------------------------------------------------------ jalur */
-
-.course-path {
-  max-width: 560px;
-  margin: 0 auto;
-  padding-bottom: 40px;
-}
-
-.course-path__level + .course-path__level {
-  margin-top: 56px;
-}
-
-.course-level {
-  position: relative;
-  min-height: 68px;
-  padding: 12px 20px;
-  display: grid;
-  place-items: center;
-  border: 2px solid #d3d6df;
+.course-level-pill {
+  width: min(640px, calc(100% - 32px));
+  margin: 8px auto 56px;
+  padding: 16px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 2px solid #5b4de0;
   border-radius: 20px;
   background: #ffffff;
+  box-shadow: 0 4px 18px rgba(91, 77, 224, 0.08);
   text-align: center;
 }
 
-.course-level::before {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  bottom: -6px;
-  left: 8px;
-  z-index: -1;
-  border-radius: 20px;
-  background: #d3d6df;
-  content: '';
-}
-
-.course-level[data-aktif='true'] {
-  border-color: #6d5ce7;
-}
-
-.course-level[data-aktif='true']::before {
-  background: #6d5ce7;
-}
-
-.course-level span {
-  display: block;
-  color: #7a8193;
+.course-level-pill span {
+  color: #5b4de0;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.course-level[data-aktif='true'] span {
-  color: #5143c8;
+.course-level-pill h2,
+.course-level-pill strong {
+  margin: 0;
+  color: #0d1b2a;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.course-level strong {
-  display: block;
-  margin-top: 3px;
-  color: #667085;
-  font-size: 16px;
-  font-weight: 600;
-}
+/* ------------------------------------------------------------ Exact Staggered Canvas Node Map */
 
-.course-level[data-aktif='true'] strong {
-  color: #15172a;
-}
-
-.course-path__baris {
-  margin-top: 34px;
-  display: flex;
-}
-
-.course-path__level > .course-path__baris:first-of-type {
-  margin-top: 44px;
-}
-
-.course-path__baris[data-posisi='tengah'] {
-  justify-content: center;
-}
-
-.course-path__baris[data-posisi='kiri'] {
-  justify-content: flex-start;
-}
-
-.course-path__baris[data-posisi='kanan'] {
-  justify-content: flex-end;
-}
-
-/* -------------------------------------------------------- simpul (peron) */
-
-.course-node {
+.course-roadmap-staggered-canvas {
   position: relative;
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.course-node__peron {
+.course-roadmap-staggered-node {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 290px;
+  transition: transform 180ms ease;
+}
+
+.course-roadmap-node__peron {
   position: relative;
   width: 128px;
   height: 128px;
+  flex: 0 0 128px;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
+  transform: translateY(0);
+  transition: transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
+  display: grid;
+  place-items: center;
 }
 
-.course-node[data-status='terkunci'] .course-node__peron,
-.course-node[data-status='rencana'] .course-node__peron {
+.course-roadmap-staggered-node[data-status='lockedByPrerequisite'] .course-roadmap-node__peron,
+.course-roadmap-staggered-node[data-status='comingSoon'] .course-roadmap-node__peron,
+.course-roadmap-staggered-node[data-status='reviewPending'] .course-roadmap-node__peron,
+.course-roadmap-staggered-node[data-status='terkunci'] .course-roadmap-node__peron,
+.course-roadmap-staggered-node[data-status='rencana'] .course-roadmap-node__peron {
   cursor: default;
 }
 
-.course-node__peron:focus-visible {
-  border-radius: 24px;
-  outline: 3px solid #6d5ce7;
-  outline-offset: 2px;
+.course-roadmap-node__peron:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.03);
 }
 
-.course-node__bayang {
-  position: absolute;
-  top: 84px;
-  left: 50%;
-  width: 108px;
-  height: 26px;
-  border-radius: 50%;
-  background: rgba(21, 23, 42, 0.12);
-  filter: blur(9px);
-  transform: translateX(-50%);
+.course-roadmap-node__peron:active:not(:disabled) {
+  transform: translateY(2px) scale(0.98);
 }
 
-.course-node__sisi,
-.course-node__muka {
-  position: absolute;
-  left: 10px;
-  width: 108px;
-  height: 54px;
-  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+/* Node Label on Right */
+.course-roadmap-node__label {
+  flex: 1 1 auto;
+  text-align: left;
 }
 
-.course-node__sisi {
-  top: 60px;
-  background: #a4a8b5;
-}
-
-.course-node__muka {
-  top: 50px;
-  background: #d3d6df;
-}
-
-.course-node__cincin {
-  position: absolute;
-  top: 60px;
-  left: 27px;
-  width: 74px;
-  height: 34px;
-  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
-  background: #f1f2f5;
-}
-
-.course-node__tanda {
-  position: absolute;
-  top: 40px;
-  left: 50%;
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  color: #7a8193;
-  transform: translateX(-50%);
-}
-
-/* selesai */
-
-.course-node[data-status='selesai'] .course-node__bayang {
-  width: 116px;
-  height: 30px;
-  background: rgba(21, 23, 42, 0.16);
-}
-
-.course-node[data-status='selesai'] .course-node__sisi,
-.course-node[data-status='selesai'] .course-node__muka,
-.course-node[data-status='berjalan'] .course-node__sisi,
-.course-node[data-status='berjalan'] .course-node__muka {
-  left: 6px;
-  width: 116px;
-  height: 58px;
-}
-
-.course-node[data-status='selesai'] .course-node__sisi,
-.course-node[data-status='berjalan'] .course-node__sisi {
-  top: 56px;
-}
-
-.course-node[data-status='selesai'] .course-node__muka,
-.course-node[data-status='berjalan'] .course-node__muka {
-  top: 44px;
-}
-
-.course-node[data-status='selesai'] .course-node__cincin,
-.course-node[data-status='berjalan'] .course-node__cincin {
-  top: 55px;
-  left: 24px;
-  width: 80px;
-  height: 36px;
-}
-
-.course-node[data-status='selesai'] .course-node__sisi {
-  background: #147132;
-}
-
-.course-node[data-status='selesai'] .course-node__muka {
-  background: #2ead68;
-}
-
-.course-node[data-status='selesai'] .course-node__cincin {
-  background: #86e5a7;
-}
-
-.course-node[data-status='selesai'] .course-node__tanda {
-  top: 22px;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: #ffffff;
-  color: #147132;
-  box-shadow:
-    0 5px 0 #bdf2ce,
-    0 10px 18px rgba(21, 23, 42, 0.14);
-}
-
-/* sedang berjalan */
-
-.course-node[data-status='berjalan'] .course-node__bayang {
-  top: 48px;
-  width: 148px;
-  height: 82px;
-  background: radial-gradient(closest-side, rgba(109, 92, 231, 0.42), rgba(109, 92, 231, 0));
-  filter: none;
-  animation: course-node-glow 2.8s ease-in-out infinite;
-}
-
-.course-node[data-status='berjalan'] .course-node__sisi {
-  background: #4135a6;
-}
-
-.course-node[data-status='berjalan'] .course-node__muka {
-  background: #6d5ce7;
-}
-
-.course-node[data-status='berjalan'] .course-node__cincin {
-  background: #bdb4f5;
-}
-
-.course-node[data-status='berjalan'] .course-node__tanda {
-  top: 10px;
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
-  background: #f4b725;
-  color: #15172a;
-  box-shadow:
-    0 5px 0 #d99a0b,
-    0 14px 22px rgba(21, 23, 42, 0.18);
-  animation: course-node-hover 2.8s ease-in-out infinite;
-}
-
-@keyframes course-node-glow {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    opacity: 0.9;
-    transform: translateX(-50%) scale(1.08);
-  }
-}
-
-@keyframes course-node-hover {
-  0%,
-  100% {
-    transform: translate(-50%, 0);
-  }
-  50% {
-    transform: translate(-50%, -7px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .course-node__bayang,
-  .course-node__tanda {
-    animation: none !important;
-  }
-}
-
-/* judul dan kartu simpul */
-
-.course-node__judul {
-  width: 150px;
-  margin: 0;
-  padding-bottom: 26px;
-  color: #7a8193;
+.course-roadmap-node__title {
+  display: block;
   font-size: 15px;
-  font-weight: 600;
-  line-height: 1.3;
-  text-wrap: pretty;
-}
-
-.course-node[data-status='selesai'] .course-node__judul {
-  color: #15172a;
-}
-
-.course-node[data-status='berjalan'] .course-node__judul {
-  color: #15172a;
   font-weight: 700;
+  color: #0d1b2a;
+  line-height: 1.25;
+  max-width: 150px;
 }
+
+.course-roadmap-staggered-node[data-status='lockedByPrerequisite'] .course-roadmap-node__title,
+.course-roadmap-staggered-node[data-status='comingSoon'] .course-roadmap-node__title,
+.course-roadmap-staggered-node[data-status='reviewPending'] .course-roadmap-node__title,
+.course-roadmap-staggered-node[data-status='terkunci'] .course-roadmap-node__title,
+.course-roadmap-staggered-node[data-status='rencana'] .course-roadmap-node__title {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 14.5px;
+}
+
+/* ------------------------------------------------------------ Clean Popover Card */
 
 .course-node__kartu {
   position: absolute;
-  z-index: 5;
-  top: 122px;
+  z-index: 60;
+  top: 134px;
   left: 64px;
-  width: 272px;
+  transform: translateX(-50%);
+  width: 270px;
   padding: 16px;
-  border: 1px solid #e4e6ee;
+  border: 1.5px solid #e2e8f0;
   border-radius: 18px;
   background: #ffffff;
   box-shadow:
-    0 4px 0 #e4e6ee,
-    0 20px 44px rgba(21, 23, 42, 0.16);
-  text-align: center;
-  transform: translateX(-50%);
-  animation: course-node-pop 140ms ease-out;
+    0 4px 0 0 #e2e8f0,
+    0 20px 40px rgba(13, 27, 42, 0.16);
+  animation: lumeraRoadmapPop 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
 }
 
-@keyframes course-node-pop {
+@keyframes lumeraRoadmapPop {
   from {
     opacity: 0;
+    transform: translate(-50%, -6px);
   }
   to {
     opacity: 1;
+    transform: translate(-50%, 0);
   }
+}
+
+.course-node__kartu-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #f1f2f5;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 16px;
 }
 
 .course-node__kartu strong {
   display: block;
-  font-size: 15px;
+  font-size: 14.5px;
+  font-weight: 750;
+  color: var(--lumera-navy, #0d1b2a);
 }
 
-.course-node__kartu small {
-  display: block;
-  margin-top: 4px;
-  color: #667085;
-  font-size: 11px;
+.course-node__kartu p {
+  margin: 6px 0 14px;
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.45;
 }
 
 .course-node__aksi {
   width: 100%;
-  min-height: 46px;
-  margin-top: 12px;
-  border: 0;
-  border-radius: 12px;
-  background: #6d5ce7;
-  color: #ffffff;
-  cursor: pointer;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: 0 4px 0 #5143c8;
 }
 
-.course-node__aksi[data-status='selesai'] {
-  border: 1px solid #e4e6ee;
-  background: #ffffff;
-  color: #15172a;
-  box-shadow: 0 4px 0 #cfd1db;
-}
+/* ------------------------------------------------------------ List View (Daftar) */
 
-.course-node__aksi:disabled {
-  border: 1px solid #e4e6ee;
-  background: #f1f2f5;
-  color: #667085;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.course-path__catatan {
-  margin: 64px 0 0;
-  color: #a4a8b5;
-  font-size: 11px;
-  text-align: center;
-}
-
-/* ----------------------------------------------------------------- daftar */
-
-.course-rows {
-  max-width: 720px;
-}
-
-.course-rows__level + .course-rows__level {
-  margin-top: 28px;
-}
-
-.course-rows__level > header {
+.course-roadmap-list-view {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.course-roadmap-list-level {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(13, 27, 42, 0.03);
+}
+
+.course-roadmap-list-level header {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f2f6;
 }
 
-.course-rows__level > header strong {
-  font-size: 13px;
-  font-weight: 700;
+.course-roadmap-list-level header strong {
+  font-size: 14.5px;
+  color: var(--lumera-navy, #0d1b2a);
 }
 
-.course-rows__level > header small {
-  color: #7a8193;
-  font-size: 11px;
-  font-weight: 600;
+.course-roadmap-list-level header small {
+  font-size: 11.5px;
+  color: #64748b;
 }
 
-.course-rows__level ul {
-  margin: 12px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
+.course-roadmap-list-level ul {
   list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.course-row {
+.course-roadmap-list-row {
   width: 100%;
   min-height: 54px;
-  padding: 0 14px;
+  padding: 8px 14px;
   display: grid;
-  grid-template-columns: 26px 26px minmax(0, 1fr) auto 18px;
+  grid-template-columns: 28px 24px minmax(0, 1fr) auto 20px;
   align-items: center;
-  gap: 12px;
-  border: 1px solid #e4e6ee;
-  border-radius: 14px;
-  background: #ffffff;
-  color: #15172a;
+  gap: 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fb 100%);
+  box-shadow: 0 2.5px 0 0 #cbd5e1, inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: var(--lumera-navy, #0d1b2a);
   cursor: pointer;
-  font: inherit;
   text-align: left;
-  box-shadow: 0 3px 0 #e4e6ee;
+  transform: translateY(0);
   transition:
-    transform 140ms ease-out,
-    box-shadow 140ms ease-out,
-    border-color 140ms ease-out;
+    transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    box-shadow 160ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    border-color 150ms ease;
 }
 
-.course-row:hover:not(:disabled) {
-  border-color: #bdb4f5;
-  box-shadow: 0 5px 0 #ded9fb;
-  transform: translateY(-1px);
+.course-roadmap-list-row:hover:not(:disabled) {
+  border-color: #5b4de0;
+  transform: translateY(-2px);
+  box-shadow: 0 4.5px 0 0 #5b4de0;
 }
 
-.course-row:active:not(:disabled) {
-  box-shadow: 0 0 0 #ded9fb;
-  transform: translateY(3px);
+.course-roadmap-list-row:active:not(:disabled) {
+  transform: translateY(1.5px);
+  box-shadow: 0 1px 0 0 #cbd5e1;
 }
 
-.course-row:focus-visible {
-  outline: 3px solid #6d5ce7;
-  outline-offset: 2px;
-}
-
-.course-row[data-status='berjalan'] {
-  border-color: #bdb4f5;
-  background: #faf9ff;
-  box-shadow: 0 3px 0 #ded9fb;
-}
-
-.course-row:disabled {
-  background: #fbfbfc;
-  color: #7a8193;
-  cursor: not-allowed;
-  box-shadow: inset 0 2px 0 rgba(21, 23, 42, 0.04);
+.course-roadmap-list-row:disabled {
+  background: #f8fafc;
+  box-shadow: none !important;
+  opacity: 0.6;
+  cursor: default;
+  transform: none !important;
 }
 
 .course-row__nomor {
-  color: #a4a8b5;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
+  color: #5b4de0;
 }
 
 .course-row__ikon {
-  width: 26px;
-  height: 26px;
   display: grid;
   place-items: center;
-  border-radius: 50%;
-  background: #e4e6ee;
-  color: #8b90a0;
-}
-
-.course-row[data-status='selesai'] .course-row__ikon {
-  background: #2ead68;
-  color: #ffffff;
-  box-shadow: 0 2px 0 #147132;
-}
-
-.course-row[data-status='berjalan'] .course-row__ikon {
-  background: #6d5ce7;
-  color: #ffffff;
-  box-shadow: 0 2px 0 #4135a6;
+  color: #64748b;
 }
 
 .course-row__judul {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.course-row[data-status='berjalan'] .course-row__judul {
+  font-size: 13.5px;
   font-weight: 700;
 }
 
 .course-row__status {
-  font-size: 10px;
-  font-weight: 700;
-  color: #a4a8b5;
-  white-space: nowrap;
-}
-
-.course-row[data-status='selesai'] .course-row__status {
-  color: #147132;
-}
-
-.course-row[data-status='berjalan'] .course-row__status {
-  color: #5143c8;
-}
-
-.course-rows__catatan {
-  margin: 24px 0 0;
-  color: #a4a8b5;
-  font-size: 11px;
-}
-
-/* ------------------------------------------------------------- responsif */
-
-@media (max-width: 1080px) {
-  .course-layout {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .course-aside {
-    position: static;
-  }
+  font-size: 10.5px;
+  color: #64748b;
+  font-weight: 600;
 }
 
 @media (max-width: 640px) {
-  .course-path__baris,
-  .course-path__baris[data-posisi='kiri'],
-  .course-path__baris[data-posisi='kanan'] {
-    justify-content: flex-start;
-  }
-
-  /*
-   * Keep the peron at its authored 128px stage so the absolutely-positioned
-   * disc pieces (bayang/sisi/muka/cincin/tanda) stay at the proportions they
-   * were tuned for, then shrink the whole graphic uniformly with a transform.
-   * Redeclaring every child's pixel offsets at a smaller box previously left
-   * the disc wider than its own button, overlapping the title text next to it.
-   * The negative margins fold the now-unused desktop space back out of the
-   * flex row so spacing to the title matches the visual (not pre-transform) size.
-   */
-  .course-node__peron {
-    margin-right: -24px;
-    margin-bottom: -24px;
-    transform: scale(0.8125);
-    transform-origin: top left;
-  }
-
-  .course-node__judul {
-    width: auto;
-    padding-bottom: 18px;
-    font-size: 14px;
-  }
-
-  .course-node__kartu {
-    left: 0;
-    width: min(272px, 100%);
-    transform: none;
-  }
-
-  .course-row {
-    grid-template-columns: 22px 22px minmax(0, 1fr) auto;
-  }
-
-  .course-row__status {
-    grid-column: 3 / -1;
+  .course-roadmap-staggered-node {
+    position: static !important;
+    margin: 0 auto 32px !important;
   }
 }

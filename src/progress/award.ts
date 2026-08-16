@@ -24,16 +24,20 @@ export interface HasilPenyelesaian {
 }
 
 /**
- * Dipanggil HANYA saat siswa menekan "Lanjutkan" di langkah 7.
- * Pelajaran yang ditinggalkan tidak boleh sampai ke sini (FR-014).
+ * Pure progress transition shared by the real and demo repositories. Keeping
+ * storage outside this function prevents a demo lesson from ever mutating the
+ * learner's real record by accident.
  */
-export function selesaikanPelajaran(moduleId: string, jumlahKesalahan: number): HasilPenyelesaian {
-  const siswa = bacaSiswa();
-
+export function hitungPenyelesaian(
+  siswa: Siswa,
+  moduleId: string,
+  jumlahKesalahan: number,
+  tanggal = tanggalLokal(),
+): HasilPenyelesaian {
   const lumensDidapat = hitungLumens(jumlahKesalahan);
   const streak = hitungStreak(
     { streakCount: siswa.streakCount, streakLastDate: siswa.streakLastDate },
-    tanggalLokal(),
+    tanggal,
   );
 
   const masteryLama = siswa.mastery.find((m) => m.moduleId === moduleId);
@@ -50,6 +54,16 @@ export function selesaikanPelajaran(moduleId: string, jumlahKesalahan: number): 
       : [...siswa.modulSelesai, moduleId],
   };
 
-  simpanSiswa(berikutnya);
   return { siswa: berikutnya, lumensDidapat };
+}
+
+/**
+ * Dipanggil HANYA saat siswa menekan "Lanjutkan" di langkah 7.
+ * Pelajaran yang ditinggalkan tidak boleh sampai ke sini (FR-014).
+ */
+export function selesaikanPelajaran(moduleId: string, jumlahKesalahan: number): HasilPenyelesaian {
+  const siswa = bacaSiswa();
+  const hasil = hitungPenyelesaian(siswa, moduleId, jumlahKesalahan);
+  simpanSiswa(hasil.siswa);
+  return hasil;
 }

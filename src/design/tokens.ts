@@ -323,3 +323,58 @@ export const layout = {
   konten: '1216px',
   kolomPelajaran: '392px',
 } as const;
+
+/**
+ * Token desain Brilliant High-Fidelity.
+ * Menghadirkan palet presisi, node 3D isometrik, dan hierarki visual kelas dunia.
+ */
+export const brilliant = {
+  color: {
+    bgPage: '#FAF9F6',
+    bgCard: '#FFFFFF',
+    bgMuted: '#F4F5F7',
+    borderLight: '#E5E7EB',
+    borderMedium: '#D1D5DB',
+    dark: '#15172A',
+    darkHover: '#0F111E',
+    green: '#22C55E',
+    greenLight: '#DCFCE7',
+    yellow: '#F59E0B',
+    yellowLight: '#FEF3C7',
+    purple: '#8B5CF6',
+    purpleLight: '#F3E8FF',
+    blue: '#3B82F6',
+    blueLight: '#DBEAFE',
+    silverDisc: '#E2E8F0',
+    silverDepth: '#CBD5E1',
+  },
+  shadow: {
+    card: '0 2px 8px rgba(0, 0, 0, 0.04)',
+    cardHover: '0 8px 24px rgba(0, 0, 0, 0.08)',
+    modal: '0 20px 48px rgba(15, 23, 42, 0.18)',
+    activeGlow: '0 0 24px rgba(34, 197, 94, 0.35)',
+    blueGlow: '0 4px 20px rgba(59, 130, 246, 0.25)',
+  },
+  node: {
+    activeRings: 3,
+    discHeight: '64px',
+    discWidth: '76px',
+  },
+} as const;
+
+export const lumeraTheme = {
+  palette: {
+    creamLight: '#FFF4E1',
+    warmGold: '#FDD98A',
+    amber: '#FFB347',
+    amberDepth: '#D97706',
+    deepNavy: '#0D1B2A',
+    deepNavyDepth: '#050B12',
+    indigoBlue: '#1E3A8A',
+    softBlue: '#3B82F6',
+    warmSlateBorder: '#E8E3DA',
+    warmCanvas: '#FAF8F5',
+  },
+} as const;
+
+

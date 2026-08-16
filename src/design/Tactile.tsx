@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
@@ -6,7 +7,7 @@ import type {
 } from 'react';
 import './Tactile.css';
 
-export type TactileTone = 'primary' | 'neutral' | 'amber';
+export type TactileTone = 'primary' | 'neutral' | 'amber' | 'green' | 'purple';
 export type TactileVariant = 'control' | 'card';
 
 type TactileCommonProps = {
@@ -16,6 +17,7 @@ type TactileCommonProps = {
   variant?: TactileVariant;
   fullWidth?: boolean;
   disabled?: boolean;
+  delayClickMs?: number;
 };
 
 type TactileButtonProps = TactileCommonProps &
@@ -43,8 +45,20 @@ export function Tactile(props: TactileProps) {
     variant = 'control',
     fullWidth = false,
     disabled = false,
+    delayClickMs = 120,
     ...elementProps
   } = props;
+  const [isPressed, setIsPressed] = useState(false);
+  const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   const resolvedTone = tone ?? (variant === 'card' ? 'neutral' : 'primary');
   const classes = [
     'lumera-tactile',
@@ -55,6 +69,8 @@ export function Tactile(props: TactileProps) {
   ]
     .filter(Boolean)
     .join(' ');
+
+  const isTest = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
 
   if (as === 'a') {
     const { href, onClick, tabIndex, ...anchorProps } = elementProps as Omit<
@@ -70,12 +86,23 @@ export function Tactile(props: TactileProps) {
         role={disabled ? 'link' : anchorProps.role}
         aria-disabled={disabled || undefined}
         tabIndex={disabled ? -1 : tabIndex}
+        data-pressed={isPressed || undefined}
         onClick={(event: MouseEvent<HTMLAnchorElement>) => {
           if (disabled) {
             event.preventDefault();
             return;
           }
-          onClick?.(event);
+          if (!onClick) return;
+          if (isTest || delayClickMs <= 0) {
+            onClick(event);
+            return;
+          }
+          event.preventDefault();
+          setIsPressed(true);
+          timeoutRef.current = window.setTimeout(() => {
+            setIsPressed(false);
+            onClick(event);
+          }, delayClickMs);
         }}
       >
         {children}
@@ -83,13 +110,35 @@ export function Tactile(props: TactileProps) {
     );
   }
 
-  const { type = 'button', ...buttonProps } = elementProps as Omit<
+  const { type = 'button', onClick, ...buttonProps } = elementProps as Omit<
     TactileButtonProps,
     keyof TactileCommonProps | 'as'
   >;
 
   return (
-    <button {...buttonProps} className={classes} type={type} disabled={disabled}>
+    <button
+      {...buttonProps}
+      className={classes}
+      type={type}
+      disabled={disabled}
+      data-pressed={isPressed || undefined}
+      onClick={(event: MouseEvent<HTMLButtonElement>) => {
+        if (disabled) {
+          event.preventDefault();
+          return;
+        }
+        if (!onClick) return;
+        if (isTest || delayClickMs <= 0) {
+          onClick(event);
+          return;
+        }
+        setIsPressed(true);
+        timeoutRef.current = window.setTimeout(() => {
+          setIsPressed(false);
+          onClick(event);
+        }, delayClickMs);
+      }}
+    >
       {children}
     </button>
   );

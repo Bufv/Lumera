@@ -1,5 +1,6 @@
 import { resetLearnerProfile, type LearnerProfile } from '../profile';
 import { resetProgres } from '../progress/store';
+import { resetProgresDemo } from '../progress/demoStore';
 import { telemetry } from '../telemetry/adapter';
 
 /**
@@ -16,6 +17,7 @@ import { telemetry } from '../telemetry/adapter';
 export async function hapusSemuaDataSiswa(): Promise<LearnerProfile> {
   const freshProfile = resetLearnerProfile();
   resetProgres();
+  resetProgresDemo();
   await telemetry.clear();
   return freshProfile;
 }

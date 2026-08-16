@@ -15,6 +15,16 @@ export type ArtworkManifest = Readonly<Record<string, ArtworkAsset | string>>;
  * components never need to import presentation assets directly.
  */
 export const artworkManifest: ArtworkManifest = {
+  'course-algebra': {
+    src: '/assets/courses/algebra-cover.webp',
+    alt: 'Diorama balok variabel dan pola ubin yang bertumbuh',
+    objectPosition: 'center',
+  },
+  'course-calculus': {
+    src: '/assets/courses/calculus-cover.webp',
+    alt: 'Diorama kurva, garis singgung, dan area perubahan',
+    objectPosition: 'center',
+  },
   'course-integers': {
     src: '/assets/math_banner.png',
     alt: 'Ilustrasi alat belajar Matematika',

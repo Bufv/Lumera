@@ -1,0 +1,124 @@
+/* ============================================================
+   CourseIdentityOverview.css
+   Enclosed Card Course Overview on Left Column
+   ============================================================ */
+
+.course-identity-card {
+  width: min(340px, 100%);
+  padding: 26px 24px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 22px;
+  box-shadow:
+    0 3px 0 0 #cbd5e1,
+    0 12px 28px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  user-select: none;
+}
+
+.course-identity-art-wrap {
+  width: 140px;
+  height: 110px;
+  margin-bottom: 6px;
+}
+
+.course-identity-3d-art {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.course-identity-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.course-identity-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.course-identity-dot {
+  color: #cbd5e1;
+}
+
+.course-identity-grade {
+  margin-top: 3px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.course-identity-desc {
+  margin: 12px 0 18px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #475569;
+}
+
+/* ------------------------------------------------------------ Progress Bar */
+
+.course-identity-progress-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+.course-identity-progress-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.course-identity-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #818cf8 0%, #6d5ce7 100%);
+  border-radius: 9999px;
+  transition: width 400ms ease;
+}
+
+.course-identity-percent {
+  font-size: 13px;
+  font-weight: 800;
+  color: #6d5ce7;
+}
+
+/* ------------------------------------------------------------ Metadata Icons */
+
+.course-identity-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: 14px;
+  border-top: 1.5px solid #f1f5f9;
+  width: 100%;
+}
+
+.course-identity-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.course-identity-meta-item svg {
+  color: #6d5ce7;
+}
