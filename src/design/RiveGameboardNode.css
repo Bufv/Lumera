@@ -1,22 +1,112 @@
 .course-node__rive {
+  --node-face: #eef0f5;
+  --node-side: #c5c9d4;
+  --node-inner: #ffffff;
+  --node-icon: #7a8193;
   position: absolute;
   inset: 0;
-  display: block;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
 }
 
-.course-node__rive-canvas,
-.course-node__rive-fallback {
+.course-node__glyph-shadow {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 91px;
+  left: 50%;
+  width: 78px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(21, 23, 42, 0.12);
+  filter: blur(7px);
+  transform: translateX(-50%);
 }
 
-.course-node__rive-canvas {
-  display: block;
+.course-node__glyph-face {
+  position: absolute;
+  top: 21px;
+  left: 50%;
+  width: 86px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  border-radius: 30px;
+  background: var(--node-face);
+  box-shadow:
+    0 8px 0 var(--node-side),
+    0 14px 24px rgba(21, 23, 42, 0.12),
+    inset 0 2px 0 rgba(255, 255, 255, 0.72);
+  transform: translateX(-50%);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
 }
 
-.course-node__rive-canvas.is-hidden,
-.course-node__rive-fallback.is-hidden {
-  display: none;
+.course-node__glyph-inner {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(21, 23, 42, 0.06);
+  border-radius: 17px;
+  background: var(--node-inner);
+  color: var(--node-icon);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.7),
+    0 2px 0 rgba(21, 23, 42, 0.08);
+}
+
+.course-node__rive[data-status='berjalan'] {
+  --node-face: #6d5ce7;
+  --node-side: #4d40b7;
+  --node-inner: #f4b725;
+  --node-icon: #15172a;
+}
+
+.course-node__rive[data-status='selesai'] {
+  --node-face: #39b96b;
+  --node-side: #178347;
+  --node-inner: #ffffff;
+  --node-icon: #178347;
+}
+
+.course-node__rive[data-status='terkunci'],
+.course-node__rive[data-status='rencana'] {
+  --node-face: #e9ebf1;
+  --node-side: #bcc1cc;
+  --node-inner: #f8f9fb;
+  --node-icon: #7a8193;
+}
+
+.course-node__rive[data-status='rencana'] {
+  opacity: 0.82;
+}
+
+.course-node__rive[data-selected='true'] .course-node__glyph-face {
+  transform: translateX(-50%) translateY(-2px) scale(1.04);
+  box-shadow:
+    0 10px 0 var(--node-side),
+    0 18px 28px rgba(21, 23, 42, 0.16),
+    inset 0 2px 0 rgba(255, 255, 255, 0.72);
+}
+
+.course-node__peron:hover .course-node__rive[data-status='berjalan'] .course-node__glyph-face,
+.course-node__peron:hover .course-node__rive[data-status='selesai'] .course-node__glyph-face {
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.course-node__peron:active .course-node__rive[data-status='berjalan'] .course-node__glyph-face,
+.course-node__peron:active .course-node__rive[data-status='selesai'] .course-node__glyph-face {
+  transform: translateX(-50%) translateY(4px);
+  box-shadow:
+    0 4px 0 var(--node-side),
+    0 9px 18px rgba(21, 23, 42, 0.12),
+    inset 0 2px 0 rgba(255, 255, 255, 0.72);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-node__glyph-face {
+    transition: none;
+  }
 }
