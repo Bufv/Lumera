@@ -38,10 +38,12 @@
 }
 
 .lumera-artwork__image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .lumera-artwork__placeholder {

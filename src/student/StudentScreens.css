@@ -162,7 +162,7 @@
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
 }
 
@@ -2561,7 +2561,7 @@
 .home-page--dashboard .continue-card__art .lumera-artwork__image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .home-page--dashboard .continue-section__lumo img,
