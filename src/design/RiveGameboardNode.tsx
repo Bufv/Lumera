@@ -15,6 +15,7 @@ import './RiveGameboardNode.css';
 const RIVE_SRC = '/assets/koji-gameboard.riv';
 const ARTBOARD = 'Gameboard Node';
 const STATE_MACHINE = 'node_all';
+const REQUIRED_INPUTS = ['padlock', 'level', 'completed', 'color'] as const;
 
 RuntimeLoader.setWasmUrl(riveWasmUrl);
 RuntimeLoader.setWasmFallbackUrl(null);
@@ -40,9 +41,13 @@ function syncInputs(
   status: RiveNodeStatus,
   selected: boolean,
   hovered: boolean,
-): void {
+): boolean {
   const inputs = rive.stateMachineInputs(STATE_MACHINE);
-  if (!inputs) return;
+  if (!inputs || inputs.length === 0) return false;
+
+  const availableInputs = new Set(inputs.map((input) => input.name));
+  if (REQUIRED_INPUTS.some((name) => !availableInputs.has(name))) return false;
+
   const locked = status === 'terkunci' || status === 'rencana';
 
   setInput(inputs, 'dark-mode', false);
@@ -55,6 +60,8 @@ function syncInputs(
   setInput(inputs, 'hover', hovered);
   setInput(inputs, 'meter_locked', locked);
   setInput(inputs, 'color', COLOR_BY_STATUS[status]);
+
+  return true;
 }
 
 export function RiveGameboardNode({
@@ -86,9 +93,8 @@ export function RiveGameboardNode({
       layout: new Layout({ fit: Fit.Contain, alignment: Alignment.Center }),
       onLoad: () => {
         rive.resizeDrawingSurfaceToCanvas();
-        setReady(true);
         const config = configRef.current;
-        syncInputs(rive, config.status, config.selected, config.hovered);
+        setReady(syncInputs(rive, config.status, config.selected, config.hovered));
       },
       onLoadError: () => setReady(false),
     });
@@ -101,7 +107,8 @@ export function RiveGameboardNode({
   }, []);
 
   useEffect(() => {
-    if (riveRef.current) syncInputs(riveRef.current, status, selected, hovered);
+    if (!riveRef.current) return;
+    setReady(syncInputs(riveRef.current, status, selected, hovered));
   }, [hovered, selected, status]);
 
   return (
