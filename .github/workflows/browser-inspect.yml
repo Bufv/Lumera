@@ -4,6 +4,7 @@ on:
   push:
     branches: [interface]
 
+# Temporary workflow used only to inspect the rendered pathway in a real browser.
 jobs:
   inspect:
     runs-on: ubuntu-latest
