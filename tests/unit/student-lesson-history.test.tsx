@@ -1,7 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/App';
-import { getMicroLesson } from '../../src/microlearning';
 import { createDefaultLearnerProfile, saveLearnerProfile } from '../../src/profile';
 import { DEMO_PROGRESS_STORAGE_KEY } from '../../src/progress/demoStore';
 
@@ -35,31 +34,60 @@ async function openFirstLesson() {
 }
 
 function finishFirstLesson() {
-  const lesson = getMicroLesson('aljabar-pola-yang-tumbuh')!;
-  const values = Object.fromEntries(
-    lesson.controls.map((control) => [control.key, control.defaultValue]),
-  );
-  const model = lesson.buildModel(values);
+  // Step 1: Observe
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
 
-  fireEvent.click(screen.getByRole('button', { name: 'Mulai bereksperimen' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Buat prediksi' }));
-  fireEvent.change(screen.getByLabelText('Prediksimu'), {
-    target: { value: String(lesson.predictionDefault) },
-  });
-  fireEvent.click(screen.getByRole('button', { name: 'Kunci prediksi' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Saya siap memeriksa' }));
-  fireEvent.change(screen.getByLabelText('Jawabanmu'), {
-    target: { value: String(lesson.expectedAnswer(model)) },
-  });
+  // Step 2: Shape -> Quantity
+  fireEvent.click(screen.getByRole('button', { name: 'Kelompok 1, ketuk untuk melihat jumlah' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Kelompok 2, ketuk untuk melihat jumlah' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Kelompok 3, ketuk untuk melihat jumlah' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+  // Step 3: Find what was added
+  fireEvent.click(screen.getByRole('button', { name: 'Pilih 2 balok tambahan pada Langkah 2' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Pilih 2 balok tambahan pada Langkah 3' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+  // Step 4: Describe the change
+  const chipPlus2 = screen.getByRole('button', { name: '+2' });
+  fireEvent.click(chipPlus2);
+  fireEvent.click(chipPlus2);
   fireEvent.click(screen.getByRole('button', { name: 'Periksa' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Kenapa begitu?' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Coba pada situasi baru' }));
-  fireEvent.change(screen.getByLabelText('Jawaban baru'), {
-    target: { value: String(lesson.expectedTransfer(model)) },
-  });
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+  // Step 5: Predict by building
+  const addCubeBtn = screen.getByRole('button', { name: 'Tambah 1 balok ke pola' });
+  fireEvent.click(addCubeBtn);
+  fireEvent.click(addCubeBtn);
   fireEvent.click(screen.getByRole('button', { name: 'Periksa' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Selesaikan pelajaran' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Lanjutkan' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+  // Step 6: Concrete -> Abstract
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+  // Step 7: Rule vs Coincidence
+  fireEvent.click(screen.getByRole('radio', { name: 'Setiap langkah bertambah 2.' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Periksa' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+  // Step 8: Transfer to new pattern
+  const addDiamondBtn = screen.getByRole('button', { name: /\+ Tambah wajik emas/i });
+  fireEvent.click(addDiamondBtn);
+  fireEvent.click(addDiamondBtn);
+  fireEvent.click(addDiamondBtn);
+  fireEvent.click(screen.getByRole('button', { name: 'Periksa' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+  // Step 9: Independent mastery
+  const addCircleBtn = screen.getByRole('button', { name: /\+ Tambah lingkaran/i });
+  fireEvent.click(addCircleBtn);
+  fireEvent.click(addCircleBtn);
+  fireEvent.click(addCircleBtn);
+  fireEvent.click(screen.getByRole('button', { name: 'Periksa' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+  // Step 10: Completion
+  fireEvent.click(screen.getByRole('button', { name: 'Lanjut ke 1.2 →' }));
 }
 
 beforeEach(async () => {

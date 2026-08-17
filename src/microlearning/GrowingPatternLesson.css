@@ -1,0 +1,1171 @@
+/* ============================================================
+   GrowingPatternLesson.css
+   Lumera Focus Mode Micro-Learning Lesson (1.1 Pola yang Tumbuh)
+   ============================================================ */
+
+.growing-pattern-lesson.focus-mode {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+  color: #0f172a;
+  user-select: none;
+  font-family: inherit;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ------------------------------------------------------------ Top Lesson Chrome */
+
+.focus-lesson-header {
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: #ffffff;
+  border-bottom: 1.5px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.focus-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.focus-close-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.focus-segmented-progress {
+  flex: 1;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 8px;
+}
+
+.focus-progress-segment {
+  flex: 1;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  transition: background 250ms ease, transform 200ms ease;
+}
+
+.focus-progress-segment--completed {
+  background: #6d5ce7;
+}
+
+.focus-progress-segment--active {
+  background: #6d5ce7;
+  transform: scaleY(1.3);
+  box-shadow: 0 0 8px rgba(109, 92, 231, 0.4);
+}
+
+.focus-step-indicator {
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  min-width: 42px;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------ Central Workspace */
+
+.focus-workspace-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px 100px;
+}
+
+.focus-workspace-card {
+  width: min(840px, 100%);
+  min-height: 480px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 28px;
+  box-shadow:
+    0 4px 0 0 #cbd5e1,
+    0 16px 36px rgba(15, 23, 42, 0.05);
+  padding: 44px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  transition: all 250ms ease;
+}
+
+.focus-step-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: focusPanelFadeIn 220ms ease-out forwards;
+}
+
+@keyframes focusPanelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------ Instructions */
+
+.focus-instruction-block {
+  margin-bottom: 36px;
+  max-width: 600px;
+}
+
+.focus-instruction-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px 0;
+  line-height: 1.25;
+}
+
+.focus-instruction-sub {
+  font-size: 14.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------ Pattern Groups & Row */
+
+.focus-pattern-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(6px, 1.4vw, 16px);
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 24px;
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+
+.focus-pattern-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1.5px solid transparent;
+  transition: all 180ms ease;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.focus-pattern-group:focus-visible {
+  outline: 2px solid #6d5ce7;
+  border-color: #8b7dec;
+}
+
+.focus-objects-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 38px;
+  flex-wrap: nowrap;
+}
+
+.focus-step-caption {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.focus-quantity-tag {
+  font-size: 15px;
+  font-weight: 800;
+  color: #6d5ce7;
+}
+
+/* ------------------------------------------------------------ 3D PNG Object Styles (Fluid Pop-In Micro-Animation) */
+
+@keyframes objectPopIn {
+  0% {
+    transform: scale(0.35) translateY(6px);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12) translateY(-2px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.lumera-25d-cube,
+.lumera-25d-diamond,
+.lumera-25d-circle {
+  animation: objectPopIn 180ms cubic-bezier(0.34, 1.35, 0.64, 1);
+  transition: transform 180ms cubic-bezier(0.34, 1.35, 0.64, 1);
+  display: inline-block;
+  vertical-align: middle;
+  filter: none;
+}
+
+.lumera-25d-cube:hover,
+.lumera-25d-diamond:hover,
+.lumera-25d-circle:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.lumera-25d-cube--highlight,
+.lumera-25d-diamond--highlight {
+  filter: brightness(1.15);
+}
+
+.lumera-25d-cube--dimmed,
+.lumera-25d-diamond--dimmed,
+.lumera-25d-circle--dimmed {
+  opacity: 0.35;
+  filter: none;
+}
+
+/* ------------------------------------------------------------ State 2: Quantity Reveal Buttons */
+
+@keyframes badgeReveal {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.22);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.focus-pattern-group-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 118px;
+  padding: 14px 18px;
+  border-radius: 20px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 2.5px 0 0 #cbd5e1;
+  cursor: pointer;
+  transition: all 180ms ease;
+  box-sizing: border-box;
+}
+
+.focus-pattern-group-btn:hover {
+  transform: translateY(-2px);
+  border-color: #8b7dec;
+  box-shadow: 0 4px 0 0 #5143c8, 0 8px 16px rgba(109, 92, 231, 0.12);
+}
+
+.focus-pattern-group-btn.is-revealed {
+  background: #ffffff;
+  border-color: #8b7dec;
+}
+
+.focus-quantity-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ede9fe;
+  color: #6d5ce7;
+  font-size: 14px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  transition: all 200ms ease;
+}
+
+.focus-pattern-group-btn.is-revealed .focus-quantity-badge {
+  background: #6d5ce7;
+  color: #ffffff;
+  animation: badgeReveal 220ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+/* ------------------------------------------------------------ State 3: Find Added Highlight */
+
+.focus-growth-cluster-btn {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: 8px;
+  border: 1.5px dashed #818cf8;
+  background: rgba(129, 140, 248, 0.08);
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.focus-growth-cluster-btn:hover,
+.focus-growth-cluster-btn.is-discovered {
+  background: rgba(109, 92, 231, 0.18);
+  border-style: solid;
+  border-color: #6d5ce7;
+  transform: scale(1.04);
+}
+
+.focus-transition-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 48px;
+}
+
+.focus-diff-badge {
+  padding: 4px 8px;
+  border-radius: 9999px;
+  background: #ede9fe;
+  color: #6d5ce7;
+  font-size: 12.5px;
+  font-weight: 800;
+  animation: focusPop 200ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+@keyframes focusPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ------------------------------------------------------------ State 4: Describe Change Sequence Chain */
+
+.focus-pattern-row--mini {
+  margin-bottom: 20px;
+  transform: scale(0.92);
+  transform-origin: center bottom;
+}
+
+.focus-sequence-chain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.focus-seq-num {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.focus-seq-arrow {
+  font-size: 20px;
+  color: #94a3b8;
+}
+
+.focus-chip-drop-slot {
+  width: 60px;
+  height: 44px;
+  border-radius: 14px;
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.focus-chip-drop-slot:not(.has-chip):hover {
+  border-color: #8b7dec;
+  background: #ede9fe;
+  transform: translateY(-2px);
+  transition: transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1), border-color 160ms ease, background-color 160ms ease;
+}
+
+.focus-chip-drop-slot.has-chip {
+  border: 1.5px solid #5b4cdb;
+  background: #6d5ce7;
+  color: #ffffff;
+  box-shadow: 0 3px 0 0 #5143c8, 0 6px 16px rgba(109, 92, 231, 0.25);
+  transition: none;
+  animation: chipSnapIn 140ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes chipSnapIn {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(0.95);
+  }
+  75% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.focus-chip-drop-slot.has-chip .focus-chip-val {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.focus-chip-ph {
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.focus-chips-tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.focus-selectable-chip {
+  padding: 10px 24px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 3px 0 0 #cbd5e1;
+  font-size: 16px;
+  font-weight: 800;
+  color: #6d5ce7;
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.focus-selectable-chip:hover {
+  transform: translateY(-2px);
+  border-color: #8b7dec;
+  box-shadow: 0 5px 0 0 #5143c8, 0 8px 18px rgba(109, 92, 231, 0.18);
+}
+
+.focus-selectable-chip:active {
+  transform: translateY(2px) scale(0.96);
+  box-shadow: 0 1px 0 0 #5143c8;
+}
+
+.focus-rule-statement {
+  margin-top: 14px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: #f5f3ff;
+  color: #6d5ce7;
+  font-size: 14.5px;
+  font-weight: 700;
+  animation: focusPanelFadeIn 200ms ease;
+}
+
+/* ------------------------------------------------------------ State 5, 8, 9: Manipulative Trays */
+
+.focus-target-build-group {
+  border: 2px dashed #8b7dec;
+  background: rgba(237, 233, 254, 0.4);
+}
+
+.focus-empty-cube-slot,
+.focus-empty-diamond-slot,
+.focus-empty-circle-slot {
+  width: 28px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1.5px dashed #a5b4fc;
+  background: rgba(199, 210, 254, 0.2);
+}
+
+@keyframes newObjSpring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(0.94);
+  }
+  75% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.focus-added-pop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: newObjSpring 140ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.focus-manipulative-tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.focus-tray-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 3px 0 0 #cbd5e1;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.focus-tray-action-btn img {
+  transition: transform 180ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.focus-tray-action-btn:hover {
+  transform: translateY(-2px);
+  border-color: #8b7dec;
+  box-shadow: 0 4px 0 0 #5143c8, 0 6px 14px rgba(109, 92, 231, 0.15);
+}
+
+.focus-tray-action-btn:hover img {
+  transform: scale(1.18) rotate(-4deg);
+}
+
+.focus-tray-action-btn:active {
+  transform: translateY(2px) scale(0.97);
+  box-shadow: 0 1px 0 0 #5143c8;
+}
+
+.focus-tray-action-btn:active img {
+  transform: scale(0.92) rotate(3deg);
+}
+
+.focus-tray-action-btn--gold:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 4px 0 0 #b45309, 0 6px 14px rgba(245, 158, 11, 0.18);
+}
+
+.focus-tray-action-btn--gold:active {
+  transform: translateY(2px) scale(0.97);
+  box-shadow: 0 1px 0 0 #b45309;
+}
+
+.focus-tray-action-btn--emerald:hover {
+  border-color: #10b981;
+  box-shadow: 0 4px 0 0 #059669, 0 6px 14px rgba(16, 185, 129, 0.18);
+}
+
+.focus-tray-action-btn--emerald:active {
+  transform: translateY(2px) scale(0.97);
+  box-shadow: 0 1px 0 0 #059669;
+}
+
+.focus-tray-action-btn--remove {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.focus-tray-action-btn--remove:hover {
+  border-color: #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 4px 0 0 #94a3b8;
+}
+
+.focus-tray-action-btn--remove:active {
+  transform: translateY(2px) scale(0.97);
+  box-shadow: 0 1px 0 0 #94a3b8;
+}
+
+.focus-relation-callout {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.focus-relation-callout strong {
+  font-size: 20px;
+  color: #6d5ce7;
+}
+
+.focus-seq-sub {
+  font-size: 13.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------ State 6: Abstract Compression Stage */
+
+.focus-abstract-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.focus-abstract-cubes-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.focus-abstract-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.focus-abstract-arrow {
+  font-size: 16px;
+  color: #94a3b8;
+}
+
+.focus-abstract-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.focus-abstract-bridge {
+  font-size: 13px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: #ede9fe;
+  color: #6d5ce7;
+}
+
+/* ------------------------------------------------------------ State 7: Choice Cards */
+
+.focus-choices-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(440px, 100%);
+  margin-bottom: 16px;
+}
+
+.focus-choice-card {
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 2.5px 0 0 #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  text-align: left;
+  transition: all 160ms ease;
+}
+
+.focus-choice-card:hover {
+  transform: translateY(-2px);
+  border-color: #8b7dec;
+  box-shadow: 0 4px 0 0 #5143c8;
+}
+
+.focus-choice-card.is-selected {
+  border-color: #6d5ce7;
+  background: #f5f3ff;
+  box-shadow: 0 3px 0 0 #5143c8, 0 6px 14px rgba(109, 92, 231, 0.12);
+}
+
+.focus-choice-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #6d5ce7;
+  color: #ffffff;
+  font-size: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.focus-choice-feedback {
+  max-width: 440px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #475569;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+/* ------------------------------------------------------------ State 10: Completion (Premium Lumera Styling) */
+
+.focus-step-complete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+.focus-complete-emblem-wrap {
+  position: relative;
+  margin-bottom: 4px;
+}
+
+.focus-complete-emblem {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  border: 3px solid #ffffff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 25px rgba(109, 92, 231, 0.22), 0 2px 6px rgba(0, 0, 0, 0.06);
+  animation: emblemFloat 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes emblemFloat {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-4px) scale(1.04); }
+}
+
+.focus-complete-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.focus-complete-sub {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0 0 6px 0;
+}
+
+.focus-reward-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #b45309;
+  font-size: 13.5px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.12);
+}
+
+.focus-reward-sparkle {
+  color: #f59e0b;
+  font-size: 14px;
+}
+
+.focus-pillars-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.focus-pillar-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+  transition: transform 160ms ease, border-color 160ms ease;
+  text-align: left;
+}
+
+.focus-pillar-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+}
+
+.focus-pillar-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.focus-pillar-card--observe .focus-pillar-icon-box {
+  background: #ede9fe;
+}
+
+.focus-pillar-card--predict .focus-pillar-icon-box {
+  background: #fef3c7;
+}
+
+.focus-pillar-card--prove .focus-pillar-icon-box {
+  background: #d1fae5;
+}
+
+.focus-pillar-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.focus-pillar-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.focus-pillar-text strong {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.focus-pillar-arrow {
+  font-size: 16px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.focus-complete-takeaway-box {
+  max-width: 520px;
+  padding: 12px 20px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+}
+
+.focus-complete-takeaway {
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+  color: #475569;
+  margin: 0;
+}
+
+.focus-complete-cta-wrap {
+  width: 100%;
+  max-width: 280px;
+}
+
+.focus-complete-main-cta {
+  width: 100%;
+  padding: 14px 28px;
+  font-size: 16px;
+  border-radius: 16px;
+}
+
+/* ------------------------------------------------------------ Error Notice */
+
+.focus-error-banner {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+  animation: focusPop 180ms ease;
+}
+
+/* ------------------------------------------------------------ Hint Drawer */
+
+.focus-hint-drawer {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(540px, calc(100% - 32px));
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+  padding: 18px 22px;
+  z-index: 50;
+  animation: focusPanelFadeIn 180ms ease;
+}
+
+.focus-hint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.focus-hint-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #d97706;
+}
+
+.focus-hint-close-btn {
+  background: none;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 150ms ease;
+}
+
+.focus-hint-close-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.focus-hint-text {
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.45;
+  margin: 0 0 10px 0;
+}
+
+.focus-hint-next-btn {
+  background: none;
+  border: none;
+  color: #6d5ce7;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ------------------------------------------------------------ Stable Bottom Action Bar */
+
+.focus-lesson-footer {
+  height: 80px;
+  padding: 0 24px;
+  background: #ffffff;
+  border-top: 1.5px solid #e2e8f0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.focus-footer-inner {
+  width: min(840px, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.focus-hint-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  color: #64748b;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.focus-hint-trigger-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.focus-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.focus-primary-btn--ready {
+  background: linear-gradient(180deg, #fb923c 0%, #f97316 100%);
+  color: #ffffff;
+  box-shadow:
+    0 4px 0 0 #c2410c,
+    0 8px 18px rgba(249, 115, 22, 0.28);
+}
+
+.focus-primary-btn--ready:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 0 0 #c2410c,
+    0 12px 24px rgba(249, 115, 22, 0.35);
+}
+
+.focus-primary-btn--ready:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 #c2410c;
+}
+
+.focus-primary-btn--disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ------------------------------------------------------------ Flying Trajectory Flight Engine */
+
+.focus-flight-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 100;
+}
+
+.flying-particle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: trajectoryFlight 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes trajectoryFlight {
+  0% {
+    transform: translate(var(--start-x), var(--start-y)) translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--target-x), var(--target-y)) translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.flying-particle--chip {
+  width: 60px;
+  height: 44px;
+  border-radius: 14px;
+  background: #6d5ce7;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  border: 1.5px solid #5b4cdb;
+  box-shadow: 0 3px 0 0 #5143c8, 0 8px 18px rgba(109, 92, 231, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.flying-chip-label {
+  display: inline-block;
+  font-weight: 800;
+}
+
+/* ------------------------------------------------------------ Mobile Responsiveness */
+
+@media (max-width: 640px) {
+  .focus-workspace-card {
+    padding: 28px 18px;
+    min-height: auto;
+    border-radius: 20px;
+  }
+
+  .focus-pattern-row {
+    gap: 14px;
+  }
+
+  .focus-pattern-group {
+    padding: 10px 12px;
+  }
+
+  .focus-instruction-title {
+    font-size: 20px;
+  }
+
+  .focus-pillars-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .focus-pillar-arrow {
+    display: none;
+  }
+}

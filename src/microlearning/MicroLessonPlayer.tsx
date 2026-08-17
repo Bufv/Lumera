@@ -1,5 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
-import { AlgebraBalanceLesson } from './AlgebraBalanceLesson';
+import { FromBoxToXLesson } from './FromBoxToXLesson';
+import { GrowingPatternLesson } from './GrowingPatternLesson';
+import { PatternRuleLesson } from './PatternRuleLesson';
 import { getMicroLesson } from './lessons';
 import {
   formatNumber,
@@ -612,9 +614,33 @@ function clampIndex(index: number): number {
 export function MicroLessonPlayer(props: MicroLessonPlayerProps) {
   const lesson = getMicroLesson(props.lessonId);
   if (!lesson) return <UnknownLesson onExit={props.onExit} />;
+  if (lesson.id === 'aljabar-pola-yang-tumbuh') {
+    return (
+      <GrowingPatternLesson
+        key={lesson.id}
+        lesson={lesson}
+        lumens={props.lumens}
+        reducedMotion={props.reducedMotion}
+        onExit={props.onExit}
+        onComplete={props.onComplete}
+      />
+    );
+  }
+  if (lesson.id === 'aljabar-aturan-di-balik-pola') {
+    return (
+      <PatternRuleLesson
+        key={lesson.id}
+        lesson={lesson}
+        lumens={props.lumens}
+        reducedMotion={props.reducedMotion}
+        onExit={props.onExit}
+        onComplete={props.onComplete}
+      />
+    );
+  }
   if (lesson.id === 'aljabar-dari-kotak-ke-x') {
     return (
-      <AlgebraBalanceLesson
+      <FromBoxToXLesson
         key={lesson.id}
         lesson={lesson}
         lumens={props.lumens}

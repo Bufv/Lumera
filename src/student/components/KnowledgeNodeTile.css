@@ -93,58 +93,80 @@
     filter 120ms ease;
 }
 
-/* ------------------------------------------------------------ Direct 3D Aligned Chromatic Selection Glow */
+/* ------------------------------------------------------------ Precision 3D Contour-Following Border-Beam Glow */
 
-/* 1. Ambient Chromatic Aura (100% matched to 3D tilt) */
-.knowledge-node-item[data-selected='true'] .knowledge-tile-top::before {
+@property --glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.knowledge-tile-ambient-glow {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 22px;
+  padding: 5.5px;
+  background: conic-gradient(
+    from var(--glow-angle, 0deg) at 50% 50%,
+    #6366f1 0deg,
+    #8b5cf6 70deg,
+    #a855f7 140deg,
+    #f1f5f9 210deg,
+    #06b6d4 280deg,
+    #6366f1 360deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  filter: blur(7px) drop-shadow(0 0 10px rgba(109, 92, 231, 0.45));
+  opacity: 0;
+  transform: translateY(0) rotateX(25deg);
+  transform-origin: center center;
+  z-index: 1;
+  pointer-events: none;
+  transition:
+    opacity 250ms ease,
+    transform 120ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    filter 250ms ease;
+}
+
+/* 3D Chassis Depth Underglow */
+.knowledge-tile-ambient-glow::after {
   content: '';
   position: absolute;
-  inset: -4px;
+  inset: -1px;
+  top: 4px;
   border-radius: 22px;
   background: conic-gradient(
-    from 0deg,
-    #ff5e00 0deg,
-    #ffbe0b 55deg,
-    #10b981 115deg,
-    #06b6d4 175deg,
-    #6366f1 235deg,
-    #d946ef 295deg,
-    #ff5e00 360deg
+    from var(--glow-angle, 0deg) at 50% 50%,
+    rgba(99, 102, 241, 0.6) 0deg,
+    rgba(139, 92, 246, 0.6) 70deg,
+    rgba(168, 85, 247, 0.6) 140deg,
+    rgba(241, 245, 249, 0.7) 210deg,
+    rgba(6, 182, 212, 0.6) 280deg,
+    rgba(99, 102, 241, 0.6) 360deg
   );
-  filter: blur(5px);
+  filter: blur(9px);
+  z-index: -1;
   opacity: 0.85;
-  z-index: -1;
-  animation: chromaticBeamSpin 2.8s linear infinite;
   pointer-events: none;
 }
 
-/* 2. Razor-Sharp 2px Chromatic Border (100% matched to 3D tilt) */
-.knowledge-node-item[data-selected='true'] .knowledge-tile-top::after {
-  content: '';
-  position: absolute;
-  inset: -2.5px;
-  border-radius: 20.5px;
-  background: conic-gradient(
-    from 0deg,
-    #ff5e00 0deg,
-    #ffbe0b 55deg,
-    #10b981 115deg,
-    #06b6d4 175deg,
-    #6366f1 235deg,
-    #d946ef 295deg,
-    #ff5e00 360deg
-  );
-  z-index: -1;
-  animation: chromaticBeamSpin 2.8s linear infinite;
-  pointer-events: none;
+.knowledge-node-item[data-selected='true'] .knowledge-tile-ambient-glow {
+  opacity: 1;
+  transform: translateY(5px) rotateX(25deg);
+  animation: contourGlowFlow 4s linear infinite;
 }
 
-@keyframes chromaticBeamSpin {
+@keyframes contourGlowFlow {
   0% {
-    transform: rotate(0deg);
+    --glow-angle: 0deg;
   }
   100% {
-    transform: rotate(360deg);
+    --glow-angle: 360deg;
   }
 }
 

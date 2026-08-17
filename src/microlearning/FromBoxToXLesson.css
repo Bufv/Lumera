@@ -1,0 +1,1043 @@
+/**
+ * FromBoxToXLesson.css
+ * Standardized Focus Mode Layout & Algebraic Visual System for Lumera Lesson 1.3: Dari Kotak ke x
+ */
+
+/* ------------------------------------------------------------ Focus Mode Screen Root */
+
+.from-box-to-x-lesson.focus-mode {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+  color: #0f172a;
+  user-select: none;
+  font-family: inherit;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ------------------------------------------------------------ Top Lesson Chrome (Sticky 64px) */
+
+.focus-lesson-header {
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: #ffffff;
+  border-bottom: 1.5px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-sizing: border-box;
+}
+
+.focus-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+  padding: 0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.focus-close-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+  transform: scale(1.05);
+}
+
+.focus-close-btn:active {
+  transform: scale(0.95);
+  background: #e2e8f0;
+}
+
+.focus-close-btn:focus-visible {
+  outline: 2px solid #6d5ce7;
+  outline-offset: 2px;
+}
+
+.focus-segmented-progress {
+  flex: 1;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 8px;
+}
+
+.focus-progress-segment {
+  flex: 1;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  transition: background 250ms ease, transform 200ms ease;
+}
+
+.focus-progress-segment--completed {
+  background: #6d5ce7;
+}
+
+.focus-progress-segment--active {
+  background: #6d5ce7;
+  transform: scaleY(1.3);
+  box-shadow: 0 0 8px rgba(109, 92, 231, 0.4);
+}
+
+.focus-step-indicator {
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  min-width: 42px;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------ Central Workspace Container & Card */
+
+.focus-workspace-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px 110px;
+  box-sizing: border-box;
+}
+
+.focus-workspace-card {
+  width: min(840px, 100%);
+  min-height: 480px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 28px;
+  box-shadow:
+    0 4px 0 0 #cbd5e1,
+    0 16px 36px rgba(15, 23, 42, 0.05);
+  padding: 40px 36px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  transition: all 250ms ease;
+}
+
+.focus-step-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: focusPanelFadeIn 220ms ease-out forwards;
+}
+
+@keyframes focusPanelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------ Instructions */
+
+.focus-instruction-block {
+  margin-bottom: 28px;
+  max-width: 620px;
+  text-align: center;
+}
+
+.focus-instruction-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px 0;
+  line-height: 1.25;
+}
+
+.focus-instruction-sub {
+  font-size: 14.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------ 3D Rendered Primitives (Zero Drop Shadow) */
+
+.lumera-3d-notebook-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.lumera-3d-notebook-wrap:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.lumera-3d-notebook-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.08));
+}
+
+.lumera-3d-notebook-badge {
+  position: absolute;
+  top: 48%;
+  left: 54%;
+  transform: translate(-50%, -50%);
+  background: #fef08a;
+  color: #854d0e;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid #facc15;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  font-family: inherit;
+}
+
+.lumera-3d-coin-img {
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 3px 8px rgba(217, 119, 6, 0.18));
+  transition: transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.lumera-3d-coin-img:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.lumera-3d-box-img {
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 10px rgba(109, 92, 231, 0.14));
+  transition: transform 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.lumera-3d-box-img:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* ------------------------------------------------------------ Step 1: Scrubber Scene */
+
+.focus-desk-scene {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  max-width: 520px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.focus-desk-item-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.focus-desk-receipt {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 18px;
+  min-width: 190px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.focus-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+
+.focus-receipt-row strong {
+  color: #0f172a;
+}
+
+.focus-receipt-row--total {
+  border-top: 1.5px dashed #cbd5e1;
+  padding-top: 8px;
+  margin-top: 8px;
+  margin-bottom: 0;
+  font-weight: 800;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.focus-stepper-control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.focus-stepper-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 800;
+  box-shadow: 0 3px 0 0 #cbd5e1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 140ms ease;
+}
+
+.focus-stepper-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  box-shadow: 0 3px 0 0 #94a3b8;
+}
+
+.focus-stepper-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #94a3b8;
+}
+
+.focus-stepper-btn:disabled {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #cbd5e1;
+  box-shadow: 0 2px 0 0 #e2e8f0;
+  cursor: not-allowed;
+}
+
+.focus-stepper-value {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  min-width: 120px;
+  height: 44px;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------ Conceptual Choice Buttons */
+
+.focus-conceptual-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 440px;
+}
+
+.focus-choice-btn {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 20px;
+  border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 3px 0 0 #e2e8f0;
+  color: #0f172a;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  transition: all 140ms ease;
+  box-sizing: border-box;
+}
+
+.focus-choice-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  box-shadow: 0 3px 0 0 #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.focus-choice-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #cbd5e1;
+}
+
+.focus-choice-btn.is-selected {
+  border-color: #6d5ce7;
+  background: #f5f3ff;
+  color: #6d5ce7;
+  box-shadow: 0 3px 0 0 #8b7dec;
+}
+
+/* ------------------------------------------------------------ Math Equation Badges & Typography */
+
+.focus-equation-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 16px 0 28px;
+  font-family: inherit;
+}
+
+.focus-box-placeholder {
+  width: 48px;
+  height: 48px;
+  border: 2px dashed #6d5ce7;
+  border-radius: 12px;
+  background: #f5f3ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6d5ce7;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.focus-math-var {
+  color: #6d5ce7;
+  font-style: italic;
+  font-weight: 800;
+}
+
+.focus-morph-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.focus-morph-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.focus-morph-arrow {
+  color: #6d5ce7;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.focus-solution-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  background: #ecfdf5;
+  border: 1.5px solid #a7f3d0;
+  color: #065f46;
+  font-weight: 800;
+  font-size: 15px;
+  margin-top: 8px;
+}
+
+/* ------------------------------------------------------------ Sliders */
+
+.focus-slider-panel {
+  width: 100%;
+  max-width: 460px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.focus-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.focus-slider-val-badge {
+  background: #6d5ce7;
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 14px;
+  box-shadow: 0 2px 0 0 #5143c8;
+}
+
+.focus-native-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  outline: none;
+  accent-color: #6d5ce7;
+  cursor: pointer;
+  margin: 10px 0 16px;
+}
+
+.focus-live-calc-callout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  padding: 12px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+/* ------------------------------------------------------------ Step 5: Compression Chain */
+
+.focus-notebooks-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.focus-compression-chain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #64748b;
+}
+
+.focus-compression-step {
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  color: #0f172a;
+  transition: all 160ms ease;
+}
+
+.focus-compression-step.is-highlighted {
+  border-color: #6d5ce7;
+  background: #f5f3ff;
+  color: #6d5ce7;
+  box-shadow: 0 3px 0 0 #8b7dec;
+}
+
+/* ------------------------------------------------------------ Step 7: Inspectable Tokens */
+
+.focus-large-expression {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 44px;
+  font-weight: 800;
+  margin-bottom: 24px;
+}
+
+.focus-token-inspect-btn {
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-size: inherit;
+  font-weight: inherit;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.focus-token-inspect-btn:hover {
+  background: #f8fafc;
+  border-color: #6d5ce7;
+  transform: translateY(-2px);
+}
+
+.focus-token-inspect-btn.is-inspected {
+  border-style: solid;
+  border-color: #6d5ce7;
+  background: #f5f3ff;
+  color: #6d5ce7;
+  box-shadow: 0 3px 0 0 #8b7dec;
+}
+
+.focus-inspect-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 16px;
+}
+
+.focus-inspect-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 12px;
+  text-align: center;
+  opacity: 0.45;
+  transition: all 200ms ease;
+}
+
+.focus-inspect-card.is-revealed {
+  opacity: 1;
+  background: #ffffff;
+  border-color: #6d5ce7;
+  box-shadow: 0 3px 0 0 #8b7dec, 0 6px 16px rgba(109, 92, 231, 0.08);
+}
+
+.focus-inspect-card-header {
+  font-size: 12px;
+  font-weight: 800;
+  color: #6d5ce7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.focus-inspect-card-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.focus-inspect-card-desc {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+/* ------------------------------------------------------------ Step 8: Action Tray & Reconstruction */
+
+.focus-build-staging-area {
+  min-height: 100px;
+  width: 100%;
+  max-width: 580px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 20px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.focus-manipulative-tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.focus-tray-action-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.focus-tray-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 140ms cubic-bezier(0.34, 1.35, 0.64, 1);
+  user-select: none;
+}
+
+.focus-tray-action-btn--add {
+  border: 1.5px solid #6d5ce7;
+  background: #f5f3ff;
+  color: #6d5ce7;
+  box-shadow: 0 3px 0 0 #8b7dec;
+}
+
+.focus-tray-action-btn--add:hover:not(:disabled) {
+  background: #ede9fe;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 0 #8b7dec;
+}
+
+.focus-tray-action-btn--add:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #8b7dec;
+}
+
+.focus-tray-action-btn--add:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 0 0 #cbd5e1;
+  cursor: not-allowed;
+}
+
+.focus-tray-action-btn--remove {
+  border: 1.5px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+  box-shadow: 0 3px 0 0 #fca5a5;
+}
+
+.focus-tray-action-btn--remove:hover {
+  background: #fee2e2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 0 #fca5a5;
+}
+
+.focus-tray-action-btn--remove:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #fca5a5;
+}
+
+.focus-tray-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 140ms ease;
+  box-shadow: 0 2px 0 0 #e2e8f0;
+}
+
+.focus-tray-reset-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.focus-tray-reset-btn:active {
+  transform: translateY(1px);
+}
+
+/* ------------------------------------------------------------ Error Alert */
+
+.focus-feedback-alert {
+  margin-top: 16px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+  color: #991b1b;
+  font-size: 13.5px;
+  font-weight: 700;
+  animation: focusPanelFadeIn 160ms ease-out;
+}
+
+/* ------------------------------------------------------------ Completion Card */
+
+.focus-completion-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 520px;
+}
+
+.focus-completion-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #ecfdf5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+}
+
+.focus-summary-pills {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.focus-summary-pill {
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+/* ------------------------------------------------------------ Stable Bottom Action Bar (Fixed 80px) */
+
+.focus-lesson-footer {
+  height: 80px;
+  padding: 0 24px;
+  background: #ffffff;
+  border-top: 1.5px solid #e2e8f0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.focus-footer-inner {
+  width: min(840px, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.focus-hint-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  color: #64748b;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.focus-hint-trigger-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.focus-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.focus-primary-btn--ready {
+  background: #6d5ce7;
+  color: #ffffff;
+  box-shadow:
+    0 4px 0 0 #5143c8,
+    0 8px 20px rgba(109, 92, 231, 0.3);
+}
+
+.focus-primary-btn--ready:hover {
+  transform: translateY(-2px);
+  background: #7c6df0;
+  box-shadow:
+    0 5px 0 0 #5143c8,
+    0 12px 24px rgba(109, 92, 231, 0.4);
+}
+
+.focus-primary-btn--ready:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #5143c8;
+}
+
+.focus-primary-btn--disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: 0 4px 0 0 #cbd5e1;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------ Progressive Hint Drawer */
+
+.focus-hint-drawer {
+  position: fixed;
+  bottom: 96px;
+  right: 24px;
+  width: 320px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  padding: 18px 20px;
+  z-index: 50;
+  animation: focusPanelFadeIn 160ms ease-out;
+  box-sizing: border-box;
+}
+
+.focus-hint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.focus-hint-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #6d5ce7;
+}
+
+.focus-hint-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  border-radius: 6px;
+}
+
+.focus-hint-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.focus-hint-content {
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ------------------------------------------------------------ Trajectory Flight Overlay */
+
+.focus-flight-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 100;
+}
+
+.flying-particle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: trajectoryFlight 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes trajectoryFlight {
+  0% {
+    transform: translate(var(--start-x), var(--start-y)) translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--target-x), var(--target-y)) translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------ Mobile Responsiveness */
+
+@media (max-width: 640px) {
+  .focus-workspace-container {
+    padding: 16px 12px 96px;
+  }
+
+  .focus-workspace-card {
+    padding: 28px 18px;
+    min-height: auto;
+    border-radius: 20px;
+  }
+
+  .focus-instruction-title {
+    font-size: 20px;
+  }
+
+  .focus-desk-scene {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .focus-inspect-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-large-expression {
+    font-size: 32px;
+  }
+
+  .focus-hint-drawer {
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
+}

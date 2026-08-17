@@ -12,6 +12,8 @@ export interface KnowledgeNodeTileProps {
   conceptSymbol?: ReactNode;
   popup?: ReactNode;
   onClick?: () => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLButtonElement>) => void;
+  buttonRef?: React.Ref<HTMLButtonElement>;
   disabled?: boolean;
 }
 
@@ -24,6 +26,8 @@ export function KnowledgeNodeTile({
   conceptSymbol,
   popup,
   onClick,
+  onKeyDown,
+  buttonRef,
   disabled = false,
 }: KnowledgeNodeTileProps) {
   const isCompleted = type === 'completed';
@@ -43,6 +47,7 @@ export function KnowledgeNodeTile({
           : undefined;
 
   const displaySubtitle = subtitle ?? defaultSubtitle;
+  const ariaLabelText = `${number ? `${number} ` : ''}${title}${displaySubtitle ? `, ${displaySubtitle}` : ''}`;
 
   return (
     <div
@@ -51,22 +56,27 @@ export function KnowledgeNodeTile({
       data-selected={selected}
     >
       <button
+        ref={buttonRef}
         type="button"
         className="knowledge-node-button"
         onClick={onClick}
-        disabled={disabled || isLocked}
+        onKeyDown={onKeyDown}
+        disabled={disabled}
         aria-expanded={selected}
-        aria-label={`${number ? `Pelajaran ${number}: ` : ''}${title}, ${type}`}
+        aria-label={ariaLabelText}
       >
         {/* 3D Isometric Raised Knowledge Token */}
         <div className="knowledge-tile-3d">
+          {/* Multi-Color Ambient Glow radiating from behind with smooth enter/exit */}
+          <span className="knowledge-tile-ambient-glow" aria-hidden="true" />
+
           {/* Subtle Ambient Shadow */}
           <div className="knowledge-tile-shadow" />
 
           {/* 3D Extrusion Side Depth */}
           <div className="knowledge-tile-side" />
 
-          {/* Top Surface Plateau (Directly hosts the 3D matching chromatic selection beam) */}
+          {/* Top Surface Plateau */}
           <div className="knowledge-tile-top">
             {/* Active Aura / Sparkle for Current Node */}
             {isCurrent && !selected && (

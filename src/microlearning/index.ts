@@ -1,4 +1,9 @@
 export { MicroLessonPlayer } from './MicroLessonPlayer';
+export { GrowingPatternLesson } from './GrowingPatternLesson';
+export { PatternRuleLesson } from './PatternRuleLesson';
+export { FromBoxToXLesson } from './FromBoxToXLesson';
+export { FocusLessonShell } from './FocusLessonShell';
+export type { FocusLessonShellProps } from './FocusLessonShell';
 export { getMicroLesson, MICRO_LESSONS } from './lessons';
 export {
   formatNumber,
