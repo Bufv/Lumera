@@ -38,7 +38,7 @@ export function Notebook3D({
       aria-label={`Buku tulis bertag ${label}`}
     >
       <img
-        src="/assets/math_notebook_3d.jpg"
+        src="/assets/math_notebook_3d_trans.png"
         alt={`Buku tulis bertag ${label}`}
         className="lumera-3d-notebook-img"
         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
@@ -58,7 +58,7 @@ export function UnitCoin3D({
 }) {
   return (
     <img
-      src="/assets/math_coin_unit_3d.jpg"
+      src="/assets/math_coin_unit_3d_trans.png"
       alt="Koin unit bernilai 1"
       className={`lumera-3d-coin-img ${dimmed ? 'is-dimmed' : ''}`}
       style={{ width: `${size}px`, height: `${size}px`, objectFit: 'contain' }}
@@ -76,7 +76,7 @@ export function MysteryBox3D({
 }) {
   return (
     <img
-      src="/assets/math_mystery_box_3d.jpg"
+      src="/assets/math_mystery_box_3d_trans.png"
       alt="Kotak nilai belum diketahui"
       className={`lumera-3d-box-img ${dimmed ? 'is-dimmed' : ''}`}
       style={{ width: `${size}px`, height: `${size}px`, objectFit: 'contain' }}
