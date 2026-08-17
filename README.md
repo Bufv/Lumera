@@ -515,6 +515,7 @@ Aturan teknis utama:
 
 ## Lisensi
 
-Repositori ini belum menyertakan file `LICENSE`. Jangan mengasumsikan bahwa source code atau aset
-boleh digunakan, disalin, atau didistribusikan ulang secara publik sebelum pemilik proyek
-menetapkan lisensinya.
+Proyek ini bersifat **proprietary (All Rights Reserved)** — lihat file [`LICENSE`](LICENSE).
+Seluruh source code, aset, ilustrasi, dan dokumentasi adalah hak milik Tim Jejametans. Tidak ada
+izin untuk menggunakan, menyalin, memodifikasi, atau mendistribusikan ulang tanpa izin tertulis
+dari pemilik hak cipta.
