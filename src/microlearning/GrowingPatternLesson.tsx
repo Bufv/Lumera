@@ -94,6 +94,7 @@ export function GrowingPatternLesson({
 }: GrowingPatternLessonProps) {
   // Current Step: 1 to 9 (pedagogical states) and 10 (completion)
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [maxUnlockedStep, setMaxUnlockedStep] = useState<number>(1);
   const [hintsVisible, setHintsVisible] = useState<boolean>(false);
   const [hintTier, setHintTier] = useState<number>(1);
   const [mistakesCount, setMistakesCount] = useState<number>(0);
@@ -157,19 +158,13 @@ export function GrowingPatternLesson({
       return;
     }
 
-    const targetEl =
-      (cardRef.current.querySelector(targetSelector) as HTMLElement | null) ||
-      (cardRef.current.querySelector('.focus-target-build-group .focus-objects-cluster') as HTMLElement | null);
-    const targetRect = targetEl?.getBoundingClientRect();
+    const targetEl = cardRef.current.querySelector(targetSelector);
+    const targetRect = targetEl ? targetEl.getBoundingClientRect() : cardRect;
 
-    const startX = originRect.left - cardRect.left + originRect.width / 2;
-    const startY = originRect.top - cardRect.top + originRect.height / 2;
-    const targetX = targetRect
-      ? targetRect.left - cardRect.left + targetRect.width / 2
-      : startX;
-    const targetY = targetRect
-      ? targetRect.top - cardRect.top + targetRect.height / 2
-      : startY - 120;
+    const startX = originRect.left + originRect.width / 2 - cardRect.left;
+    const startY = originRect.top + originRect.height / 2 - cardRect.top;
+    const targetX = targetRect.left + targetRect.width / 2 - cardRect.left;
+    const targetY = targetRect.top + targetRect.height / 2 - cardRect.top;
 
     const id = Date.now() + Math.random();
     setFlyingParticles((prev) => [
@@ -187,12 +182,16 @@ export function GrowingPatternLesson({
 
   // Reset verification on step change
   useEffect(() => {
-    setStepValidated(false);
+    if (currentStep < maxUnlockedStep) {
+      setStepValidated(true);
+    } else {
+      setStepValidated(false);
+    }
     setErrorMessage(null);
     setHintsVisible(false);
     setHintTier(1);
     setFlyingParticles([]);
-  }, [currentStep]);
+  }, [currentStep, maxUnlockedStep]);
 
   // Step 2 helper: auto-validate when all 3 counts revealed
   const handleRevealCount = (index: number) => {
@@ -387,10 +386,17 @@ export function GrowingPatternLesson({
   // Next step navigation
   const handleNextStep = () => {
     if (currentStep < 9) {
-      setCurrentStep((s) => s + 1);
+      const next = currentStep + 1;
+      setCurrentStep(next);
+      setMaxUnlockedStep((m) => Math.max(m, next));
     } else if (currentStep === 9) {
       setCurrentStep(10); // Completion
+      setMaxUnlockedStep(10);
     }
+  };
+
+  const handleStepSelect = (step: number) => {
+    setCurrentStep(step);
   };
 
   // Final complete handler
@@ -440,6 +446,8 @@ export function GrowingPatternLesson({
     }
   };
 
+  const highestUnlocked = Math.max(currentStep, maxUnlockedStep);
+
   return (
     <main
       className="growing-pattern-lesson focus-mode"
@@ -458,21 +466,50 @@ export function GrowingPatternLesson({
         </button>
 
         {/* 9-Segmented Progress Indicator */}
+        <div className="focus-segmented-progress" aria-label="Navigasi langkah pelajaran">
+          {Array.from({ length: 9 }).map((_, idx) => {
+            const stepNum = idx + 1;
+            const isCompleted = stepNum < currentStep;
+            const isActive = stepNum === currentStep;
+            const isUnlocked = stepNum <= highestUnlocked;
+
+            return (
+              <button
+                key={idx}
+                type="button"
+                className={`focus-progress-segment ${
+                  isActive
+                    ? 'focus-progress-segment--active'
+                    : isCompleted
+                      ? 'focus-progress-segment--completed'
+                      : ''
+                } ${isUnlocked ? 'focus-progress-segment--clickable' : ''}`}
+                disabled={!isUnlocked}
+                onClick={() => {
+                  if (isUnlocked) {
+                    handleStepSelect(stepNum);
+                  }
+                }}
+                aria-label={
+                  isActive
+                    ? `Langkah ${stepNum} (sedang aktif)`
+                    : isUnlocked
+                      ? `Buka langkah ${stepNum}`
+                      : `Langkah ${stepNum} (terkunci)`
+                }
+              />
+            );
+          })}
+        </div>
+
         <div
-          className="focus-segmented-progress"
           role="progressbar"
           aria-label={`Langkah ${Math.min(9, currentStep)} dari 9`}
           aria-valuenow={Math.min(9, currentStep)}
           aria-valuemin={1}
           aria-valuemax={9}
-        >
-          {Array.from({ length: 9 }).map((_, idx) => (
-            <span
-              key={idx}
-              className={`focus-progress-segment ${idx + 1 < currentStep ? 'focus-progress-segment--completed' : idx + 1 === currentStep ? 'focus-progress-segment--active' : ''}`}
-            />
-          ))}
-        </div>
+          style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}
+        />
 
         <div className="focus-step-indicator">
           {currentStep <= 9 ? `${currentStep} / 9` : '✓'}

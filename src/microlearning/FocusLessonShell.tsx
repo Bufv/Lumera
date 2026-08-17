@@ -6,6 +6,8 @@ export interface FocusLessonShellProps {
   lessonId: string;
   currentStep: number;
   totalSteps?: number;
+  maxUnlockedStep?: number;
+  onStepSelect?: (step: number) => void;
   title?: string;
   onExit?: () => void;
   hintsVisible?: boolean;
@@ -25,12 +27,14 @@ export interface FocusLessonShellProps {
 /**
  * FocusLessonShell:
  * Komponen shell standar terpadu untuk seluruh microlearning mode fokus Lumera (1.1, 1.2, 1.3, dst).
- * Menjamin keseragaman header 64px, bilah progres segmen, kartu workspace 28px, footer 80px, dan drawer petunjuk.
+ * Menjamin keseragaman header 64px, bilah progres segmen interaktif, kartu workspace 28px, footer 80px, dan drawer petunjuk.
  */
 export function FocusLessonShell({
   lessonId,
   currentStep,
   totalSteps = 9,
+  maxUnlockedStep,
+  onStepSelect,
   title = 'Mode Fokus',
   onExit,
   hintsVisible = false,
@@ -47,6 +51,7 @@ export function FocusLessonShell({
   hideFooter = false,
 }: FocusLessonShellProps) {
   const isCompletedState = currentStep > totalSteps;
+  const highestUnlocked = Math.max(currentStep, maxUnlockedStep ?? currentStep);
 
   return (
     <main
@@ -66,27 +71,50 @@ export function FocusLessonShell({
           <Icon name="close" width={18} height={18} />
         </button>
 
+        <div className="focus-segmented-progress" aria-label="Navigasi langkah pelajaran">
+          {Array.from({ length: totalSteps }).map((_, i) => {
+            const stepNum = i + 1;
+            const isCompleted = stepNum < currentStep;
+            const isActive = stepNum === currentStep;
+            const isUnlocked = stepNum <= highestUnlocked;
+
+            return (
+              <button
+                key={i}
+                type="button"
+                className={`focus-progress-segment ${
+                  isActive
+                    ? 'focus-progress-segment--active'
+                    : isCompleted
+                      ? 'focus-progress-segment--completed'
+                      : ''
+                } ${isUnlocked && onStepSelect ? 'focus-progress-segment--clickable' : ''}`}
+                disabled={!isUnlocked || !onStepSelect}
+                onClick={() => {
+                  if (isUnlocked && onStepSelect) {
+                    onStepSelect(stepNum);
+                  }
+                }}
+                aria-label={
+                  isActive
+                    ? `Langkah ${stepNum} (sedang aktif)`
+                    : isUnlocked
+                      ? `Buka langkah ${stepNum}`
+                      : `Langkah ${stepNum} (terkunci)`
+                }
+              />
+            );
+          })}
+        </div>
+
         <div
-          className="focus-segmented-progress"
           role="progressbar"
           aria-valuenow={Math.min(totalSteps, currentStep)}
           aria-valuemin={1}
           aria-valuemax={totalSteps}
           aria-label={`Kemajuan pelajaran langkah ${Math.min(totalSteps, currentStep)} dari ${totalSteps}`}
-        >
-          {Array.from({ length: totalSteps }).map((_, i) => (
-            <span
-              key={i}
-              className={`focus-progress-segment ${
-                i + 1 === currentStep
-                  ? 'focus-progress-segment--active'
-                  : i + 1 < currentStep
-                    ? 'focus-progress-segment--completed'
-                    : ''
-              }`}
-            />
-          ))}
-        </div>
+          style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}
+        />
 
         <div className="focus-step-indicator" aria-hidden="true">
           {!isCompletedState ? `${currentStep} / ${totalSteps}` : '✓'}

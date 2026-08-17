@@ -73,12 +73,19 @@ export function PatternRuleLesson({
 }: PatternRuleLessonProps) {
   // Current Step: 1 to 9 (pedagogical states) and 10 (completion)
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [maxUnlockedStep, setMaxUnlockedStep] = useState<number>(1);
   const [hintsVisible, setHintsVisible] = useState<boolean>(false);
   const [hintTier, setHintTier] = useState<number>(1);
   const [mistakesCount, setMistakesCount] = useState<number>(0);
   const [attemptsCount, setAttemptsCount] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [stepValidated, setStepValidated] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (currentStep < maxUnlockedStep) {
+      setStepValidated(true);
+    }
+  }, [currentStep, maxUnlockedStep]);
 
   // -------------------------------- State 1: Step Friction
   const [step1SimCount, setStep1SimCount] = useState<number>(7);
@@ -346,7 +353,13 @@ export function PatternRuleLesson({
     setHintsVisible(false);
     setHintTier(1);
     setStepValidated(false);
-    setCurrentStep((s) => s + 1);
+    const next = currentStep + 1;
+    setCurrentStep(next);
+    setMaxUnlockedStep((m) => Math.max(m, next));
+  };
+
+  const handleStepSelect = (step: number) => {
+    setCurrentStep(step);
   };
 
   const handleFinalCompletion = () => {
@@ -356,6 +369,8 @@ export function PatternRuleLesson({
       attempts: attemptsCount || 9,
     });
   };
+
+  const highestUnlocked = Math.max(currentStep, maxUnlockedStep);
 
   return (
     <main className="rule-focus-layout" aria-label="Fokus Pelajaran 1.2: Aturan di Balik Pola">
@@ -371,26 +386,44 @@ export function PatternRuleLesson({
         </button>
 
         {/* 9-Segment Progress Indicator */}
+        <div className="rule-progress-bar" aria-label="Navigasi langkah pelajaran">
+          {Array.from({ length: 9 }).map((_, idx) => {
+            const stepNum = idx + 1;
+            const isFilled = stepNum < currentStep || currentStep === 10;
+            const isCurrent = stepNum === currentStep && currentStep <= 9;
+            const isUnlocked = stepNum <= highestUnlocked;
+
+            return (
+              <button
+                key={idx}
+                type="button"
+                className={`rule-progress-segment ${isFilled ? 'rule-progress-segment--completed' : ''} ${isCurrent ? 'rule-progress-segment--active' : ''} ${isUnlocked ? 'rule-progress-segment--clickable' : ''}`}
+                disabled={!isUnlocked}
+                onClick={() => {
+                  if (isUnlocked) {
+                    handleStepSelect(stepNum);
+                  }
+                }}
+                aria-label={
+                  isCurrent
+                    ? `Langkah ${stepNum} (sedang aktif)`
+                    : isUnlocked
+                      ? `Buka langkah ${stepNum}`
+                      : `Langkah ${stepNum} (terkunci)`
+                }
+              />
+            );
+          })}
+        </div>
+
         <div
-          className="rule-progress-bar"
           role="progressbar"
           aria-valuenow={Math.min(currentStep, 9)}
           aria-valuemin={1}
           aria-valuemax={9}
           aria-label={`Langkah ${Math.min(currentStep, 9)} dari 9`}
-        >
-          {Array.from({ length: 9 }).map((_, idx) => {
-            const stepNum = idx + 1;
-            const isFilled = stepNum < currentStep || currentStep === 10;
-            const isCurrent = stepNum === currentStep && currentStep <= 9;
-            return (
-              <span
-                key={idx}
-                className={`rule-progress-segment ${isFilled ? 'rule-progress-segment--completed' : ''} ${isCurrent ? 'rule-progress-segment--active' : ''}`}
-              />
-            );
-          })}
-        </div>
+          style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}
+        />
 
         <div className="rule-step-indicator" aria-hidden="true">
           {currentStep <= 9 ? `${currentStep} / 9` : '✓'}

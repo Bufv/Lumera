@@ -147,6 +147,7 @@ export function FromBoxToXLesson({
 
   // Current Step: 1 to 9 (pedagogical states) and 10 (completion)
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [maxUnlockedStep, setMaxUnlockedStep] = useState<number>(1);
   const [hintsVisible, setHintsVisible] = useState<boolean>(false);
   const [hintTier, setHintTier] = useState<number>(1);
   const [mistakesCount, setMistakesCount] = useState<number>(0);
@@ -226,7 +227,12 @@ export function FromBoxToXLesson({
 
   // Reset verification on step change
   useEffect(() => {
-    setStepValidated(false);
+    // If we are visiting a previously unlocked step, auto-validate so learner isn't blocked
+    if (currentStep < maxUnlockedStep) {
+      setStepValidated(true);
+    } else {
+      setStepValidated(false);
+    }
     setErrorMessage(null);
     setHintsVisible(false);
     setHintTier(1);
@@ -236,7 +242,7 @@ export function FromBoxToXLesson({
     if (currentStep === 3) {
       setStepValidated(true);
     }
-  }, [currentStep]);
+  }, [currentStep, maxUnlockedStep]);
 
   // -------------------------------- Step 1 Handler
   const handleStep1Change = (delta: number) => {
@@ -370,9 +376,12 @@ export function FromBoxToXLesson({
   // -------------------------------- Navigation
   const handleNextStep = () => {
     if (currentStep < 9) {
-      setCurrentStep((s) => s + 1);
+      const next = currentStep + 1;
+      setCurrentStep(next);
+      setMaxUnlockedStep((m) => Math.max(m, next));
     } else if (currentStep === 9) {
       setCurrentStep(10);
+      setMaxUnlockedStep(10);
     } else if (currentStep === 10) {
       onComplete?.({
         lessonId: lesson.id,
@@ -380,6 +389,10 @@ export function FromBoxToXLesson({
         attempts: 9,
       });
     }
+  };
+
+  const handleStepSelect = (step: number) => {
+    setCurrentStep(step);
   };
 
   const handleOpenHints = () => {
@@ -402,6 +415,8 @@ export function FromBoxToXLesson({
       lessonId={lesson.id}
       currentStep={currentStep}
       totalSteps={9}
+      maxUnlockedStep={maxUnlockedStep}
+      onStepSelect={handleStepSelect}
       title="Aljabar 1.3: Dari Kotak ke x"
       onExit={onExit}
       hintsVisible={hintsVisible}

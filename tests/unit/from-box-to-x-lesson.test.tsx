@@ -226,6 +226,42 @@ describe('Aljabar 1.3 Dari Kotak ke x Focus Mode', () => {
     expect(screen.getByText('Ketuk tombol di bawah untuk menambah benda')).toBeInTheDocument();
   });
 
+  it('supports clicking progress bar segments to navigate back to unlocked steps', () => {
+    mountFromBoxToX();
+
+    // Advance to Step 3
+    const addBtn = screen.getByRole('button', { name: 'Tambah harga buku' });
+    for (let i = 0; i < 5; i++) fireEvent.click(addBtn);
+    fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+    fireEvent.click(screen.getByRole('button', { name: /Nilai yang belum diketahui/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
+
+    // Now on Step 3
+    expect(screen.getByRole('heading', { name: 'Dari kotak ke huruf x' })).toBeInTheDocument();
+
+    // Step 1 button should be unlocked and clickable
+    const step1Segment = screen.getByRole('button', { name: 'Buka langkah 1' });
+    expect(step1Segment).not.toBeDisabled();
+
+    // Step 5 button should be locked and disabled
+    const step5Segment = screen.getByRole('button', { name: 'Langkah 5 (terkunci)' });
+    expect(step5Segment).toBeDisabled();
+
+    // Click step 1 segment to go back
+    fireEvent.click(step1Segment);
+    expect(screen.getByRole('heading', { name: 'Ada nilai yang belum kita tahu' })).toBeInTheDocument();
+
+    // In step 1, button "Lanjut →" should be immediately enabled because it was previously unlocked
+    const lanjutBtn = screen.getByRole('button', { name: 'Lanjut →' });
+    expect(lanjutBtn).not.toBeDisabled();
+
+    // Jump back to step 3
+    const step3Segment = screen.getByRole('button', { name: 'Buka langkah 3' });
+    fireEvent.click(step3Segment);
+    expect(screen.getByRole('heading', { name: 'Dari kotak ke huruf x' })).toBeInTheDocument();
+  });
+
   it('passes accessibility audit', async () => {
     const { container } = mountFromBoxToX();
     const results = await axe(container, { rules: { 'color-contrast': { enabled: false } } });
