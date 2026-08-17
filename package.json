@@ -29,7 +29,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.37.1",
     "@lhci/cli": "^0.15.1",
-    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.1.0",
     "@types/d3-scale": "^4.0.8",
     "@types/d3-shape": "^3.1.6",
