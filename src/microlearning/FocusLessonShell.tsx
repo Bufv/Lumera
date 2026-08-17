@@ -130,7 +130,6 @@ export function FocusLessonShell({
           {hintsVisible && !isCompletedState && (
             <aside
               className="focus-hint-drawer"
-              role="complementary"
               aria-label="Petunjuk pelajaran"
             >
               <header className="focus-hint-header">

@@ -732,6 +732,12 @@ export function GrowingPatternLesson({
                 <div
                   className={`focus-chip-drop-slot ${gapSlots[0] ? 'has-chip' : ''}`}
                   onClick={() => gapSlots[0] && handlePlaceChip('', 0)}
+                  onKeyDown={(e) => {
+                    if ((e.key === 'Enter' || e.key === ' ') && gapSlots[0]) {
+                      e.preventDefault();
+                      handlePlaceChip('', 0);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
                   aria-label={`Slot perubahan 1 ke 3: ${gapSlots[0] ?? 'kosong'}`}
@@ -745,6 +751,12 @@ export function GrowingPatternLesson({
                 <div
                   className={`focus-chip-drop-slot ${gapSlots[1] ? 'has-chip' : ''}`}
                   onClick={() => gapSlots[1] && handlePlaceChip('', 1)}
+                  onKeyDown={(e) => {
+                    if ((e.key === 'Enter' || e.key === ' ') && gapSlots[1]) {
+                      e.preventDefault();
+                      handlePlaceChip('', 1);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
                   aria-label={`Slot perubahan 3 ke 5: ${gapSlots[1] ?? 'kosong'}`}
@@ -1290,7 +1302,7 @@ export function GrowingPatternLesson({
 
       {/* -------------------------------- Contextual Hint Drawer */}
       {hintsVisible && (
-        <aside className="focus-hint-drawer" role="complementary" aria-label="Petunjuk pelajaran">
+        <aside className="focus-hint-drawer" aria-label="Petunjuk pelajaran">
           <div className="focus-hint-inner">
             <header className="focus-hint-header">
               <div className="focus-hint-title">

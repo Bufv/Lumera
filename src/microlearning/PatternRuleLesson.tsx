@@ -670,6 +670,12 @@ export function PatternRuleLesson({
                 <div
                   className={`rule-decompose-row ${step4SplitStep2 ? 'is-split' : ''}`}
                   onClick={() => setStep4SplitStep2(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setStep4SplitStep2(true);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
                   aria-label="Pisahkan Langkah 2: 3 balok"
@@ -692,6 +698,12 @@ export function PatternRuleLesson({
                 <div
                   className={`rule-decompose-row ${step4SplitStep3 ? 'is-split' : ''}`}
                   onClick={() => setStep4SplitStep3(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setStep4SplitStep3(true);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
                   aria-label="Pisahkan Langkah 3: 5 balok"
@@ -716,6 +728,12 @@ export function PatternRuleLesson({
                 <div
                   className={`rule-decompose-row ${step4SplitStep4 ? 'is-split' : ''}`}
                   onClick={() => setStep4SplitStep4(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setStep4SplitStep4(true);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
                   aria-label="Pisahkan Langkah 4: 7 balok"
@@ -766,6 +784,12 @@ export function PatternRuleLesson({
                 <div
                   className={`rule-builder-slot ${step5Slot1 ? 'has-token' : ''}`}
                   onClick={() => step5Slot1 && setStep5Slot1(null)}
+                  onKeyDown={(e) => {
+                    if ((e.key === 'Enter' || e.key === ' ') && step5Slot1) {
+                      e.preventDefault();
+                      setStep5Slot1(null);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
                   aria-label={`Kotak pertama: ${step5Slot1 ?? 'kosong'}`}
@@ -779,6 +803,12 @@ export function PatternRuleLesson({
                 <div
                   className={`rule-builder-slot ${step5Slot2 ? 'has-token' : ''}`}
                   onClick={() => step5Slot2 && setStep5Slot2(null)}
+                  onKeyDown={(e) => {
+                    if ((e.key === 'Enter' || e.key === ' ') && step5Slot2) {
+                      e.preventDefault();
+                      setStep5Slot2(null);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
                   aria-label={`Kotak kedua: ${step5Slot2 ?? 'kosong'}`}
@@ -1194,7 +1224,7 @@ export function PatternRuleLesson({
 
       {/* -------------------------------- Contextual Hint Drawer */}
       {hintsVisible && (
-        <aside className="rule-hint-drawer" role="complementary" aria-label="Petunjuk pelajaran">
+        <aside className="rule-hint-drawer" aria-label="Petunjuk pelajaran">
           <div className="rule-hint-inner">
             <header className="rule-hint-header">
               <div className="rule-hint-title">

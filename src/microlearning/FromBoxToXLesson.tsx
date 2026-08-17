@@ -643,6 +643,15 @@ export function FromBoxToXLesson({
               <span
                 className={`focus-compression-step ${step5Stage === 'add' ? 'is-highlighted' : ''}`}
                 onClick={() => setStep5Stage('multiply')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setStep5Stage('multiply');
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label="Tampilkan sebagai perkalian: x + x + x"
               >
                 x + x + x
               </span>
@@ -650,6 +659,15 @@ export function FromBoxToXLesson({
               <span
                 className={`focus-compression-step ${step5Stage === 'multiply' ? 'is-highlighted' : ''}`}
                 onClick={() => setStep5Stage('compressed')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setStep5Stage('compressed');
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label="Tampilkan sebagai bentuk sederhana: 3 × x"
               >
                 3 × x
               </span>
@@ -784,6 +802,14 @@ export function FromBoxToXLesson({
                 <div
                   className={`focus-inspect-card ${inspectedTokens.coefficient ? 'is-active' : ''}`}
                   onClick={() => handleInspectToken('coefficient')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleInspectToken('coefficient');
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
                   <div className="focus-inspect-card-symbol">3</div>
                   <div className="focus-inspect-card-name">KOEFISIEN</div>
@@ -795,6 +821,14 @@ export function FromBoxToXLesson({
                 <div
                   className={`focus-inspect-card ${inspectedTokens.variable ? 'is-active' : ''}`}
                   onClick={() => handleInspectToken('variable')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleInspectToken('variable');
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
                   <div className="focus-inspect-card-symbol">
                     <span className="focus-math-var">x</span>
@@ -808,6 +842,14 @@ export function FromBoxToXLesson({
                 <div
                   className={`focus-inspect-card ${inspectedTokens.constant ? 'is-active' : ''}`}
                   onClick={() => handleInspectToken('constant')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleInspectToken('constant');
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
                   <div className="focus-inspect-card-symbol">2</div>
                   <div className="focus-inspect-card-name">KONSTANTA</div>

@@ -97,7 +97,7 @@ describe('Aljabar 1.3 Dari Kotak ke x Focus Mode', () => {
 
     // -------------------------------- Step 5: Repeated Copies (3x)
     expect(screen.getByRole('heading', { name: 'Beberapa x yang sama' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /x \+ x \+ x/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'x + x + x' }));
     fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
 
     // -------------------------------- Step 6: Variable Part + Fixed Part
@@ -193,7 +193,7 @@ describe('Aljabar 1.3 Dari Kotak ke x Focus Mode', () => {
     fireEvent.change(screen.getByLabelText('Pilih nilai x'), { target: { value: '3' } });
     fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
     // Step 5
-    fireEvent.click(screen.getByRole('button', { name: /x \+ x \+ x/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'x + x + x' }));
     fireEvent.click(screen.getByRole('button', { name: 'Lanjut →' }));
     // Step 6
     fireEvent.change(screen.getByLabelText('Pilih nilai x pada 3x + 2'), { target: { value: '4' } });

@@ -2,7 +2,8 @@ export interface PathTrailConnectorProps {
   completedStep?: number;
 }
 
-export function PathTrailConnector({ completedStep: _completedStep = 1 }: PathTrailConnectorProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- completedStep reserved for future progress theming
+export function PathTrailConnector({ completedStep: _completedStep }: PathTrailConnectorProps) {
   return (
     <svg
       className="learning-path-trail-svg"

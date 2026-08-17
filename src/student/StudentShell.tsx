@@ -176,16 +176,7 @@ export function StudentShell({
               >
                 Buka pencarian
               </button>
-              <div
-                className="search-inline-box"
-                onClick={() => {
-                  if (!searchOpen) {
-                    setProfileOpen(false);
-                    setNotificationOpen(false);
-                    setSearchOpen(true);
-                  }
-                }}
-              >
+              <div className="search-inline-box">
                 <Icon name="search" width={18} height={18} className="search-inline-icon" />
                 <input
                   ref={searchInput}
