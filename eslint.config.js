@@ -3,53 +3,33 @@ import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 
+// US9 spec 002 (T048, R-007): gerbang aksesibilitas statis — gagal lint jika
+// melanggar, bukan hanya diaudit manual. `flat/recommended` sudah mencakup
+// aturan seperti alt-text/aria-* yang paling sering terlewat.
 export default tseslint.config(
   {
-    ignores: ['dist/', 'build/', 'coverage/', 'node_modules/', '*.min.js'],
+    // `docs/sample/` dan `Beranda.tsx` di root adalah referensi desain yang
+    // dikutip/ditempel dari luar (lihat docs/desain-fondasi.md) — bukan kode
+    // aplikasi (Vite hanya membundel dari `src/`) dan sengaja tidak diperbaiki
+    // agar tetap jadi rujukan apa adanya.
+    ignores: [
+      'dist/',
+      'build/',
+      'coverage/',
+      'node_modules/',
+      '*.min.js',
+      'docs/sample/',
+      'Beranda.tsx',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
-    plugins: { 'react-hooks': reactHooks },
+    plugins: { 'react-hooks': reactHooks, 'jsx-a11y': jsxA11y },
     rules: {
       ...reactHooks.configs.recommended.rules,
-    },
-  },
-  // Gerbang aksesibilitas statis (spec 002 US9, R-007 research.md; gerbang 1
-  // contracts/ci-pipeline-contract.md). Sengaja dibatasi ke `src/` — hanya itu
-  // kode yang benar-benar dikirim ke siswa. `docs/sample/` dan `Beranda.tsx` di
-  // root adalah artefak referensi yang tidak pernah dirender (lihat CLAUDE.md),
-  // jadi memerahkan CI karenanya hanya menciptakan kebisingan tanpa siswa yang
-  // diuntungkan.
-  {
-    files: ['src/**/*.tsx'],
-    plugins: { 'jsx-a11y': jsxA11y },
-    rules: {
       ...jsxA11y.flatConfigs.recommended.rules,
-      // Wadah yang bisa di-scroll MUST dapat difokuskan keyboard (WCAG 2.1.1),
-      // dan itulah persis pola `role="region" tabIndex={0}` pada scroller jalur
-      // belajar — default rule hanya mengizinkan `tabpanel`.
-      'jsx-a11y/no-noninteractive-tabindex': ['error', { roles: ['tabpanel', 'region'] }],
-      // Label toggle di Pengaturan membungkus teksnya dalam <span><strong>,
-      // jadi teks berada di kedalaman 3 — asosiasi implisitnya sendiri valid.
-      'jsx-a11y/label-has-associated-control': ['error', { depth: 3 }],
-    },
-  },
-  // Allow CommonJS files (require, __dirname, console)
-  {
-    files: ['**/*.cjs'],
-    languageOptions: {
-      sourceType: 'commonjs',
-      ecmaVersion: 2020,
-      globals: {
-        console: 'readonly',
-        __dirname: 'readonly',
-      },
-    },
-    rules: {
-      '@typescript-eslint/no-require-imports': 'off',
-      'no-undef': 'off',
     },
   },
 );
